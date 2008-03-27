@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="TrayLauncher" />
+		<Option pch_mode="2" />
+		<Option default_target="Release" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\TrayLauncher" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\TrayLauncher" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O" />
+					<Add option="-Wall" />
+					<Add option="-DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="vc release">
+				<Option output="bin\vc Release\TrayLauncher" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\vc Release\" />
+				<Option type="0" />
+				<Option compiler="msvc8" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Compiler>
+					<Add option="/MT" />
+					<Add option="/TP" />
+					<Add option="/GA" />
+					<Add option="/EHs" />
+					<Add option="/GF" />
+					<Add option="/O1" />
+					<Add option="/Wp64" />
+					<Add option="/W4" />
+					<Add option="/Zc:wchar_t" />
+					<Add option="/Zc:forScope" />
+					<Add option="/DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add library="shlwapi.lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-Winvalid-pch" />
+			<Add directory="..\dll" />
+		</Compiler>
+		<ResourceCompiler>
+			<Add directory="..\Eclipse\source\rc" />
+		</ResourceCompiler>
+		<Linker>
+			<Add library="gdi32" />
+			<Add library="user32" />
+			<Add library="kernel32" />
+			<Add library="shlwapi" />
+		</Linker>
+		<Unit filename="..\Eclipse\source\FileStrFnc.cpp" />
+		<Unit filename="..\Eclipse\source\FileStrFnc.h" />
+		<Unit filename="..\Eclipse\source\GDIWavePic.cpp" />
+		<Unit filename="..\Eclipse\source\GDIWavePic.h" />
+		<Unit filename="..\Eclipse\source\MenuData.cpp" />
+		<Unit filename="..\Eclipse\source\MenuData.h" />
+		<Unit filename="..\Eclipse\source\MenuWithIcon.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="..\Eclipse\source\MenuWithIcon.h" />
+		<Unit filename="..\Eclipse\source\MsgMap.cpp" />
+		<Unit filename="..\Eclipse\source\MsgMap.h" />
+		<Unit filename="..\Eclipse\source\OwnerDrawMenu.cpp">
+			<Option weight="10" />
+		</Unit>
+		<Unit filename="..\Eclipse\source\OwnerDrawMenu.h" />
+		<Unit filename="..\Eclipse\source\Resource.h" />
+		<Unit filename="..\Eclipse\source\RunDlg.cpp" />
+		<Unit filename="..\Eclipse\source\RunDlg.h" />
+		<Unit filename="..\Eclipse\source\SettingFile.cpp">
+			<Option weight="6" />
+		</Unit>
+		<Unit filename="..\Eclipse\source\SettingFile.h" />
+		<Unit filename="..\Eclipse\source\TrayStart.cpp" />
+		<Unit filename="..\Eclipse\source\TrayStart.h" />
+		<Unit filename="..\Eclipse\source\TrayStart.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="..\Eclipse\source\WavePic.cpp" />
+		<Unit filename="..\Eclipse\source\WavePic.h" />
+		<Unit filename="..\Eclipse\source\language.cpp" />
+		<Unit filename="..\Eclipse\source\language.h" />
+		<Unit filename="..\Eclipse\source\rc\Exit.ico" />
+		<Unit filename="..\Eclipse\source\rc\TrayLauncher.exe.Manifest" />
+		<Unit filename="..\Eclipse\source\rc\TrayLauncher.ico" />
+		<Unit filename="..\Eclipse\source\rc\close.ico" />
+		<Unit filename="..\Eclipse\source\rc\edit.ico" />
+		<Unit filename="..\Eclipse\source\rc\open.ico" />
+		<Unit filename="..\Eclipse\source\rc\option.ico" />
+		<Unit filename="..\Eclipse\source\rc\pencil.ico" />
+		<Unit filename="..\Eclipse\source\rc\refresh.ico" />
+		<Unit filename="..\Eclipse\source\rc\right.ico" />
+		<Unit filename="..\Eclipse\source\rc\side.ico" />
+		<Unit filename="..\Eclipse\source\rc\small.ico" />
+		<Unit filename="..\Eclipse\source\rc\unknown.ico" />
+		<Unit filename="..\Eclipse\source\stdafx.cpp" />
+		<Unit filename="..\Eclipse\source\stdafx.h" />
+		<Unit filename="..\Eclipse\source\stdafxDebug\stdafx.h">
+			<Option weight="0" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="..\Eclipse\source\stdafxRelease\stdafx.h">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option target="Release" />
+			<Option target="vc release" />
+		</Unit>
+		<Unit filename="..\Eclipse\source\stdafx_real.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="" main="" init_handlers="necessary" language="CPP" />
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

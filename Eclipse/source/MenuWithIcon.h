@@ -1,0 +1,202 @@
+#ifndef MENU_WITH_ICON_H
+#define MENU_WITH_ICON_H
+
+#include "OwnerDrawMenu.h"
+#include "MenuData.h"
+
+//! 初始化 com 的类，声明一个对象就可以了。也可以手动初始化
+class ComIniter
+{
+	bool m_bSuccess;
+public:
+	ComIniter(bool bInit = true):m_bSuccess(false){
+		if (bInit) {
+			Init();
+		}
+	}
+	~ComIniter() { UnInit(); }
+	operator bool() { return m_bSuccess; }
+	bool Init() {
+		return m_bSuccess = m_bSuccess || (SUCCEEDED(CoInitializeEx(NULL,COINIT_APARTMENTTHREADED)));
+	}
+	void UnInit() {
+		if (m_bSuccess) {
+			CoUninitialize();
+			m_bSuccess = false;
+		}
+	}
+};
+
+// 带图标的命令菜单。
+class CMenuWithIcon : public COwnerDrawMenu
+{
+	typedef COwnerDrawMenu Super;
+
+public:
+	CMenuWithIcon(ICONTYPE hOpen = NULL,ICONTYPE hClose = NULL,ICONTYPE hUnknownFile = NULL,const TCHAR * szEmpty = NULL);
+	~CMenuWithIcon(void);
+
+	virtual int Display(int x, int y, WINDOWTYPE hWnd = NULL, UINT uFlag = TPM_LEFTALIGN);
+private:
+	bool DrawItem(DRAWITEMSTRUCT * pDI);
+	int MeasureItem(MEASUREITEMSTRUCT *pMI);
+	LRESULT MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags);
+public:
+	ICONTYPE GetBigIcon(const tString & path, int index = 0){return GetIcon(path,FILEFOLDERICON,index,true);};
+	//! 返回菜单项对应的命令行的参数
+	const TCHAR * Param(const IDTYPE nID){return GetStr(m_ItemParam,nID);};
+	//! 返回菜单项对应的命令行(不含参数)
+	const TCHAR * Cmd(const IDTYPE nID){return GetStr(m_ItemCmd,nID);};
+	bool Find(const TSTRING& strName, TSTRING& strPath, ICONTYPE & hIcon);
+	unsigned int FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName);
+	bool TryProcessCommand(unsigned int id);
+	const TSTRING GetCurrentCommandLine(unsigned int nSysID);
+	int ItemIDCount(){return m_ID - m_startID;};
+	void DestroyDynamic(void);
+	int BuildDynamic(MENUTYPE hSubMenu);
+	bool & ShowHidden() {return m_bShowHidden;};
+	
+	int LoadMenuFromFile(const tString & strFileName, UINT uStartID);
+	//int BuildMenu(FILE *pFile,UINT uStartID);
+
+	//! 判断字符串是否以 给定的字符串结尾。
+	using Super::IsStrEndWith;
+
+private:
+	int Reset(void);
+	CMenuWithIcon(const CMenuWithIcon &){};
+
+	static TSTRING & DoubleChar(TSTRING & str, const TSTRING::value_type ch);
+	static TSTRING & ToLowerCase(TSTRING &str);
+
+	enum EICONGETTYPE{NOICON, FILEFOLDERICON, FILEICON};
+
+	typedef std::map<TSTRING, MENUTYPE> StrMenuMap;
+	typedef std::map<TSTRING, TSTRING> StrStrMap;
+
+	enum {MENUBLANK = COwnerDrawMenu::MENUHEIGHT - MENUICON};
+	const ICONTYPE ItemIcon(const int nID)
+	{
+		return m_MenuItemIcons[nID];
+	}
+	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu)
+	{
+		return m_SubMenuIcons[hSubMenu];
+	}
+
+	bool AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & strName, const tString & strPath, EICONGETTYPE needIcon = FILEFOLDERICON);
+	int AddMenuItem(MENUTYPE hMenu, const tString & strName, const tString & inStrPath, EICONGETTYPE needIcon = FILEFOLDERICON, const tString & strIcon = _T(""));
+	int MultiAddMenuItem(MENUTYPE hMenu, const tString & inStrPath,const tString & strName);
+	//int BuildMenu(FILE * pFile, MENUTYPE hMenu);
+	int DynamicBuild(MENUTYPE hMenu);
+	void Destroy(void);
+	ICONTYPE GetIcon(const tString & strPath, EICONGETTYPE needIcon = FILEFOLDERICON,int iconIndex = 0, bool bIcon32 = false);
+	ICONTYPE GetShortCutIcon(LPCTSTR lpszLinkFile, bool bIcon32 = true);
+
+	bool GetDirectory(const IDTYPE nID, TSTRING & strWorkPath);
+
+	// 模板类定义，存放 菜单-图标 的类
+	template <class CKey, class CValue>
+	class CNoNullMap
+	{
+	public:
+		bool Add(const CKey & key, const CValue & value) {
+			if (m_map.find(key) != m_map.end()) {
+				DestroyIcon(m_map[key]);
+			}
+			if (value) {
+				m_map[key] = value;
+				return true;
+			}
+			return false;
+		}
+		void Remove(const CKey & key)
+		{
+			if (m_map.find(key) != m_map.end()) {
+				DestroyIcon(m_map[key]);
+			}
+			m_map.erase(key);
+		}
+		void Clear()
+		{
+			for (typename CMap::iterator it = m_map.begin(); it != m_map.end(); ++it) {
+				DestroyIcon(it->second);
+			}
+			m_map.clear();
+		}
+		CValue operator [] (const CKey & key)
+		{
+			typename CMap::const_iterator pos(m_map.find(key));
+			if (pos != m_map.end())
+				return pos->second;
+			return NULL;
+		}
+	private:
+		typedef std::map<CKey,CValue> CMap;
+		CMap m_map;
+	};
+	typedef CNoNullMap<IDTYPE,HICON> CIdIconMap;
+	typedef CNoNullMap<MENUTYPE,HICON> CMenuIconMap;
+
+	bool IsStaticMenu(MENUTYPE hMenu)
+	{
+		return m_StaticPath.find(hMenu) != m_StaticPath.end();
+	}
+	bool IsDynamicMenu(MENUTYPE hMenu)
+	{
+		return m_DynamicPath.find(hMenu) != m_DynamicPath.end();
+	}
+	bool IsExpanedMenu(MENUTYPE hMenu)
+	{
+		return m_ExpanedMenu.find(hMenu) != m_ExpanedMenu.end();
+	}
+	// 添加通配符记录，返回索引，失败返回 -1.
+	int AddWildcard(const tString & str);
+	// 根据索引，返回通配符，没有返回 NULL
+	const TCHAR * GetWildcard(int index);
+
+
+private :
+	enum EBUILDMODE {EFILE,EFOLDER,EEXPAND,EEXPANDNOW,EDYNAMIC};
+	int GetFilteredFileList(const TSTRING & inStrPathForSearch, const TCHAR * szFilter, std::vector<TSTRING> & vResult);
+	int MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, const std::vector<TSTRING> & vStrFilter, EBUILDMODE mode,bool bNoFileIcon);
+	int MultiModeBuildMenu(MENUTYPE, const tString & strPath, const tString & strName, EBUILDMODE mode,bool bNoFileIcon = false);
+
+
+	std::map<TSTRING, IDTYPE> m_NameIdMap;//用于查找名称和命令的对应关系
+	ICONTYPE m_hIconOpen;
+	ICONTYPE m_hIconClose;
+	ICONTYPE m_hIconUnknowFile;
+
+	IdStrMap m_ItemCmd;
+	IdStrMap m_ItemParam;
+
+	CIdIconMap m_MenuItemIcons;
+	CMenuIconMap m_SubMenuIcons;
+
+	IDTYPE m_startID;
+	IDTYPE m_ID;
+	ComIniter m_comInited; //com 是否已经初始化
+
+	//typedef const std::vector<TSTRING> wildcard_type;
+	//std::vector<wildcard_type> m_Wildcard;//文件通配符条件
+	std::vector<TSTRING> m_Wildcard;//文件通配符条件
+
+	TSTRING m_strEmpty;
+	std::map<MENUTYPE,int> m_StaticMenuWildcard;// 静态目录的文件通配符索引
+	std::map<MENUTYPE,int> m_DynamicMenuWildcard;// 动态目录的文件通配符索引
+	MenuStrMap m_StaticPath;//不清理的 根 动态路径
+	MenuStrMap m_DynamicPath;// 运行时动态清理的路径
+	MenuStrMap m_ExpanedMenu;//不清理的，不存储图标。
+	IDTYPE m_dynamicStartID;//记录动态菜单项起始，用于销毁
+
+	bool m_bShowHidden;
+	bool m_bFilterEmptySubMenus;
+
+	Ptr<CMenuData> m_menuData;
+	//
+	int BuildMenuFromMenuData(CMenuData *pMenu, MENUTYPE hMenu);
+
+};
+
+#endif //MENU_WITH_ICON_H

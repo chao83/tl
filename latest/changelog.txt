@@ -1,0 +1,129 @@
+[] v1.9.0
+Added 	: 
+Added	: Change the default file icon.
+Change	: No empty line needed at the end of the command file.
+
+
+[2008-01-22] v1.8.8
+Fixed	: A serious bug that will crash the program in ** mode.
+
+[2008-01-11] v1.8.7
+Change	: Updated readme.
+Added	: Support multiple wildcards separated by "|" .
+
+[2007-12-24] v1.8.6
+Change	: Updated readme.
+Fixed	: Crash with empty path environment variable.
+Change	: Use new method to tell sub menus from menu items.
+Added	: Open run dialog from context menu.
+Added	: Mid click open context menu with left mouse button being pressed down.
+
+[2007-11-19] v1.8.5
+Added 	: Language selection option.
+Added	: Mid mouse click option; to enable this, TL.dll is required.
+Change	: Updated language files.
+Change	: Show menu at mouse cursor position when TrayLauncher is reopened.
+Change	: Check item icon.
+Fixed	: Menu gets blank.
+
+[2007-11-12] v1.8.3
+Added	: 5 new skins(blue, green, gray, or, red) by Anthony.
+Change	: Updated French translation by Anthony.
+Fixed	: Skin menu does not work.
+
+[2007-11-09] v1.8.2
+Change	: Updated readme.
+Fixed	: AutoStart sometimes does not work.
+Added	: Run dialog : Alt-Enter to display the file property.
+Added	: French translation by Chris
+Added	: Run dialog : Drag and drop support and tooltip.
+Fixed	: Run dialog : sometimes does not get the correct executable path.
+Change	: Some minor changes;
+Change	: Updated the default command file "TLCmd.txt".
+
+[2007-09-27] v1.8.1
+Change	: Removed the manifest file.
+Fixed	: History list not saved in the correct order.
+
+[2007-09-22] v1.8
+Change	: Updated readme.
+Added   : Menus are now skinable, two simple skins are included by default.
+Added	: Run dialog history is saved in TL.ini when quit.
+Added	: Run dialog : Search registry for proper executable files.
+Fixed:	: Run dialog box do not set the correct working directory.
+Added	: TL.ini : Show/hide hidden files and folders for wildcard items.
+Change	: Commandline parameters removed.
+
+v1.6.0.370
+Added	: A configuration file TL.ini, to save settings, now only 4. 
+Change	: Now use right click to close the "About" dialog box.
+Fixed	: Run dialog path sometimes contains %1 at the end.
+
+[2007-07-14] v1.6.0.360
+Change	: Improved speed.
+Change	: In the exit confirm dialog box, the default button is now set to Yes;
+Change	: some code improved.
+Fixed 	: commandline does not accept "", and other minor fixes.
+
+[2007-06-19] v1.5.0.352
+Change	: Run dialog box UI, preview moved to above.
+Added	: Run dialog box displays all of the found commands.
+Fixed	: Run dialog box preview icons do not match exactly.
+
+[2007-06-09] v1.5.0.350
+Change	: Updated readme.
+Added	: The tray icon is customizable; so is the run dialog box default icon.
+Added	: A Language file "TL.lng"(a unicode text file) to support multilingual user interface.
+Added	: A new wildcard mode(*+*) for advanced users.
+Added	: Execute dialog, Auto complete known commands, icon and command (or fullpath) preview.
+Change	: Program renamed to "TrayLauncher" from "TrayStart"; command file renamed to "TLCmd.txt" from "TSCmd.txt".
+Change	: Execute dialog, History list can has 50 items.
+Fixed	: Execute dialog, allow long commands.
+
+[2007-05-11] v1.4.0.282
+Change	: Optimized some code and speed.
+Fixed	: Execute dialog position not correctly remembered.
+Fixed	: Execute dialog history list display problem.
+
+[2007-05-09] v1.4.0.249
+Added	: A new Hotkey: Shift + LeftWinkey.
+
+[2007-04-29] v1.4.0.232
+Added	: Sort menu items added by wildcard.
+Added	: A default icon for unknown files.
+Change	: Some code has been rewritten.
+Fixed	: "**" mode don't work well with heavy folders.
+
+[2007-04-26] v1.3.0.170 (not public release)
+Change	: Display "Empty" for an empty folder.
+Change	: Optimized dynamic menu.
+
+[2007-04-25] v1.2.0.164
+Change  : Relative path now works well.
+Change  : Some change in readme.
+Change  : A New ** mode example in TSCmd.txt
+
+[2007-04-24] v1.2.0.162
+Change  : "**" mode should now work better.
+
+[2007-04-19] v1.1.0.141
+Added	: Now the execute dialog supports commands with parameters.
+Added	: Support xp themes.
+
+[2007-04-14] v1.1.0.133
+Change  : Compressed with UPX
+Fixed	: Execute dialog sometimes does not get input focus.
+
+[2007-04-12] traystart v1.0.1.109
+Added 	: an execute dialog, it's like the native run dialog. Use hotkey "Ctrl + leftWinkey" to launch it.
+Change	: readme.rtf .
+Fixed 	: program silently quit problem when press Alt + space.
+Removed	: changeable About logo image. It's not very useful.
+
+[2007-02-09] traystart v1.0.1.88
+changeable About dialog logo image.
+updated readme
+some minor fix
+
+[2007-02-04] traystart v1.0
+first release.
