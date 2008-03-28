@@ -303,17 +303,17 @@ void Systray(const HWND hWnd, const DWORD dwMessage, ICONTYPE hIcon = NULL)
 	Shell_NotifyIcon(dwMessage, &nid);
 }
 
-void ShowMenu(const POINT * p = NULL)
+void ShowMenu(const POINT * p = NULL, bool bLast = false)
 {
 	if (!g_s_bIgnoreUser) {
-		POINT point = {0,0};
+		static POINT s_point = {0,0};
 		if(p) {
-			point = *p;
+			s_point = *p;
 		}
-		else {
-			GetCursorPos(&point);
+		else if (!bLast) {
+			GetCursorPos(&s_point);
 		}
-		if (g_pTray->Display(point.x, point.y) ) {
+		if (g_pTray->Display(s_point.x, s_point.y) ) {
 			SetProcessWorkingSetSize(GetCurrentProcess(),static_cast<DWORD>(-1), static_cast<DWORD>(-1));
 		}
 	}
@@ -388,7 +388,7 @@ int MyProcessCommand(HWND hWnd, int id)
 			if (Settings().Read())
 				ShowHiddenJudge(g_pTray.Get());
 			BuildMenuFromFile(g_fileName.c_str());
-			ShowMenu();
+			ShowMenu(0,true);
 			break;
 		case RUNDLG:
 			ShowRunDlg();

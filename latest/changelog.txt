@@ -1,5 +1,6 @@
 [] v1.9.0
 Added 	: 
+Change	: Display menu at last position after refresh.
 Added	: Change the default file icon.
 Change	: No empty line needed at the end of the command file.
 
