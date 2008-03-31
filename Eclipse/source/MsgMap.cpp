@@ -16,6 +16,14 @@ CSettingFile & Settings()
 	return s_setting;
 }
 
+class CBLocker
+{
+	bool & m_value;
+	CBLocker & operator = (const CBLocker &);
+public:
+	explicit CBLocker(bool & bV, bool value = true):m_value(bV) { m_value = value; }
+	~CBLocker() { m_value ^= true; }
+};
 
 const int UM_MIDCLICK = WM_USER + 4;
 class CHook
@@ -57,7 +65,7 @@ bool SwitchHook(bool bSet = false, bool bOn = true) {
 			g_hook.Reset();
 		}
 	}
-	return static_cast<CHook*>(g_hook.Get()) && static_cast<bool>(*g_hook);
+	return g_hook.Get() && static_cast<bool>(*g_hook);
 }
 const HINSTANCE ThisHinstGet();
 //extern TCHAR g_lpCmdLine[MAX_PATH];
@@ -135,8 +143,11 @@ CMsgMap & TheMsgMap()
 	return msgMap;
 }
 
-
-static bool g_s_bIgnoreUser = false;
+bool & IgnoreUser() 
+{
+	static bool s_bIgnoreUser = false;
+	return s_bIgnoreUser;
+}
 
 //（消息）函数声明
 LRESULT  MsgCreate		(HWND, UINT, WPARAM, LPARAM);
@@ -305,7 +316,7 @@ void Systray(const HWND hWnd, const DWORD dwMessage, ICONTYPE hIcon = NULL)
 
 void ShowMenu(const POINT * p = NULL, bool bLast = false)
 {
-	if (!g_s_bIgnoreUser) {
+	if (!IgnoreUser()) {
 		static POINT s_point = {0,0};
 		if(p) {
 			s_point = *p;
@@ -331,7 +342,7 @@ void UpdataRunDlgCheck()
 //显示运行对话框
 void ShowRunDlg()
 {
-	if (g_s_bIgnoreUser) return;
+	if (IgnoreUser()) return;
 
 	if (!GHdlgRun()) {
 		GHdlgRun() = CreateDialog(ThisHinstGet(),MAKEINTRESOURCE(IDD_RUN), NULL, RunDlgProc);
@@ -345,29 +356,36 @@ void ShowRunDlg()
 	}
 }
 
+void ShowAbout()
+{
+	CBLocker locker(IgnoreUser());
+	assert(IgnoreUser());
+	DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, About);
+}
 
 int MyProcessCommand(HWND hWnd, int id)
 {
-	if(g_s_bIgnoreUser || id >= MENUID_START || id < CMDID_START)
+	if(IgnoreUser() || id >= MENUID_START || id < CMDID_START)
 		return id;
 	switch (id) {
 		case ABOUT:
 			if (GHdlgRun() && IsWindowVisible(GHdlgRun())) {
 				ShowRunDlg();
-				g_s_bIgnoreUser = true;
-				DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, About);
-				g_s_bIgnoreUser = false;
+				ShowAbout();
+				//IgnoreUser() = true;
+				//DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, About);
+				//IgnoreUser() = false;
 				ShowRunDlg();
 			}
 			else {
-				g_s_bIgnoreUser = true;
-				DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, About);
-				g_s_bIgnoreUser = false;
+				ShowAbout();
 			}
+			assert(!IgnoreUser());
+
 			break;
 		case EXIT:
-			g_s_bIgnoreUser = (IDYES == MessageBox(NULL, GetLang(_T("Exit Tray Launcher ?")),GetLang(_T("Confirm:")),MB_YESNO | MB_TOPMOST));//true;
-			if (g_s_bIgnoreUser) {
+			IgnoreUser() = (IDYES == MessageBox(NULL, GetLang(_T("Exit Tray Launcher ?")),GetLang(_T("Confirm:")),MB_YESNO | MB_TOPMOST));//true;
+			if (IgnoreUser()) {
 				if (GHdlgRun()) {
 					DestroyWindow(GHdlgRun());
 					GHdlgRun() = NULL;
@@ -471,7 +489,7 @@ LRESULT  MsgNewInstance(HWND hWnd, UINT, WPARAM, LPARAM)
 LRESULT  MsgMidClick(HWND hWnd, UINT, WPARAM bDown, LPARAM)
 {
 	if(bDown || (GetKeyState(VK_LBUTTON)&0x80) ) {
-		if (!g_s_bIgnoreUser) {
+		if (!IgnoreUser()) {
 			POINT point = {0,0};
 			GetCursorPos(&point);
 			UpdataRunDlgCheck();
@@ -756,7 +774,7 @@ LRESULT  MsgClose(HWND, UINT, WPARAM, LPARAM)
 //! 全局快捷键
 LRESULT MsgHotKey(HWND hWnd, UINT /*message*/, WPARAM wParam, LPARAM /*lParam*/)
 {
-	if(g_s_bIgnoreUser || wParam < HOTKEYBEGIN || wParam >= HOTKEYEND) {
+	if(IgnoreUser() || wParam < HOTKEYBEGIN || wParam >= HOTKEYEND) {
 		;
 	}
 	else {
@@ -808,7 +826,7 @@ LRESULT  MsgTaskbarCreated(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARA
 //! 退出程序
 LRESULT  MsgDestroy(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
-	g_s_bIgnoreUser = true;
+	IgnoreUser() = true;
 	Systray(hWnd,NIM_DELETE,GTrayIcon());
 	//GTrayIcon().Free();
 	//GRunIcon().Free();
@@ -825,7 +843,7 @@ LRESULT  MsgDestroy(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lPa
 //! 托盘图标操作。
 LRESULT  MsgIconNotify(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM lParam)
 {
-	if (!g_s_bIgnoreUser) {
+	if (!IgnoreUser()) {
 		static bool bLBtnDown = false;
 		static bool bRBtnDown = false;
 		static POINT ptLast;

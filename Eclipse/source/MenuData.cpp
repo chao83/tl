@@ -8,7 +8,7 @@ CItem::CItem( Prm strName, Prm strPath, Prm strEx):m_str(3){
 		m_str[2] = strEx;
 }
 
-bool CItem::OutPut(FILE * pFile, TCHAR pad, int nPad) {
+bool CItem::OutPut(FILE * pFile, TCHAR pad, int nPad) const{
 	if (!pFile)
 		return false;
 	if (!(Name() == Empty() && Path() == Empty())) {
@@ -84,7 +84,7 @@ int CMenuData::Load(CRTS strFileName) {
 	return r;
 }
 
-bool CMenuData::OutPut(FILE * pFile, TCHAR pad, int nPad, int step) {
+bool CMenuData::OutPut(FILE * pFile, TCHAR pad, int nPad, int step) const {
 	if (!pFile)
 		return false;
 	for (Ui i = 0; i < m_sub.size(); ++i) {
@@ -99,7 +99,7 @@ bool CMenuData::OutPut(FILE * pFile, TCHAR pad, int nPad, int step) {
 			WriteStringToFile(tString(nPad, pad) + _T("<\r\n"), pFile);
 		}
 		else {
-			Item(i)->OutPut(pFile, pad, nPad);
+			Item(i)->CItem::OutPut(pFile, pad, nPad);
 			_fputtc('\r', pFile);_fputtc('\n', pFile);
 		}
 	}

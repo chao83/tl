@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
-	<ActiveTarget name="Debug" />
+	<ActiveTarget name="Release" />
 	<File name="..\Eclipse\source\GDIWavePic.cpp" open="1" top="0" tabpos="2">
 		<Cursor position="1153" topLine="0" />
 	</File>
@@ -62,6 +62,6 @@
 		<Cursor position="22" topLine="0" />
 	</File>
 	<File name="..\Eclipse\source\stdafx_real.h" open="1" top="1" tabpos="6">
-		<Cursor position="1748" topLine="39" />
+		<Cursor position="1471" topLine="39" />
 	</File>
 </CodeBlocks_layout_file>

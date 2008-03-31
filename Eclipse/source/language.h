@@ -17,17 +17,17 @@ const TCHAR * GetLang(const wchar_t * strSrc) ;
 const TCHAR * GetLang(const char * strSrc) ;
 bool SetLanguageFile(const TCHAR * );
 // SettingFile¡¡¹Ø¼ü×Ö
-
-const TCHAR *const sectionGeneral = _T("general");
-const TCHAR *const keyCommand = _T("command");
-const TCHAR *const keyRunIcon = _T("runicon");
-const TCHAR *const keyTrayIcon = _T("trayicon");
-const TCHAR *const keyLanguage = _T("language");
-const TCHAR *const keyShowHidden = _T("showhidden");
-const TCHAR *const keyMClick = _T("midclick");
-const TCHAR *const keySkin = _T("skin");
-const TCHAR *const sectionHistory = _T("history");
-const TCHAR *const sectionColor = _T("color");
+typedef const TCHAR *const CSTR;
+CSTR sectionGeneral = _T("general");
+CSTR keyCommand = _T("command");
+CSTR keyRunIcon = _T("runicon");
+CSTR keyTrayIcon = _T("trayicon");
+CSTR keyLanguage = _T("language");
+CSTR keyShowHidden = _T("showhidden");
+CSTR keyMClick = _T("midclick");
+CSTR keySkin = _T("skin");
+CSTR sectionHistory = _T("history");
+CSTR sectionColor = _T("color");
 
 // ¶à¹úÓïÑÔÓ³Éä£¬
 class CLng

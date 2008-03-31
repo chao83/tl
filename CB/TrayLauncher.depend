@@ -165,7 +165,7 @@
 1188959534 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxdebug\stdafx.h
 	"..\stdafx_real.h"
 
-1206514102 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx_real.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx_real.h
 	<windows.h>
 	<stdlib.h>
 	<malloc.h>
@@ -294,6 +294,6 @@
 1188221088 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx.cpp
 	"stdafx.h"
 
-1188959534 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxrelease\stdafx.h
+1206604696 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxrelease\stdafx.h
 	"..\stdafx_real.h"
 

@@ -74,7 +74,7 @@ CMenuWithIcon::CMenuWithIcon(ICONTYPE hOpen,ICONTYPE hClose,ICONTYPE hUnknownFil
 :COwnerDrawMenu(),
 m_hIconOpen(hOpen),m_hIconClose(hClose),m_hIconUnknowFile(hUnknownFile),
 m_startID(0),m_ID(0),m_strEmpty (_T("Empty")),m_dynamicStartID(0),
-m_bShowHidden(false),m_bFilterEmptySubMenus(true)
+m_bShowHidden(false),m_bFilterEmptySubMenus(true),m_menuData ( new CMenuData(_T("root")) )
 {
 	if (szEmpty && *szEmpty)
 		m_strEmpty = szEmpty;
@@ -580,7 +580,6 @@ const TSTRING CMenuWithIcon::GetCurrentCommandLine(unsigned int nSysID)
 int CMenuWithIcon::LoadMenuFromFile(const tString & strFileName, UINT uStartID)
 {
 	Reset();
-	m_menuData = new CMenuData(_T("root"));
 	if (!m_menuData.Get())
 		return 0;
 	m_menuData->Load(strFileName);
@@ -832,6 +831,7 @@ int CMenuWithIcon::Reset()
 {
 	Destroy();
 	COwnerDrawMenu::Reset(); // 0
+	(*m_menuData).Clear();
 	return 0;
 }
 

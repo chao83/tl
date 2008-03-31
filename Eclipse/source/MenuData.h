@@ -37,7 +37,7 @@ public:
 	Prm Icon(Prm strEx) { return Get(2) = strEx; }
 
 private:
-	virtual bool OutPut(FILE * pFile, wchar_t pad = '\t', int nPad = 0) ;
+	bool OutPut(FILE * pFile, wchar_t pad = '\t', int nPad = 0) const;
 	Prm Get(Ui n) const { return m_str.at(n); }
 	TS & Get(Ui n) { return m_str.at(n); }
 
@@ -54,7 +54,8 @@ private:
 	std::vector<CItem*> m_sub;
 	CMenuData & operator = (const CMenuData &) ;
 
-	CItem * _Get(Ui pos) {	return pos < m_sub.size() ? m_sub[pos] : 0; }
+	const CItem * GetByPos(Ui pos) const { return pos < m_sub.size() ? m_sub[pos] : 0; }
+	CItem * GetByPos(Ui pos) {	return pos < m_sub.size() ? m_sub[pos] : 0; }
 public:
 	using CItem::Name;
 	using CItem::Path;
@@ -63,12 +64,14 @@ public:
 	~CMenuData();
 	Ui Count() const { return m_sub.size(); }
 
-	CMenuData * Menu(Ui pos) { return dynamic_cast<CMenuData*>(_Get(pos)); }
-	CItem * Item(Ui pos) { return _Get(pos); }
+	const CMenuData * Menu(Ui pos) const { return dynamic_cast<const CMenuData*>(GetByPos(pos)); }	
+	CMenuData * Menu(Ui pos) { return dynamic_cast<CMenuData*>(GetByPos(pos)); }
+	const CItem * Item(Ui pos) const { return GetByPos(pos); }
+	CItem * Item(Ui pos) { return GetByPos(pos); }
 	//CItem & Ref(Ui pos) {
 	//	return *m_sub.at(pos);
 	//}
-	bool IsMenu(Ui pos) { return Menu(pos) != 0; }
+	bool IsMenu(Ui pos) const { return Menu(pos) != 0; }
 
 	void Clear(); 
 
@@ -82,8 +85,8 @@ public:
 
 	int Load(CRTS strFileName);
 
-protected:
-	bool OutPut(FILE * pFile, TCHAR pad = '\t', int nPad = 0, int step = 1) ;
+private:
+	bool OutPut(FILE * pFile, TCHAR pad = '\t', int nPad = 0, int step = 1) const;
 	int LoadFile(FILE *pFile) ;
 	int LoadFileAlter(FILE *pFile) ;
 	
