@@ -152,17 +152,17 @@
 1188221088 source:g:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx.cpp
 	"stdafx.h"
 
-1206432234 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\settingfile.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\settingfile.cpp
 	"StdAfx.h"
 	<assert.h>
 	<auto_pointers.h>
 	"SettingFile.h"
 
-1188959644 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx.h
 	"stdafxDebug\stdafx.h"
 	"stdafxRelease\stdafx.h"
 
-1188959534 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxdebug\stdafx.h
+1206604700 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxdebug\stdafx.h
 	"..\stdafx_real.h"
 
 1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx_real.h
@@ -173,28 +173,28 @@
 	<tchar.h>
 	<stdheaders.h>
 
-1188959534 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxrelease\stdafx.h
+1206604696 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxrelease\stdafx.h
 	"..\stdafx_real.h"
 
-1206516706 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\settingfile.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\settingfile.h
 	<stdheaders.h>
 	"FileStrFnc.h"
 
-1206513734 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\filestrfnc.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\filestrfnc.h
 	<stdheaders.h>
 
-1206510918 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\ownerdrawmenu.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\ownerdrawmenu.cpp
 	"stdafx.h"
 	"OwnerDrawMenu.h"
 
-1206516680 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\ownerdrawmenu.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\ownerdrawmenu.h
 	<stdheaders.h>
 	<auto_pointers.h>
 	"MsgMap.h"
 
-1206513692 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\msgmap.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\msgmap.h
 
-1206510918 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\menuwithicon.cpp
+1206683510 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\menuwithicon.cpp
 	"stdafx.h"
 	<stdexcept>
 	<shellapi.h>
@@ -207,22 +207,22 @@
 	"FileStrFnc.h"
 	"MenuWithIcon.h"
 
-1206516444 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\resource.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\resource.h
 
-1206510918 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\language.h
+1206684072 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\language.h
 	<stdheaders.h>
 
-1206513822 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\menuwithicon.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\menuwithicon.h
 	"OwnerDrawMenu.h"
 	"MenuData.h"
 
-1206516602 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\menudata.h
+1206772990 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\menudata.h
 	<string>
 	<vector>
 	<auto_handle.h>
 	"FileStrFnc.h"
 
-1206511222 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\msgmap.cpp
+1206683836 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\msgmap.cpp
 	"stdafx.h"
 	<shellapi.h>
 	<shlwapi.h>
@@ -234,20 +234,20 @@
 	"MsgMap.h"
 	"SettingFile.h"
 
-1206513776 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\gdiwavepic.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\gdiwavepic.h
 	"WavePic.h"
 	<auto_pointers.h>
 
-1206514040 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\wavepic.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\wavepic.h
 	<auto_handle.h>
 
-1206513968 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\rundlg.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\rundlg.h
 
-1206414068 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\menudata.cpp
+1206772790 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\menudata.cpp
 	"stdafx.h"
 	"MenuData.h"
 
-1206510918 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\rundlg.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\rundlg.cpp
 	"stdafx.h"
 	<commctrl.h>
 	<shellapi.h>
@@ -259,39 +259,39 @@
 	"SettingFile.h"
 	"RunDlg.h"
 
-1204356282 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\gdiwavepic.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\gdiwavepic.cpp
 	"stdafx.h"
 	"GDIWavePic.h"
 
-1206422496 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\filestrfnc.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\filestrfnc.cpp
 	"stdafx.h"
 	"FileStrFnc.h"
 
-1198120538 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\traystart.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\traystart.cpp
 	"stdafx.h"
 	"MsgMap.h"
 	"TrayStart.h"
 	"language.h"
 	<memory>
 
-1206514010 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\traystart.h
+1206604702 e:\my_vc_dev\lchprj\traylauncher\eclipse\source\traystart.h
 	"resource.h"
 
-1200966454 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\traystart.rc
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\traystart.rc
 	"resource.h"
 
-1201479070 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\wavepic.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\wavepic.cpp
 	"stdafx.h"
 	"WavePic.h"
 
-1206510918 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\language.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\language.cpp
 	"stdafx.h"
 	<auto_pointers.h>
 	"resource.h"
 	"SettingFile.h"
 	"language.h"
 
-1188221088 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx.cpp
+1206604702 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafx.cpp
 	"stdafx.h"
 
 1206604696 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxrelease\stdafx.h

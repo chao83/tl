@@ -1,7 +1,7 @@
 {\rtf1\ansi\ansicpg936\deff0\deflang2052\deflangfe2052\deftab500{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\fswiss Arial;}{\f2\fnil\fprq2\fcharset134 \'cb\'ce\'cc\'e5;}}
 {\colortbl ;\red0\green0\blue255;\red127\green127\blue127;\red0\green127\blue127;\red0\green0\blue0;\red0\green128\blue128;}
 {\*\generator Msftedit 5.41.15.1507;}{\info{\horzdoc}{\*\lchars ([\{\'a1\'a4\'a1\'ae\'a1\'b0\'a1\'b4\'a1\'b6\'a1\'b8\'a1\'ba\'a1\'be\'a1\'b2\'a1\'bc\'a3\'a8\'a3\'ae\'a3\'db\'a3\'fb\'a1\'ea\'a3\'a4}{\*\fchars !),.:;?]\}\'a1\'a7\'a1\'a4\'a1\'a6\'a1\'a5\'a8D\'a1\'ac\'a1\'af\'a1\'b1\'a1\'ad\'a1\'c3\'a1\'a2\'a1\'a3\'a1\'a8\'a1\'a9\'a1\'b5\'a1\'b7\'a1\'b9\'a1\'bb\'a1\'bf\'a1\'b3\'a1\'bd\'a3\'a1\'a3\'a2\'a3\'a7\'a3\'a9\'a3\'ac\'a3\'ae\'a3\'ba\'a3\'bb\'a3\'bf\'a3\'dd\'a3\'e0\'a3\'fc\'a3\'fd\'a1\'ab\'a1\'e9}}
-\viewkind4\uc1\pard\nowidctlpar\qj\lang1033\kerning2\b\f0\fs36 TrayLauncher v1.8 Readme\tab\tab [ updated on 01/11/2008 ]\par
+\viewkind4\uc1\pard\nowidctlpar\qj\lang1033\kerning2\b\f0\fs36 TrayLauncher Readme\tab\tab [ updated on 04/01/2008 ]\par
 \par
 TrayLauncher (TrayStart) is free for personal use.\b0\fs28\par
 \b\par
@@ -31,7 +31,7 @@ To Uninstall, disable autostart (\b uncheck\b0  the "Start With Windows" on the 
 \pard\nowidctlpar\qj\fs28 Left click on the tray icon to launch normal menu, or right click to launch program context menu.\par
 TrayLauncher does \b nothing\b0  when you drag the tray icon.\par
 \fs32\par
-\b Close the about dialog\b0  : \tab use mouse \b right \b0 click. \fs28\par
+\b Close the about dialog\b0  : \tab use mouse \b right \b0 click, or press enter or press esc. \fs28\par
 \par
 \pard\keep\keepn\nowidctlpar\sb260\sa260\sl408\slmult1\qj\fs32 Keyboard control\par
 \pard\nowidctlpar\qj\fs28 You can also use System-Wide hotkey : Alt-Winkey, Shift-Winkey and Ctrl-Winkey.\par
@@ -64,7 +64,7 @@ Menu items look much better on the menu than in the command file.\par
 You can launch context menu, and use "Edit Commands" to open and edit "TLCmd.txt", \par
 and after you save this file, use "Refresh" to update the menu, no need to restart TrayLauncher.\par
 \par
-\b\i Note: This command file ("TLCmd.txt" by default) is a normal text file, and it must be saved in Unicode.\par
+\b\i Note: This command file ("TLCmd.txt" by default) is a normal text file, and it must be saved in Unicode (little endian). \par
 \b0\i0\par
 \pard\keep\keepn\nowidctlpar\sb260\sa260\sl408\slmult1\qj\fs32 Comments:\par
 \pard\nowidctlpar\qj\fs28 Texts after ";" until the end of the line are comments , and will be ignored by TrayLauncher.\par
@@ -78,9 +78,12 @@ Otherwise, they present a command or menuitem.\par
 2, the text after "=" until the end of the line, that is the filename or command line, or the \b command \b0 of the item.. TrayLauncher will execute the \b command \b0 when you click the menu item\par
 For example, add the following two lines to TLCmd.txt: \par
 \cf1\b notepad = C:\\windows\\notepad.exe\par
-notepadToo = "C:\\windows\\notepad.exe" a.txt\cf2\b0  \cf3\b  \b0 ;try to open a.txt, \cf4\par
-\cf0\b\i Note that the color is added by me, you will see plain text only if you use the windows Notepad.\b0\par
-\pard\keep\keepn\nowidctlpar\sb260\sa260\sl408\slmult1\qj\i0 The  \cf1\b " "\cf0\b0   is optional for normal file target.  You use them to quote the executable file when it needs parameters.\par
+notepadToo = "C:\\windows\\notepad.exe" a.txt\cf2\b0  \cf3\b  \b0 ;try to open a.txt, \par
+\cf0 ; Since v1.9, file icon is customizable, just add \cf1 ||| your icon path\cf0  at the end.  \par
+\cf1\b notepadToo = "C:\\windows\\notepad.exe" a.txt ||| myicon.ico\cf2\b0  \cf3\b  \b0 ;same as above, but use another icon.\par
+\cf4\par
+\cf0\b\i Note that the color is added by me, you will see plain text only if you use the windows Notepad.\b0\i0\par
+\pard\keep\keepn\nowidctlpar\sb260\sa260\sl408\slmult1\qj The  \cf1\b " "\cf0\b0   is optional for normal file target.  You use them to quote the executable file when it needs parameters.\par
 \fs32 Add a submenu:\b\par
 \pard\nowidctlpar\qj\b0\fs28 Adding a submenu is much the same as adding a normal menu item. just add an extra ">" at the beginning of the line.\par
 the lines that followed will all be added to the submenu, until they meet a line that begin with "<"  which means end of submenu.\par
@@ -135,7 +138,9 @@ while "\cf1\b ..\cf0\b0 " means the parent directory of the current directory.\p
 To make your file more readable, you can use a line that contains only a "\cf3\b ;\cf0\b0 ", \par
 and the hole line will be treated as a comment and TrayLauncher will simply ignore it.\par
 \par
-\b\i Note: The command file should end with one empty new line, or the last command may not be recognized correctly.\b0\par
+\b\i Note: For versions before v1.9 (v1.9 not included), \par
+the command file should end with one empty new line, \par
+or the last command may not be recognized correctly.\b0\par
 \i0\par
 \par
 \pard\keep\keepn\nowidctlpar\sb260\sa260\sl408\slmult1\qj\b\f1\fs32 The Run dialog : \par
