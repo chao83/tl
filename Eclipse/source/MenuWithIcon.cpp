@@ -379,7 +379,7 @@ int CMenuWithIcon::AddMenuItem(MENUTYPE hMenu, const tString & strName, const tS
 //! 添加通配符表示的菜单项
 int CMenuWithIcon::MultiAddMenuItem(MENUTYPE hMenu, const tString & inStrPath,const tString & strName)
 {
-	assert (strName.length());
+	//assert (strName.length());
 	if(inStrPath.empty())
 		return 0;
 	TSTRING strPath(inStrPath);
@@ -496,7 +496,7 @@ int CMenuWithIcon::DynamicBuild(MENUTYPE hMenu)
 	while (*strPath && _istspace(*strPath)) ++strPath;//去掉空白
 	assert (strPath[_tcslen(strPath) - 1] =='*');
 
-	return MultiModeBuildMenu(hMenu,strPath,strName,EDYNAMIC);
+	return MultiModeBuildMenu(hMenu,strPath,(strName && *strName)?strName:_T("*"),EDYNAMIC);
 }
 
 
@@ -881,11 +881,16 @@ TSTRING & CMenuWithIcon::DoubleChar(TSTRING & str, const TSTRING::value_type ch)
 	return str;
 }
 
-int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, EBUILDMODE mode,bool bNoFileIcon/* = false*/)
+int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & inStrName, EBUILDMODE mode,bool bNoFileIcon/* = false*/)
 {
-	std::vector<TSTRING> vStrFilter(1);
-	if(strName.length())
-		GetSeparatedString(strName, '|', vStrFilter);
+	tString strName(inStrName);
+	if (!strName.length())
+		strName = _T("*");
+	std::vector<TSTRING> vStrFilter;
+	assert(strName.length());
+	GetSeparatedString(strName, '|', vStrFilter);
+	std::sort(vStrFilter.begin(), vStrFilter.end());
+	std::unique(vStrFilter.begin(), vStrFilter.end());
 	return MultiModeBuildMenuImpl(hMenu, inStrPathForSearch, strName, vStrFilter,mode, bNoFileIcon);
 }
 

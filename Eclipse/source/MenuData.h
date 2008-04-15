@@ -38,8 +38,8 @@ public:
 
 private:
 	bool OutPut(FILE * pFile, wchar_t pad = '\t', int nPad = 0) const;
-	Prm Get(Ui n) const { return m_str.at(n); }
-	TS & Get(Ui n) { return m_str.at(n); }
+	Prm Get(Ui n) const { return m_str[n]; }
+	TS & Get(Ui n) { return m_str[n]; }
 
 private:
 	std::vector<TS> m_str; // { name, path }
