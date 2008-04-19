@@ -887,7 +887,6 @@ int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathF
 	if (!strName.length())
 		strName = _T("*");
 	std::vector<TSTRING> vStrFilter;
-	assert(strName.length());
 	GetSeparatedString(strName, '|', vStrFilter);
 	std::sort(vStrFilter.begin(), vStrFilter.end());
 	std::unique(vStrFilter.begin(), vStrFilter.end());
@@ -899,7 +898,7 @@ int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathF
 //!
 int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, const std::vector<TSTRING> & vStrFilter, EBUILDMODE mode,bool bNoFileIcon/* = false*/)
 {
-	assert(vStrFilter.size() > 0);
+	assert(vStrFilter.size());
 
 	const TCHAR * pSearch = inStrPathForSearch.c_str();//strPath 包含最后一个*，用于搜索条件
 	int result = 0;
