@@ -196,6 +196,7 @@ private :
 	Ptr<CMenuData> m_menuData;
 	//
 	int BuildMenuFromMenuData(CMenuData *pMenu, MENUTYPE hMenu);
+	int BuildMyComputer(MENUTYPE hMenu, const tString & strName);
 
 };
 

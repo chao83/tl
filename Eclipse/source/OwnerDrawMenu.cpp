@@ -126,11 +126,15 @@ LRESULT CALLBACK COwnerDrawMenu::MyWndProc(HWND hWnd, UINT message, WPARAM wPara
 		return 0;
 	}
 	else {
+#ifdef _DEBUG
 		static std::map<UINT, int> msgRecorder;
 		++msgRecorder[message];
+#endif
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
+
+
 CMsgMap COwnerDrawMenu::msgMap;
 COwnerDrawMenu::MenuObjects COwnerDrawMenu::s_Menus;
 const TCHAR *COwnerDrawMenu::szMenuWindowClass(_T("Lch_Hidden_MenuWindowProcess_Class"));
@@ -175,7 +179,7 @@ COwnerDrawMenu::~COwnerDrawMenu(void)
 }
 
 
-void COwnerDrawMenu::SetSkin(BITMAPTYPE hSide, BITMAPTYPE hBk[3], BITMAPTYPE hSelBk[3], BITMAPTYPE hSep[3], BITMAPTYPE hTitalPic) {
+void COwnerDrawMenu::SetSkin(BITMAPTYPE hSide, const BITMAPTYPE (&hBk)[3], const BITMAPTYPE (&hSelBk)[3], const BITMAPTYPE (&hSep)[3], BITMAPTYPE hTitalPic) {
 	m_hSidePic = hSide;
 	m_hBkPic = hBk[0];
 	m_hBkPicLeft = hBk[1];
@@ -254,6 +258,7 @@ void COwnerDrawMenu::SetSkin(BITMAPTYPE hSide, BITMAPTYPE hBk[3], BITMAPTYPE hSe
 	}
 }
 
+// rebuild the menu, needed when lang is changed to adjust size;
 void COwnerDrawMenu::UpdateRoot()
 {
 	HMENU hNewMenu = CreatePopupMenu();

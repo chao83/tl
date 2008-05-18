@@ -148,7 +148,7 @@ private:
 
 	static LRESULT CALLBACK MyWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	typedef std::map<COwnerDrawMenu * , bool> MenuObjects;
+	typedef std::map<COwnerDrawMenu * , bool> MenuObjects;// count total menus
 	static MenuObjects s_Menus;
 
 	void AddThis() { s_Menus[this] = true; }
@@ -163,7 +163,7 @@ protected:
 
 public:
 	typedef HBITMAP BITMAPTYPE;
-	void SetSkin(BITMAPTYPE hSide, BITMAPTYPE hBk[3], BITMAPTYPE hSelBk[3], BITMAPTYPE hSep[3], BITMAPTYPE hTitalPic);
+	void SetSkin(BITMAPTYPE hSide, const BITMAPTYPE (&hBk)[3], const BITMAPTYPE (&hSelBk)[3], const BITMAPTYPE (&hSep)[3], BITMAPTYPE hTitalPic);
 
 private:
 	// skin about

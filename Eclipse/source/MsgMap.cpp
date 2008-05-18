@@ -239,11 +239,19 @@ void SetLanguage(const TSTRING & lngFile)
 	}
 }
 
+// Get the count of an array of any type
+template <class TItem, unsigned int N>
+inline unsigned int ArrayN (const TItem (&)[N])
+{
+	return N;
+}
+
 //! 设置菜单皮肤
 void SetMenuSkin(const TSTRING & skinSubDir)
 {
+	const int nPicPerItem = 3;
 	if (skinSubDir.empty() || skinSubDir == _T("")) {
-		HBITMAP hBit[3] = {0};
+		HBITMAP hBit[nPicPerItem] = {0};
 		g_pTray->SetSkin(0, hBit, hBit, hBit, 0);
 	}
 	else {
@@ -252,18 +260,21 @@ void SetMenuSkin(const TSTRING & skinSubDir)
 		const TCHAR * szSkinSep[] = {TEXT("sep.bmp"), TEXT("sepLeft.bmp"), TEXT("sepRight.bmp")};
 		TSTRING strSkinPath = _T(".\\skin\\") + skinSubDir + _T("\\");
 		TSTRING strSkinPicPath;
-		HBITMAP hBitBk[3];
-		HBITMAP hBitSel[3];
-		HBITMAP hSep[3];
-		for (int i = 0; i < 3; ++i) {
+		HBITMAP hBitBk[nPicPerItem];
+		HBITMAP hBitSel[nPicPerItem];
+		HBITMAP hSep[nPicPerItem];
+		assert(ArrayN(hBitBk) == ArrayN(szSkinBk));
+		assert(ArrayN(hSep) == ArrayN(szSkinSep));
+		assert(ArrayN(hBitSel) == ArrayN(szSkinSelBk));
+		for (int i = 0; i < nPicPerItem; ++i) {
 			strSkinPicPath = strSkinPath + szSkinBk[i];
 			hBitBk[i] = (HBITMAP)LoadImage(ThisHinstGet(), strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 		}
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < nPicPerItem; ++i) {
 			strSkinPicPath = strSkinPath + szSkinSelBk[i];
 			hBitSel[i] = (HBITMAP)LoadImage(ThisHinstGet(), strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 		}
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < nPicPerItem; ++i) {
 			strSkinPicPath = strSkinPath + szSkinSep[i];
 			hSep[i] = (HBITMAP)LoadImage(ThisHinstGet(), strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 		}
@@ -794,16 +805,6 @@ LRESULT MsgHotKey(HWND hWnd, UINT /*message*/, WPARAM wParam, LPARAM /*lParam*/)
 				break;
 			case HOTKEYPOPEXECUTE://显示运行对话框
 				ShowRunDlg();
-				//if (!GHdlgRun()) {
-				//	GHdlgRun() = CreateDialog(ThisHinstGet(),MAKEINTRESOURCE(IDD_RUN), NULL, RunDlgProc);
-				//	ShowWindow(GHdlgRun(), SW_SHOWNORMAL);
-				//}
-				//else if (IsWindowVisible(GHdlgRun())) {
-				//	ShowWindow(GHdlgRun(), SW_HIDE);
-				//}
-				//else {
-				//	ShowWindow(GHdlgRun(), SW_SHOW);
-				//}
 				break;
 			default:
 				break;

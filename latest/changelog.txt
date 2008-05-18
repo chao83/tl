@@ -1,5 +1,6 @@
-[] v1.9.0
-Added 	: 
+[2008-] v1.9.0
+Added	: 
+Added 	: a special mode(\\**) to explore My Computer.
 Change	: Display menu at last position after refresh.
 Added	: Set the file icon.( * mode NOT supported )
 Change	: No empty line needed at the end of the command file.

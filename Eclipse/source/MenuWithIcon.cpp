@@ -6,6 +6,7 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <algorithm>
+#include <direct.h>
 #include "resource.h"
 #include "language.h"
 #include "FileStrFnc.h"
@@ -643,7 +644,9 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 				}
 			}
 		}
-		else if ( pMenu->Item(index)->Path().length() ) {
+		else if ( pMenu->Item(index)->Path().length() > 1) {
+			if (pMenu->Item(index)->Path()[0] == '\\' && pMenu->Item(index)->Path() != _T("\\\\**"))
+				continue;// filter begin with '\\' but not "\\**"
 			// 常规菜单项
 			const tString & strPath = pMenu->Item(index)->Path();
 			const tString strSep(_T("|||"));
@@ -893,12 +896,53 @@ int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathF
 	return MultiModeBuildMenuImpl(hMenu, inStrPathForSearch, strName, vStrFilter,mode, bNoFileIcon);
 }
 
+int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
+{	
+	int n = 0;
+	unsigned long uDriveMask = _getdrives();
+	if (uDriveMask) {
+		
+		tString strDrive(_T("A:\\"));
+		TCHAR szVolName[MAX_PATH+1] = {0};
+		TCHAR szFSName[MAX_PATH+1] = {0};
+		tString strMenuName;
+
+		MENUTYPE hSubMenu = 0;
+		while (uDriveMask) {
+			if (uDriveMask & 1) {
+				++n;
+				hSubMenu = CreatePopupMenu();
+				//记录动态菜单
+
+				//第一级动态菜单，不需要销毁
+				AddToMap(m_StaticPath, hSubMenu, strDrive+_T("*"));//static 表示不删除的 dynamic
+				m_StaticMenuWildcard[hSubMenu] = AddWildcard(strName);
+
+				strMenuName = _T("[") + strDrive + _T("] ");
+				if (GetVolumeInformation(strDrive.c_str(), szVolName, MAX_PATH + 1, 0,0,0, szFSName, MAX_PATH + 1) ) {
+					strMenuName += szVolName;
+				}
+				
+
+				AddSubMenu(hMenu, hSubMenu, strMenuName, strDrive);
+			}
+
+			++strDrive[0];
+			uDriveMask >>= 1;
+      }
+
+	}
+	return n;
+}
 //! 通配符菜单项构造函数，用于多种模式
 //!\param mode ：file，folder，expand，expandnow等模式
 //!
 int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, const std::vector<TSTRING> & vStrFilter, EBUILDMODE mode,bool bNoFileIcon/* = false*/)
 {
 	assert(vStrFilter.size());
+	if (_T("\\\\*") == inStrPathForSearch && EEXPAND == mode) {
+		return BuildMyComputer(hMenu, strName);
+	}
 
 	const TCHAR * pSearch = inStrPathForSearch.c_str();//strPath 包含最后一个*，用于搜索条件
 	int result = 0;

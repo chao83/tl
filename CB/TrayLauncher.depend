@@ -297,3 +297,146 @@
 1206604696 source:e:\my_vc_dev\lchprj\traylauncher\eclipse\source\stdafxrelease\stdafx.h
 	"..\stdafx_real.h"
 
+1208661706 source:f:\c_c++\myprojects\traylauncher\eclipse\source\stdafxrelease\stdafx.h
+	"..\stdafx_real.h"
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\stdafx_real.h
+	<windows.h>
+	<stdlib.h>
+	<malloc.h>
+	<memory.h>
+	<tchar.h>
+	<stdheaders.h>
+
+1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\settingfile.cpp
+	"StdAfx.h"
+	<assert.h>
+	<auto_pointers.h>
+	"SettingFile.h"
+
+1208661707 f:\c_c++\myprojects\traylauncher\eclipse\source\stdafx.h
+	"stdafxDebug\stdafx.h"
+	"stdafxRelease\stdafx.h"
+
+1208661706 f:\c_c++\myprojects\traylauncher\eclipse\source\stdafxdebug\stdafx.h
+	"..\stdafx_real.h"
+
+1208661706 f:\c_c++\myprojects\traylauncher\eclipse\source\stdafxrelease\stdafx.h
+	"..\stdafx_real.h"
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\settingfile.h
+	<stdheaders.h>
+	"FileStrFnc.h"
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\filestrfnc.h
+	<stdheaders.h>
+
+1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\menudata.cpp
+	"stdafx.h"
+	"MenuData.h"
+
+1208661707 f:\c_c++\myprojects\traylauncher\eclipse\source\menudata.h
+	<string>
+	<vector>
+	<auto_handle.h>
+	"FileStrFnc.h"
+
+1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\rundlg.cpp
+	"stdafx.h"
+	<commctrl.h>
+	<shellapi.h>
+	<shlobj.h>
+	<shlwapi.h>
+	"resource.h"
+	"language.h"
+	"MenuWithIcon.h"
+	"SettingFile.h"
+	"RunDlg.h"
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\resource.h
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\language.h
+	<stdheaders.h>
+
+1211103461 f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.h
+	"OwnerDrawMenu.h"
+	"MenuData.h"
+
+1209610596 f:\c_c++\myprojects\traylauncher\eclipse\source\ownerdrawmenu.h
+	<stdheaders.h>
+	<auto_pointers.h>
+	"MsgMap.h"
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\msgmap.h
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\rundlg.h
+
+1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\gdiwavepic.cpp
+	"stdafx.h"
+	"GDIWavePic.h"
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\gdiwavepic.h
+	"WavePic.h"
+	<auto_pointers.h>
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\wavepic.h
+	<auto_handle.h>
+
+1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\traystart.cpp
+	"stdafx.h"
+	"MsgMap.h"
+	"TrayStart.h"
+	"language.h"
+	<memory>
+
+1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\traystart.h
+	"resource.h"
+
+1208661707 source:f:\c_c++\myprojects\traylauncher\eclipse\source\wavepic.cpp
+	"stdafx.h"
+	"WavePic.h"
+
+1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\language.cpp
+	"stdafx.h"
+	<auto_pointers.h>
+	"resource.h"
+	"SettingFile.h"
+	"language.h"
+
+1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\stdafx.cpp
+	"stdafx.h"
+
+1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\filestrfnc.cpp
+	"stdafx.h"
+	"FileStrFnc.h"
+
+1209610561 source:f:\c_c++\myprojects\traylauncher\eclipse\source\ownerdrawmenu.cpp
+	"stdafx.h"
+	"OwnerDrawMenu.h"
+
+1211104760 source:f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.cpp
+	"stdafx.h"
+	<stdexcept>
+	<shellapi.h>
+	<commctrl.h>
+	<shlobj.h>
+	<shlwapi.h>
+	<algorithm>
+	<direct.h>
+	"resource.h"
+	"language.h"
+	"FileStrFnc.h"
+	"MenuWithIcon.h"
+
+1209731092 source:f:\c_c++\myprojects\traylauncher\eclipse\source\msgmap.cpp
+	"stdafx.h"
+	<shellapi.h>
+	<shlwapi.h>
+	"resource.h"
+	"language.h"
+	"MenuWithIcon.h"
+	"GDIWavePic.h"
+	"RunDlg.h"
+	"MsgMap.h"
+	"SettingFile.h"
+
