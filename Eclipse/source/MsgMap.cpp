@@ -499,7 +499,7 @@ LRESULT  MsgNewInstance(HWND hWnd, UINT, WPARAM, LPARAM)
 //! 处理来自另一个进程的通知
 LRESULT  MsgMidClick(HWND hWnd, UINT, WPARAM bDown, LPARAM)
 {
-	if(bDown || (GetKeyState(VK_LBUTTON)&0x80) ) {
+	if(bDown || (GetKeyState(VK_LBUTTON)&0x8000) ) {
 		if (!IgnoreUser()) {
 			POINT point = {0,0};
 			GetCursorPos(&point);

@@ -900,9 +900,14 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 {	
 	int n = 0;
 	unsigned long uDriveMask = _getdrives();
+	
 	if (uDriveMask) {
-		
 		tString strDrive(_T("A:\\"));
+		
+		// disable a: and b:
+		uDriveMask >>= 2;
+		strDrive[0] += 2;
+
 		TCHAR szVolName[MAX_PATH+1] = {0};
 		TCHAR szFSName[MAX_PATH+1] = {0};
 		tString strMenuName;
@@ -918,12 +923,12 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 				AddToMap(m_StaticPath, hSubMenu, strDrive+_T("*"));//static 表示不删除的 dynamic
 				m_StaticMenuWildcard[hSubMenu] = AddWildcard(strName);
 
-				strMenuName = _T("[") + strDrive + _T("] ");
+				strMenuName = _T("[&") + strDrive + _T("] ");
 				if (GetVolumeInformation(strDrive.c_str(), szVolName, MAX_PATH + 1, 0,0,0, szFSName, MAX_PATH + 1) ) {
-					strMenuName += szVolName;
+					tString strVolName(szVolName);
+					DoubleChar(strVolName, '&');
+					strMenuName += strVolName;
 				}
-				
-
 				AddSubMenu(hMenu, hSubMenu, strMenuName, strDrive);
 			}
 

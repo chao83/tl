@@ -414,7 +414,7 @@
 	"stdafx.h"
 	"OwnerDrawMenu.h"
 
-1211104760 source:f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.cpp
+1211206120 source:f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.cpp
 	"stdafx.h"
 	<stdexcept>
 	<shellapi.h>
@@ -439,4 +439,7 @@
 	"RunDlg.h"
 	"MsgMap.h"
 	"SettingFile.h"
+
+1211106053 source:f:\c_c++\myprojects\traylauncher\eclipse\source\traystart.rc
+	"resource.h"
 

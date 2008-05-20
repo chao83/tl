@@ -1,7 +1,7 @@
-{\rtf1\ansi\ansicpg936\deff0\deflang2052\deflangfe2052\deftab500{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\fswiss Arial;}{\f2\fnil\fprq2\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\rtf1\ansi\ansicpg936\deff0\deflang2052\deflangfe2052\deftab500{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\fswiss Arial;}{\f2\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
 {\colortbl ;\red0\green0\blue255;\red127\green127\blue127;\red0\green127\blue127;\red0\green0\blue0;\red0\green128\blue128;}
-{\*\generator Msftedit 5.41.15.1507;}{\info{\horzdoc}{\*\lchars ([\{\'a1\'a4\'a1\'ae\'a1\'b0\'a1\'b4\'a1\'b6\'a1\'b8\'a1\'ba\'a1\'be\'a1\'b2\'a1\'bc\'a3\'a8\'a3\'ae\'a3\'db\'a3\'fb\'a1\'ea\'a3\'a4}{\*\fchars !),.:;?]\}\'a1\'a7\'a1\'a4\'a1\'a6\'a1\'a5\'a8D\'a1\'ac\'a1\'af\'a1\'b1\'a1\'ad\'a1\'c3\'a1\'a2\'a1\'a3\'a1\'a8\'a1\'a9\'a1\'b5\'a1\'b7\'a1\'b9\'a1\'bb\'a1\'bf\'a1\'b3\'a1\'bd\'a3\'a1\'a3\'a2\'a3\'a7\'a3\'a9\'a3\'ac\'a3\'ae\'a3\'ba\'a3\'bb\'a3\'bf\'a3\'dd\'a3\'e0\'a3\'fc\'a3\'fd\'a1\'ab\'a1\'e9}}
-\viewkind4\uc1\pard\nowidctlpar\qj\lang1033\kerning2\b\f0\fs36 TrayLauncher Readme\tab\tab [ updated on 04/01/2008 ]\par
+{\*\generator Msftedit 5.41.15.1515;}{\info{\horzdoc}{\*\lchars{\uc1 \u40 ?}{\uc1 \u91 ?}{\uc1 \u123 ?}{\uc1 \u183 ?}{\uc1 \u8216 ?}{\uc1 \u8220 ?}{\uc1 \u12296 ?}{\uc1 \u12298 ?}{\uc1 \u12300 ?}{\uc1 \u12302 ?}{\uc1 \u12304 ?}{\uc1 \u12308 ?}{\uc1 \u12310 ?}{\uc1 \u65288 ?}{\uc1 \u65294 ?}{\uc1 \u65339 ?}{\uc1 \u65371 ?}{\uc1 \u65505 ?}{\uc1 \u65509 ?}}{\*\fchars{\uc1 \u33 ?}{\uc1 \u41 ?}{\uc1 \u44 ?}{\uc1 \u46 ?}{\uc1 \u58 ?}{\uc1 \u59 ?}{\uc1 \u63 ?}{\uc1 \u93 ?}{\uc1 \u125 ?}{\uc1 \u168 ?}{\uc1 \u183 ?}{\uc1 \u711 ?}{\uc1 \u713 ?}{\uc1 \u8213 ?}{\uc1 \u8214 ?}{\uc1 \u8217 ?}{\uc1 \u8221 ?}{\uc1 \u8230 ?}{\uc1 \u8758 ?}{\uc1 \u12289 ?}{\uc1 \u12290 ?}{\uc1 \u12291 ?}{\uc1 \u12293 ?}{\uc1 \u12297 ?}{\uc1 \u12299 ?}{\uc1 \u12301 ?}{\uc1 \u12303 ?}{\uc1 \u12305 ?}{\uc1 \u12309 ?}{\uc1 \u12311 ?}{\uc1 \u65281 ?}{\uc1 \u65282 ?}{\uc1 \u65287 ?}{\uc1 \u65289 ?}{\uc1 \u65292 ?}{\uc1 \u65294 ?}{\uc1 \u65306 ?}{\uc1 \u65307 ?}{\uc1 \u65311 ?}{\uc1 \u65341 ?}{\uc1 \u65344 ?}{\uc1 \u65372 ?}{\uc1 \u65373 ?}{\uc1 \u65374 ?}{\uc1 \u65504 ?}}}
+\viewkind4\uc1\pard\nowidctlpar\qj\lang1033\kerning2\b\f0\fs36 TrayLauncher Readme\tab\tab [ updated on 05/18/2008 ]\par
 \par
 TrayLauncher (TrayStart) is free for personal use.\b0\fs28\par
 \b\par
@@ -108,14 +108,17 @@ there are now \b 4\b0  types of usage:  \cf1\b *.*\cf0\b0 ,  \cf1\b *\cf0\b0  , 
 \cf1\b *.exe = c:\\windows\\** \cf5 ;\b0 add every .exe \b file in c:\\windows\\ or its subfolders or its subfolders' subfolders...\par
 \cf1 *.exe = c:\\windows\\*+* \cf5 ;\b0 add every .exe \b file in c:\\windows\\ or its subfolders or its subfolders' subfolders...\par
 \cf0\b0\par
-Since v1.8.7, you can use multiple wildcards separated by \b "|" \b0 :  \par
+;Since v1.8.7, you can use multiple wildcards separated by \b "|" \b0 :  \par
 \cf1\b *.exe|*.com = c:\\windows\\*.* \cf5 ;\b0 add every .exe and .com \b file in c:\\windows\\ .\cf0\b0\par
-\par
+\cf5\b\par
+\cf0\b0 ;Since v1.9, you can explore all your files with a single line\b  \b0 :\par
+\cf1\b  = \\\\** \cf5 ; A special mode to explore My Computer.\par
+\cf0\b0\par
 The \b difference \b0 between \cf1\b **\cf0\b0  and \cf1\b *+*\cf0\b0  mode : \par
 when you use *+* mode, the menu is built at once and no more (if you don't Refresh),\par
 and when you use **, the submenus are built each time you explore them.\par
-\par
-\b\i Use the \cf1 *+*\cf0\b0  \b mode carefully, it may take minutes to build the menu when there are too many files\b0 .\par
+\cf5\b\par
+\cf0\i Use the \cf1 *+*\cf0\b0  \b mode carefully, it may take minutes to build the menu when there are too many files\b0 .\par
 \b The \cf1\i0 **\cf0\i  mode is recommended for large number of items.\par
 The \cf1 *+*\cf0\b0  \b  mode is better for small number of items as the items will be indexed when you use the run dialog.\par
 Do NOT use any spaces beside "|" when using multiple wildcards, they count.\b0\i0\par
@@ -150,7 +153,7 @@ After you enter a command and run it, the run dialog will automatically disappea
 It remembers the latest \cf1 50\cf0  correct commands and your last input. \par
 To clear the history list, enter "\cf1 -clear\cf0 " or "\cf1 :clear\cf0 " in the editbox and run it.\par
 \par
-\i Note: Since v1.8.6 the run dialog can alse be launched from the context menu.\i0\par
+\i Note: Since v1.8.6 the run dialog can also be launched from the context menu.\i0\par
 \par
 \par
 \b\f1\fs32 Multilingual: \i\f0\fs28\par

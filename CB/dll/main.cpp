@@ -13,7 +13,7 @@ LRESULT CALLBACK MouseProc(int nCode,
 				hPre = ::FindWindow( L"TrayLauncher_WindowClass", NULL);
 				if (hPre) {
 					SetForegroundWindow(hPre);
-					PostMessage(hPre, WM_USER + 4, GetKeyState(VK_LBUTTON) & 0x80, 0);
+					PostMessage(hPre, WM_USER + 4, GetKeyState(VK_LBUTTON) & 0x8000, 0);
 					return TRUE;
 				}
 				break;
