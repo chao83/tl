@@ -1,12 +1,11 @@
-[2008-] v1.9.0
-Change	: Press a key with "Shift" down, to prevent the menuitem form being executed.
+[2008-05-20] v1.9.0
+Added	: Press a key with "Shift" down, to prevent the menuitem form being executed.
 Change	: Updated readme and TLCmd.txt.
 Fixed	: a bug in TL.dll.
 Added 	: a special mode(\\**) to explore My Computer.
 Change	: Display menu at last position after refresh.
 Added	: Set the file icon.( * mode NOT supported )
 Change	: No empty line needed at the end of the command file.
-
 
 [2008-01-22] v1.8.8
 Fixed	: A serious bug that will crash the program in ** mode.

@@ -410,11 +410,11 @@
 	"stdafx.h"
 	"FileStrFnc.h"
 
-1209610561 source:f:\c_c++\myprojects\traylauncher\eclipse\source\ownerdrawmenu.cpp
+1211207520 source:f:\c_c++\myprojects\traylauncher\eclipse\source\ownerdrawmenu.cpp
 	"stdafx.h"
 	"OwnerDrawMenu.h"
 
-1211206120 source:f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.cpp
+1211281744 source:f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.cpp
 	"stdafx.h"
 	<stdexcept>
 	<shellapi.h>
@@ -428,7 +428,7 @@
 	"FileStrFnc.h"
 	"MenuWithIcon.h"
 
-1209731092 source:f:\c_c++\myprojects\traylauncher\eclipse\source\msgmap.cpp
+1211280500 source:f:\c_c++\myprojects\traylauncher\eclipse\source\msgmap.cpp
 	"stdafx.h"
 	<shellapi.h>
 	<shlwapi.h>

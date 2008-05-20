@@ -7,16 +7,16 @@
 	<File name="..\Eclipse\source\GDIWavePic.h" open="0" top="0" tabpos="0">
 		<Cursor position="621" topLine="0" />
 	</File>
-	<File name="..\Eclipse\source\MenuWithIcon.cpp" open="1" top="0" tabpos="2">
-		<Cursor position="32602" topLine="1071" />
+	<File name="..\Eclipse\source\MenuWithIcon.cpp" open="1" top="1" tabpos="2">
+		<Cursor position="21564" topLine="732" />
 	</File>
 	<File name="..\Eclipse\source\MenuWithIcon.h" open="0" top="0" tabpos="7">
 		<Cursor position="3610" topLine="94" />
 	</File>
 	<File name="..\Eclipse\source\MsgMap.cpp" open="1" top="0" tabpos="3">
-		<Cursor position="14414" topLine="487" />
+		<Cursor position="14414" topLine="481" />
 	</File>
-	<File name="..\Eclipse\source\OwnerDrawMenu.cpp" open="1" top="1" tabpos="1">
+	<File name="..\Eclipse\source\OwnerDrawMenu.cpp" open="1" top="0" tabpos="1">
 		<Cursor position="21298" topLine="693" />
 	</File>
 	<File name="..\Eclipse\source\OwnerDrawMenu.h" open="0" top="0" tabpos="4">

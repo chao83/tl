@@ -899,7 +899,8 @@ int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathF
 int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 {	
 	int n = 0;
-	unsigned long uDriveMask = _getdrives();
+	unsigned long uDriveMask = GetLogicalDrives();
+	assert(GetLogicalDrives() == _getdrives());
 	
 	if (uDriveMask) {
 		tString strDrive(_T("A:\\"));
@@ -924,11 +925,17 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 				m_StaticMenuWildcard[hSubMenu] = AddWildcard(strName);
 
 				strMenuName = _T("[&") + strDrive + _T("] ");
-				if (GetVolumeInformation(strDrive.c_str(), szVolName, MAX_PATH + 1, 0,0,0, szFSName, MAX_PATH + 1) ) {
-					tString strVolName(szVolName);
-					DoubleChar(strVolName, '&');
-					strMenuName += strVolName;
+				tString strVolName;
+				if (GetVolumeInformation(strDrive.c_str(), szVolName, MAX_PATH + 1, 0,0,0, szFSName, MAX_PATH + 1) && *szVolName) {
+					strVolName = szVolName;
 				}
+				else {
+					SHFILEINFO sfi;
+					SHGetFileInfo(strDrive.c_str(), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi),SHGFI_TYPENAME);
+					strVolName = sfi.szTypeName;
+				}
+				DoubleChar(strVolName, '&');
+				strMenuName += strVolName;
 				AddSubMenu(hMenu, hSubMenu, strMenuName, strDrive);
 			}
 

@@ -543,17 +543,10 @@ bool AddHotkey(HWND hWnd, int id, UINT fsModifiers, UINT vk)
 #ifdef _DEBUG
 void _DbgTest()
 {
-	typedef AutoHwnd HwndTT;
-	HwndTT htt1;
-	HwndTT htt2;
-	htt2 = htt1;
-	htt2 = HWND(0);
-	htt2 = htt1;
-	 Ptr<int> a;
-	a = new int;
-	TCHAR sz[2] = {0};
-	sz[0] = sizeof(a) + '0';
-	MessageBox(0,sz,0,MB_OK);
+	SHFILEINFO sfi = {0};
+
+	SHGetFileInfo(_T("e:\\"), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi),SHGFI_TYPENAME);
+	SHGetFileInfo(_T("e:\\"), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi),SHGFI_DISPLAYNAME);
 	//const Ptr<int> b = a;
 	return;
 }
@@ -1139,7 +1132,7 @@ BOOL  CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 			pWavepic.Reset();
 
-			std::rotate(rgbDst,rgbDst+2,rgbDst+3);
+			//std::rotate(rgbDst,rgbDst+2,rgbDst+3);
 			bResult = TRUE;
 			break;
 		default:
