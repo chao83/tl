@@ -1,3 +1,8 @@
+[2008-06-06] v1.9.1
+Added	: Hold "Shift" to ignore global Mid click. 
+Fixed	: icon path does not work if quoted.
+Change	: Updated TLCmd.txt.  
+
 [2008-05-20] v1.9.0
 Added	: Press a key with "Shift" down, to prevent the menuitem form being executed.
 Change	: Updated readme and TLCmd.txt.

@@ -7,8 +7,8 @@
 	<File name="..\Eclipse\source\GDIWavePic.h" open="0" top="0" tabpos="0">
 		<Cursor position="621" topLine="0" />
 	</File>
-	<File name="..\Eclipse\source\MenuWithIcon.cpp" open="1" top="1" tabpos="2">
-		<Cursor position="21564" topLine="732" />
+	<File name="..\Eclipse\source\MenuWithIcon.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="21853" topLine="729" />
 	</File>
 	<File name="..\Eclipse\source\MenuWithIcon.h" open="0" top="0" tabpos="7">
 		<Cursor position="3610" topLine="94" />
@@ -37,8 +37,8 @@
 	<File name="..\Eclipse\source\TrayStart.cpp" open="0" top="0" tabpos="3">
 		<Cursor position="2182" topLine="0" />
 	</File>
-	<File name="..\Eclipse\source\TrayStart.rc" open="0" top="0" tabpos="6">
-		<Cursor position="1087" topLine="11" />
+	<File name="..\Eclipse\source\TrayStart.rc" open="1" top="1" tabpos="4">
+		<Cursor position="795" topLine="3" />
 	</File>
 	<File name="..\Eclipse\source\WavePic.cpp" open="0" top="0" tabpos="3">
 		<Cursor position="1683" topLine="49" />

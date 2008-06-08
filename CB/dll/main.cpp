@@ -5,7 +5,7 @@ LRESULT CALLBACK MouseProc(int nCode,
 		LPARAM lParam
 		)
 {
-	if (HC_ACTION == nCode || HC_NOREMOVE == nCode) {
+	if (!(GetKeyState(VK_SHIFT) & 0x8000) && (HC_ACTION == nCode || HC_NOREMOVE == nCode)) {
 		HWND hPre(0);
 		switch (wParam) {
 			case WM_MBUTTONUP:

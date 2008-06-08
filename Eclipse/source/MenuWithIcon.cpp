@@ -645,8 +645,10 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 			}
 		}
 		else if ( pMenu->Item(index)->Path().length() > 1) {
+			// 特殊模式: \\** , 表示我的电脑
 			if (pMenu->Item(index)->Path()[0] == '\\' && pMenu->Item(index)->Path() != _T("\\\\**"))
 				continue;// filter begin with '\\' but not "\\**"
+		
 			// 常规菜单项
 			const tString & strPath = pMenu->Item(index)->Path();
 			const tString strSep(_T("|||"));
@@ -657,11 +659,19 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 			}
 			else {
 				tString::size_type sepPos = strPath.find(strSep) ;
+				tString strIcon = tString::npos == sepPos? _T("") : CFileStrFnc::StripSpaces ( strPath.substr(sepPos + strSep.length()) );
+				if (strIcon.length()) {
+					if ('\"' == strIcon[0]) {
+						tString::size_type pos = strIcon.find('\"', 1);
+						strIcon = strIcon.substr(1, pos == tString::npos ? pos : pos - 1);
+
+					}
+				}
 				nItems += AddMenuItem( hMenu,
 					pMenu->Item(index)->Name().empty() ? _T("< ??? >") : pMenu->Item(index)->Name() , 
 					sepPos == tString::npos ? strPath : CFileStrFnc::StripSpaces( strPath.substr(0,sepPos ) ), 
 					FILEFOLDERICON,
-					sepPos == tString::npos ? _T("") : CFileStrFnc::StripSpaces ( strPath.substr(sepPos + strSep.length()) )
+					strIcon
 					);//统计菜单项总数			
 			}
 		}
