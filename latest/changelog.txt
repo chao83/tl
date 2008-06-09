@@ -1,3 +1,6 @@
+v1.9.2
+Added	: New hotkey, ctrl + alt + leftWinKey, popup context menu, same as alt + rightWinKey.
+
 [2008-06-06] v1.9.1
 Added	: Hold "Shift" to ignore global Mid click. 
 Fixed	: icon path does not work if quoted.

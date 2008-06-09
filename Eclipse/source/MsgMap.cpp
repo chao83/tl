@@ -125,6 +125,7 @@ enum EHOTKEYS {
 	HOTKEYPOPSYSMENU,
 	HOTKEYPOPEXECUTE,
 	HOTKEYMIDCLICK,
+	HOTKEYPOPSYSMENU_ALTER,
 	HOTKEYEND
 };
 
@@ -735,6 +736,8 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 	AddHotkey(hWnd,HOTKEYPOPSYSMENU,MOD_ALT | MOD_WIN,VK_RWIN);
 	AddHotkey(hWnd,HOTKEYPOPEXECUTE,MOD_WIN | MOD_CONTROL, VK_LWIN);
 	AddHotkey(hWnd,HOTKEYMIDCLICK,MOD_SHIFT | MOD_WIN, VK_LWIN);
+	AddHotkey(hWnd,HOTKEYPOPSYSMENU_ALTER,MOD_ALT | MOD_CONTROL | MOD_WIN, VK_LWIN);
+	
 
 	//尝试读取用户自定义图标
 	TSTRING strIcon;
@@ -793,6 +796,7 @@ LRESULT MsgHotKey(HWND hWnd, UINT /*message*/, WPARAM wParam, LPARAM /*lParam*/)
 				ShowMenu(&point);
 				break;
 			case HOTKEYPOPSYSMENU://右键菜单
+			case HOTKEYPOPSYSMENU_ALTER:
 				UpdataRunDlgCheck();
 				MyProcessCommand(hWnd, g_pSysTray->Display(0, 0));
 				break;
