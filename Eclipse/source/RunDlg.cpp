@@ -183,7 +183,7 @@ bool IsPathExe(const TSTRING & path) {
 bool SearchRegkeyForExe(const TSTRING & strCmdParam, 
 						const TSTRING & inStrSubKey, 	
 						const TCHAR * pItemName,
-						HICON & s_hIcon,
+						icon_ptr & s_hIcon,
 						TSTRING & strHint,						
 						bool bNameOnly)
 {
@@ -216,11 +216,10 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 			if (ERROR_SUCCESS == RegQueryValueEx(hKeyAppPath, pItemName, NULL, &dwType, reinterpret_cast<LPBYTE>(path), &dwLength) &&
 				REG_SZ == dwType) 
 			{
-				if (s_hIcon)
-					DestroyIcon(s_hIcon);
+				s_hIcon.Reset();
 				if(path)
 					s_hIcon = g_pTray->GetBigIcon(path);
-				if (!s_hIcon)
+				if (!s_hIcon.Get())
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
 
 				strHint = path;
@@ -238,9 +237,10 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 
 
 //! 更新命令行提示信息：图标和路径
-void UpdateHint(HWND hDlg, ICONTYPE & s_hIcon, ICONTYPE hIconDefault = NULL)
+//void UpdateHint(HWND hDlg, ICONTYPE & s_hIcon, ICONTYPE hIconDefault = NULL)
+void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 {
-	assert(NULL == s_hIcon);
+	assert(!s_hIcon.Get());
 
 	bool bFound(true);
 	const unsigned int MINCMDLEN = 1;
@@ -255,18 +255,17 @@ void UpdateHint(HWND hDlg, ICONTYPE & s_hIcon, ICONTYPE hIconDefault = NULL)
 	TSTRING strCmdParam(szInput);
 
 	TSTRING strPath;// cmd + param
-	ICONTYPE hIconOfNoUse;
 	//只处理 MINCMDLEN 个字符以上的
 	if (strCmdParam.length() < MINCMDLEN) {
 		SetHint(hDlg,hIconDefault,g_strEmpty);
 		return;
 	}
-	else if(g_pTray->Find(strCmdParam,strPath,hIconOfNoUse)) {
+	else if(unsigned int uID = g_pTray->Find(strCmdParam,strPath)) {
 		//搜索菜单名称，匹配整个用户输入
 		// 尝试分析出命令
 		TSTRING strCmdWithinPath,strParamWithinPath;
 		GetCmdAndParam(strPath, strCmdWithinPath, strParamWithinPath);
-		s_hIcon = g_pTray->GetBigIcon(strCmdWithinPath);
+		s_hIcon = g_pTray->GetBigIcon(uID);//strCmdWithinPath);
 		strHint = strPath;
 	}
 	else {
@@ -280,7 +279,7 @@ void UpdateHint(HWND hDlg, ICONTYPE & s_hIcon, ICONTYPE hIconDefault = NULL)
 			return;
 		}
 		//搜索菜单名称，匹配分析出的命令，抛弃参数部分
-		if (strCmd != strCmdParam && g_pTray->Find(strCmd,strPath,hIconOfNoUse)) {
+		if (strCmd != strCmdParam && g_pTray->Find(strCmd,strPath)) {
 			// 尝试分析出命令
 			TSTRING strCmdWithinPath,strParamWithinPath;
 			GetCmdAndParam(strPath, strCmdWithinPath, strParamWithinPath);
@@ -366,7 +365,7 @@ void UpdateHint(HWND hDlg, ICONTYPE & s_hIcon, ICONTYPE hIconDefault = NULL)
 								 &dwSize);
 				if ( (S_OK == hres) || (ShellSuccess(FindExecutable(strCmd.c_str(),NULL,path)) && *path) ) {
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
-					if (!s_hIcon && path)
+					if (s_hIcon.Get() && path)
 						s_hIcon = g_pTray->GetBigIcon(path);
 					if (S_OK == hres)
 						strHint = path;
@@ -394,7 +393,7 @@ void UpdateHint(HWND hDlg, ICONTYPE & s_hIcon, ICONTYPE hIconDefault = NULL)
 		SearchRegkeyForExe(strCmdParam, strSubKey, _T("Debugger"), s_hIcon, strHint, true);
 	}
 	//显示目标的图标和路径。
-	SetHint(hDlg,s_hIcon?s_hIcon:hIconDefault,strHint.c_str());
+	SetHint(hDlg,s_hIcon.Get()?s_hIcon.Get():hIconDefault,strHint.c_str());
 	return;
 }
 
@@ -522,8 +521,9 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static int xPos = 300;
 	static int yPos = 400;
 
-	static ICONTYPE s_hIcon = NULL;
-	static ICONTYPE s_hIconDefault = static_cast<ICONTYPE>(GRunIcon())? static_cast<ICONTYPE>(GRunIcon()):LoadIcon(ThisHinstGet(), MAKEINTRESOURCE(IDI_UNKNOWN));
+	//static ICONTYPE s_hIcon = NULL;
+	static icon_ptr s_hIcon;
+	static ICONTYPE s_hIconDefault = GRunIcon().Get()? GRunIcon().Get():LoadIcon(ThisHinstGet(), MAKEINTRESOURCE(IDI_UNKNOWN));
 
 	static TSTRING strEditLast(g_strEmpty);//用于建议命令
 
@@ -563,20 +563,14 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			yPos = reinterpret_cast<RECT *>(lParam)->top;		// vertical position
 			return TRUE;
 		case UM_UPDATEHINT:
-			if(s_hIcon) {
-				DestroyIcon(s_hIcon);
-				s_hIcon = NULL;
-			}
+			s_hIcon.Reset();
 			UpdateHint(hDlg,s_hIcon,s_hIconDefault);
 			return TRUE;
 		case WM_DESTROY:
 			//扫尾，存储输入内容
 			MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize);
 			//销毁图标
-			if(s_hIcon) {
-				DestroyIcon(s_hIcon);
-				s_hIcon = NULL;
-			}
+			s_hIcon.Reset();
 			return TRUE;
 		case WM_DROPFILES:
 			if (HDROP hDrop = reinterpret_cast<HDROP>(wParam)) {

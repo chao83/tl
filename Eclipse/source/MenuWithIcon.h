@@ -42,12 +42,22 @@ private:
 	int MeasureItem(MEASUREITEMSTRUCT *pMI);
 	LRESULT MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags);
 public:
-	ICONTYPE GetBigIcon(const tString & path, int index = 0){return GetIcon(path,FILEFOLDERICON,index,true);};
+	ICONTYPE GetBigIcon(const unsigned int id, int index = 0){
+		ICONTYPE result = 0;
+		if (m_startID <= id && id < m_dynamicStartID) {
+			if (m_ItemIconPath.find(id) != m_ItemIconPath.end())
+				result = GetIcon(m_ItemIconPath[id],FILEFOLDERICON,index,true);
+			else
+				result = GetIcon(Cmd(id),FILEFOLDERICON,index,true);
+		}
+		return result;
+	}
+	ICONTYPE GetBigIcon(const tString & path, int index = 0){return GetIcon(path,FILEFOLDERICON,index,true);}
 	//! 返回菜单项对应的命令行的参数
 	const TCHAR * Param(const IDTYPE nID){return GetStr(m_ItemParam,nID);};
 	//! 返回菜单项对应的命令行(不含参数)
 	const TCHAR * Cmd(const IDTYPE nID){return GetStr(m_ItemCmd,nID);};
-	bool Find(const TSTRING& strName, TSTRING& strPath, ICONTYPE & hIcon);
+	unsigned int Find(const TSTRING& strName, TSTRING& strPath);
 	unsigned int FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName);
 	bool TryProcessCommand(unsigned int id);
 	const TSTRING GetCurrentCommandLine(unsigned int nSysID);
@@ -71,7 +81,7 @@ private:
 
 	enum EICONGETTYPE{NOICON, FILEFOLDERICON, FILEICON};
 
-	typedef std::map<TSTRING, MENUTYPE> StrMenuMap;
+	//typedef std::map<TSTRING, MENUTYPE> StrMenuMap;
 	typedef std::map<TSTRING, TSTRING> StrStrMap;
 
 	enum {MENUBLANK = COwnerDrawMenu::MENUHEIGHT - MENUICON};
@@ -170,6 +180,7 @@ private :
 
 	IdStrMap m_ItemCmd;
 	IdStrMap m_ItemParam;
+	IdStrMap m_ItemIconPath;
 
 	CIdIconMap m_MenuItemIcons;
 	CMenuIconMap m_SubMenuIcons;

@@ -352,6 +352,8 @@ int CMenuWithIcon::AddMenuItem(MENUTYPE hMenu, const tString & strName, const tS
 		if (needIcon != NOICON) {
 			// 非动态菜单项，要图标
 			const TCHAR *szIconPath = strIcon.empty()?Cmd(m_ID):strIcon.c_str();
+			
+			AddToMap(m_ItemIconPath, m_ID, strIcon);
 			if ( ! IsStaticMenu(hMenu) && ! IsDynamicMenu(hMenu)) {
 				m_MenuItemIcons.Add(m_ID,GetIcon(szIconPath, needIcon));
 			}
@@ -692,7 +694,7 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 //! 获取文件目录，会截断输入字符串
 bool CMenuWithIcon::GetDirectory(const IDTYPE nID, TSTRING & strWorkPath)
 {
-	strWorkPath = GetStr(m_ItemCmd,nID);
+	strWorkPath = Cmd(nID);
 	TSTRING::size_type pos = strWorkPath.find_last_of('\\');
 	bool r = (strWorkPath.npos != pos);
 	if (r) {
@@ -742,6 +744,7 @@ void CMenuWithIcon::DestroyDynamic()
 //! 清理一些东西，仅供Reset() 和 析构函数 调用
 void CMenuWithIcon::Destroy(void)
 {
+	m_ItemIconPath.clear();
 	m_ItemCmd.clear();
 	m_ItemParam.clear();
 	m_StaticPath.clear();
@@ -1159,10 +1162,10 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 
 
 //! 找出完全匹配,根据名称找命令和图标。
-bool CMenuWithIcon::Find(const TSTRING& strName, TSTRING& strPath, ICONTYPE & hIcon)
+unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath)
 {
 	if(strName.empty() || strName.length() >= MAX_PATH)
-		return false;
+		return 0;
 	TSTRING strSearch(strName);
 	ToLowerCase(strSearch);
 
@@ -1173,10 +1176,9 @@ bool CMenuWithIcon::Find(const TSTRING& strName, TSTRING& strPath, ICONTYPE & hI
 			strPath = _T("\"") + strPath + _T("\"");
 		if(Param(iter->second))
 			strPath = strPath + _T(" ") + Param(iter->second);
-		hIcon = ItemIcon(iter->second);
-		return true;
+		return iter->second;
 	}
-	return false;
+	return 0;
 }
 
 

@@ -341,7 +341,7 @@
 	<auto_handle.h>
 	"FileStrFnc.h"
 
-1208661708 source:f:\c_c++\myprojects\traylauncher\eclipse\source\rundlg.cpp
+1213018516 source:f:\c_c++\myprojects\traylauncher\eclipse\source\rundlg.cpp
 	"stdafx.h"
 	<commctrl.h>
 	<shellapi.h>
@@ -358,7 +358,7 @@
 1208661708 f:\c_c++\myprojects\traylauncher\eclipse\source\language.h
 	<stdheaders.h>
 
-1211103461 f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.h
+1213016401 f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.h
 	"OwnerDrawMenu.h"
 	"MenuData.h"
 
@@ -414,7 +414,7 @@
 	"stdafx.h"
 	"OwnerDrawMenu.h"
 
-1212684127 source:f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.cpp
+1213016422 source:f:\c_c++\myprojects\traylauncher\eclipse\source\menuwithicon.cpp
 	"stdafx.h"
 	<stdexcept>
 	<shellapi.h>
@@ -428,7 +428,7 @@
 	"FileStrFnc.h"
 	"MenuWithIcon.h"
 
-1213012675 source:f:\c_c++\myprojects\traylauncher\eclipse\source\msgmap.cpp
+1213018158 source:f:\c_c++\myprojects\traylauncher\eclipse\source\msgmap.cpp
 	"stdafx.h"
 	<shellapi.h>
 	<shlwapi.h>
@@ -440,6 +440,6 @@
 	"MsgMap.h"
 	"SettingFile.h"
 
-1212684579 source:f:\c_c++\myprojects\traylauncher\eclipse\source\traystart.rc
+1213014038 source:f:\c_c++\myprojects\traylauncher\eclipse\source\traystart.rc
 	"resource.h"
 

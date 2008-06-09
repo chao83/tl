@@ -492,7 +492,7 @@ void InitMsgMap()
 LRESULT  MsgNewInstance(HWND hWnd, UINT, WPARAM, LPARAM)
 {
 	Sleep(100);//等待发送方退出。
-	Systray(hWnd,NIM_ADD,GTrayIcon());
+	Systray(hWnd,NIM_ADD,GTrayIcon().Get());
 	ShowMenu();
 	return 0;
 }
@@ -752,7 +752,7 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 		Settings().Set(sectionGeneral, keyTrayIcon, strIcon,true);
 	}
 	GTrayIcon() = (ICONTYPE)LoadImage(ThisHinstGet(),strIcon.c_str(),IMAGE_ICON,0,0,LR_LOADFROMFILE);
-	Systray(hWnd,NIM_ADD,GTrayIcon());
+	Systray(hWnd,NIM_ADD,GTrayIcon().Get());
 
 	// 读取历史记录
 	std::vector<TSTRING> vHisKey, vHisValue;
@@ -815,7 +815,7 @@ LRESULT MsgHotKey(HWND hWnd, UINT /*message*/, WPARAM wParam, LPARAM /*lParam*/)
 LRESULT  MsgTaskbarCreated(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM /* lParam */)
 {
 	Sleep(2000);
-	Systray(hWnd,NIM_ADD,GTrayIcon());
+	Systray(hWnd,NIM_ADD,GTrayIcon().Get());
 	return 0;
 }
 
@@ -825,7 +825,7 @@ LRESULT  MsgTaskbarCreated(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARA
 LRESULT  MsgDestroy(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
 	IgnoreUser() = true;
-	Systray(hWnd,NIM_DELETE,GTrayIcon());
+	Systray(hWnd,NIM_DELETE,GTrayIcon().Get());
 	//GTrayIcon().Free();
 	//GRunIcon().Free();
 
