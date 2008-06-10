@@ -1,4 +1,5 @@
 v1.9.2
+Fixed	: Run dialog command detection problem.
 Change	: Run dialog box displayes the same icon as the menu does.
 Added	: New hotkey, ctrl + alt + leftWinKey, popup context menu. (same as alt + rightWinKey)
 

@@ -253,7 +253,6 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 		return;
 	}
 	TSTRING strCmdParam(szInput);
-
 	TSTRING strPath;// cmd + param
 	//只处理 MINCMDLEN 个字符以上的
 	if (strCmdParam.length() < MINCMDLEN) {
@@ -278,18 +277,22 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 			SetHint(hDlg,hIconDefault,g_strEmpty);
 			return;
 		}
+		
+		// 广泛匹配
+
 		//搜索菜单名称，匹配分析出的命令，抛弃参数部分
-		if (strCmd != strCmdParam && g_pTray->Find(strCmd,strPath)) {
+		if ( (strCmd != strCmdParam) && (uID = g_pTray->Find(strCmd,strPath)) ) {
 			// 尝试分析出命令
 			TSTRING strCmdWithinPath,strParamWithinPath;
 			GetCmdAndParam(strPath, strCmdWithinPath, strParamWithinPath);
-			s_hIcon = g_pTray->GetBigIcon(strCmdWithinPath);
+			s_hIcon = g_pTray->GetBigIcon(uID);//strCmdWithinPath);
 
-			strHint = strPath;
+			strHint = strCmdWithinPath;
 			QuoteString(strHint);
-
+			if (strParamWithinPath.length())
+				strHint += _T(" ") + strParamWithinPath;
 			if(strParam.length())
-				strHint = strHint + _T(" ") + strParam;
+				strHint += _T(" ") + strParam;
 		}
 		else {
 			bool bKeyFound = false;
@@ -303,7 +306,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 					strHint = strCmd;
 					QuoteString(strHint);
 					if(strParam.length())
-						strHint = strHint + _T(" ") + strParam;
+						strHint += _T(" ") + strParam;
 					bKeyFound = true;
 				}
 			}
@@ -320,14 +323,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 						const TSTRING strPath(pPath.Get());
 						std::vector<TSTRING> vPath;
 						GetSeparatedString(strPath, ';', vPath);
-						//TSTRING::size_type iStartPos = 0;
-						//TSTRING::size_type iEndPos = 0;
-						//do {
-						//	iEndPos = strPath.find(';', iStartPos);
-						//	vPath.push_back(strPath.substr(iStartPos, iEndPos - iStartPos));
-						//	iStartPos = iEndPos + 1;
-						//}while (iEndPos != strPath.npos) ;
-						
+
 						for (std::vector<TSTRING>::size_type i = 0; i < vPath.size(); ++i) {
 							if (vPath[i].empty())
 								continue;
