@@ -1,7 +1,7 @@
-[2008-06-12] v1.9.2
-Change	: a separate executable file compiled with VC++ 2008 express.
+v1.9.2
+Added	: Run dialog lists available files under entered path.
 Fixed	: Run dialog command detection and relative path problems.
-Change	: For menu items, run dialog displayes the same icon as the menu does.
+Change	: Run dialog box displayes the same icon as the menu does.
 Added	: New hotkey, ctrl + alt + leftWinKey, popup context menu. (same as alt + rightWinKey)
 
 [2008-06-06] v1.9.1

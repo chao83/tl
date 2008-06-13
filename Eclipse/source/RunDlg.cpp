@@ -68,6 +68,8 @@ int QuoteString(TSTRING &str, const TSTRING::value_type ch = '\"', bool bProcess
 	}
 	return 1;
 }
+
+// Write history list to setting file
 void UpdateHistoryRecordsInFile()
 {
 	Settings().AddSection(sectionHistory);
@@ -235,8 +237,10 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 	return bKeyFound;
 }
 
-void ExpandRelativePaths(tString & src) {
-	
+// 展开相对路径
+bool ExpandRelativePaths(tString & src) {
+
+	bool bExpanded = false;
 	TSTRING strCmd,strParam;
 	GetCmdAndParam(src, strCmd, strParam);
 
@@ -251,11 +255,12 @@ void ExpandRelativePaths(tString & src) {
 		QuoteString(src);
 		if (strParam.length())
 			src += _T(" ") + strParam;
+		bExpanded = true;
 	}
+	return bExpanded;
 }
 
 //! 更新命令行提示信息：图标和路径
-//void UpdateHint(HWND hDlg, ICONTYPE & s_hIcon, ICONTYPE hIconDefault = NULL)
 void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 {
 	assert(!s_hIcon.Get());
@@ -403,11 +408,23 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 						strHint += _T(" ") + strParam;
 				}
 				else {
-					s_hIcon = g_pTray->GetBigIcon(strCmd);
-					strHint = strCmdParam;
-					if (strHint.length() && strHint[0] != '\"')
-						QuoteString(strHint);
-					bFound = false;
+					bool bOkAsFull = false;
+					// 匹配输入作为整个命令，不分析含参数，也就是假设两头有 ""
+					if (strCmdParam.find('\"') == tString::npos) {
+						s_hIcon = g_pTray->GetBigIcon(strCmdParam);
+						if (s_hIcon.Get()) {
+							strHint = strCmdParam;
+							QuoteString(strHint);
+							bOkAsFull = true;
+						}
+					}
+					if (!bOkAsFull) {
+						s_hIcon = g_pTray->GetBigIcon(strCmd);
+						strHint = strCmdParam;
+						if (strHint.length() && strHint[0] != '\"')
+							QuoteString(strHint);
+						bFound = false;
+					}
 				}
 			}
 		}
@@ -535,6 +552,78 @@ HWND WINAPI CreateTT(HWND hwndOwner, HWND hwndTool)
     return hwndTT;
 }
 
+const unsigned int FINDFILE = 1, FINDDIR = 2, FINDHIDE = 4, FINDALL = FINDFILE | FINDDIR | FINDHIDE;
+// mode 0: all, 1: file only, No dir  2: dir only, No file
+int FindFiles(const tString & strSearch, std::vector<tString> & vStr, unsigned int mode = FINDFILE | FINDDIR) {
+	tString strShowHidden;
+	if(Settings().Get(sectionGeneral, keyShowHidden, strShowHidden) && (strShowHidden == _T("true") || strShowHidden == _T("1")))	{
+		mode |= FINDHIDE;
+	}
+
+	WIN32_FIND_DATA fd = {0};
+	const TCHAR *f = fd.cFileName;
+	int iFound = 0;
+	HANDLE handle = FindFirstFile(strSearch.c_str(),&fd); // 系统会缓存搜索条件？fullPath可以改动？  Ans：应该是的. 不要冒险，新建一个吧。
+	if (handle != INVALID_HANDLE_VALUE) {
+		std::map<tString, tString> nameName;
+		do {
+			if(f[0] == '.' && f[1] == '\0' || f[0] == '.' && f[1] == '.' && f[2] == '\0')
+				continue;
+			if((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !(mode & FINDDIR))
+				continue;
+			if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !(mode & FINDFILE))
+				continue;
+
+			if (!(mode & FINDHIDE) && (fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
+				continue;
+
+			// 忽略大小写, 排序
+
+			TSTRING strNameLower(f);
+			const TSTRING::size_type len = strNameLower.length();
+			for (TSTRING::size_type i = 0; i < len; ++i) {
+				strNameLower[i] = _totlower(strNameLower[i]);
+			}
+			nameName[strNameLower] = f;
+			++iFound;
+		}while(FindNextFile(handle,&fd));
+
+		FindClose(handle);
+		for (std::map<tString, tString>::const_iterator it = nameName.begin(); it != nameName.end(); ++it) {
+			vStr.push_back(it->second);
+		}
+
+	}
+	return iFound;
+}
+//! 根据用户输入来搜索可能的命令，以及路径下的文件
+
+//! \param vStr : vector<tString>, 结果追加到这里
+//! \return : int, 找到的个数
+int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr)
+{
+	int iFound = 0;
+	tString::size_type pos = strSrc.find_last_of(_T("\\"));
+	if (pos != tString::npos && tString::npos == strSrc.find_first_of(_T("*?")) && strSrc.find('\"',1) == tString::npos) {
+
+		tString strDir(strSrc.substr(0, pos+1)); // end with '\\'
+		std::vector<tString> vFound;
+
+		tString strSearch(strDir);
+		if(strSearch[0] == '\"')
+			strSearch.erase(strSearch.begin());
+		if(ExpandRelativePaths(strSearch))
+			strSearch = strSearch.substr(1, strSearch.length()-2);
+
+		strSearch += strSrc.substr(pos + 1) + _T("*");
+		iFound = FindFiles(strSearch, vFound);
+		for (int i = 0; i < iFound; ++i) {
+			vStr.push_back(strDir + vFound[i]);
+		}
+	}
+
+	return iFound;
+}
 
 //! 执行对话框 的消息处理函数。
 BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -708,12 +797,16 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 									//搜索历史记录，和菜单名称。
 									std::vector<TSTRING> vStrNameFound;
 									int iFound = 0; //统计匹配个数,不是简单的只找一个
+
+									iFound += SearchToBuildList(strEdit, vStrNameFound);
+
 									for (unsigned int i = 0; i < StrHis().size(); ++i) {
 										if (StrHis()[i].substr(0,iEditSize) == strEdit) {
 											vStrNameFound.push_back(StrHis()[i]);
 											++iFound;
 										}
 									}
+
 									iFound += g_pTray->FindAllBeginWith(strEdit,vStrNameFound);
 
 									//清空列表控件，也会把编辑框清空
