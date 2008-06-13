@@ -49,11 +49,14 @@
 					<Add option="/EHs" />
 					<Add option="/GF" />
 					<Add option="/O1" />
-					<Add option="/Wp64" />
 					<Add option="/W4" />
 					<Add option="/Zc:wchar_t" />
 					<Add option="/Zc:forScope" />
 					<Add option="/DNDEBUG" />
+					<Add option="/DVCPPCOMPILING" />
+					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="/D_WINDOWS" />
+					<Add option="/DWIN32" />
 				</Compiler>
 				<Linker>
 					<Add library="shlwapi.lib" />

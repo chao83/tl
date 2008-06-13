@@ -21,7 +21,7 @@ const HINSTANCE ThisHinstGet();
 
 const TSTRING::size_type HISTORYSIZE(50);
 std::vector<TSTRING> & StrHis()
-{	
+{
 	static std::vector<TSTRING> vStrHis;
 	return vStrHis;
 };
@@ -51,10 +51,10 @@ bool ShellSuccess(const HINSTANCE hInst)
 	return reinterpret_cast<int>(hInst) > 32;
 }
 
-int QuoteString(TSTRING &str, const TSTRING::value_type ch = '\"', bool bProcessEmpty = false)
+int QuoteString(TSTRING &str, const TSTRING::value_type ch = '\"', bool bProcessEmptyString = false)
 {
 	if (str.empty() ) {
-		if (bProcessEmpty ) {
+		if (bProcessEmptyString ) {
 			str = _T("\"\"");
 		}
 	}
@@ -180,11 +180,11 @@ bool IsPathExe(const TSTRING & path) {
 
 
 
-bool SearchRegkeyForExe(const TSTRING & strCmdParam, 
-						const TSTRING & inStrSubKey, 	
+bool SearchRegkeyForExe(const TSTRING & strCmdParam,
+						const TSTRING & inStrSubKey,
 						const TCHAR * pItemName,
 						icon_ptr & s_hIcon,
-						TSTRING & strHint,						
+						TSTRING & strHint,
 						bool bNameOnly)
 {
 		TSTRING strCmd,strParam;
@@ -206,7 +206,7 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 		HKEY hKeyAppPath;
 		if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE,strSubKey.c_str(),0,KEY_READ,&hKeyAppPath)) {
 
-			
+
 			static const int iCmdSize = MAX_PATH;
 			TCHAR szInput[iCmdSize] = {0};
 			TCHAR *path = szInput;
@@ -214,7 +214,7 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 			DWORD dwLength (iCmdSize);
 			DWORD dwType (REG_NONE);
 			if (ERROR_SUCCESS == RegQueryValueEx(hKeyAppPath, pItemName, NULL, &dwType, reinterpret_cast<LPBYTE>(path), &dwLength) &&
-				REG_SZ == dwType) 
+				REG_SZ == dwType)
 			{
 				s_hIcon.Reset();
 				if(path)
@@ -225,7 +225,7 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 				strHint = path;
 				QuoteString(strHint);
 				if(strParam.length()) {
-					strHint = strHint + _T(" ") + strParam;
+					strHint += _T(" ") + strParam;
 				}
 				bKeyFound = true;
 			}
@@ -235,6 +235,24 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 	return bKeyFound;
 }
 
+void ExpandRelativePaths(tString & src) {
+	
+	TSTRING strCmd,strParam;
+	GetCmdAndParam(src, strCmd, strParam);
+
+	if (strCmd.length() > 1 && strCmd.substr(0,2) == _T(".\\") ||
+		strCmd.length() > 2 && strCmd.substr(0,3) == _T("..\\") )
+	{
+		int nBuf = GetFullPathName(strCmd.c_str(),0,0,0);
+		Arr<TCHAR> buf ( new TCHAR[nBuf + 1] );
+		if (GetFullPathName(strCmd.c_str(),nBuf, buf.Get(), 0)) {
+			src = buf.Get();
+		}
+		QuoteString(src);
+		if (strParam.length())
+			src += _T(" ") + strParam;
+	}
+}
 
 //! 更新命令行提示信息：图标和路径
 //void UpdateHint(HWND hDlg, ICONTYPE & s_hIcon, ICONTYPE hIconDefault = NULL)
@@ -253,6 +271,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 		return;
 	}
 	TSTRING strCmdParam(szInput);
+
 	TSTRING strPath;// cmd + param
 	//只处理 MINCMDLEN 个字符以上的
 	if (strCmdParam.length() < MINCMDLEN) {
@@ -268,6 +287,8 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 		strHint = strPath;
 	}
 	else {
+		//  . && ..
+		ExpandRelativePaths(strCmdParam);
 		// 尝试分析出命令
 		TSTRING strCmd,strParam;
 		GetCmdAndParam(strCmdParam, strCmd, strParam);
@@ -277,7 +298,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 			SetHint(hDlg,hIconDefault,g_strEmpty);
 			return;
 		}
-		
+
 		// 广泛匹配
 
 		//搜索菜单名称，匹配分析出的命令，抛弃参数部分
@@ -353,37 +374,46 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 				TCHAR *path = szInput;
 				memset(path,0,sizeof(TCHAR)*iCmdSize);
 				DWORD dwSize = iCmdSize;
-				HRESULT hres = AssocQueryString(0x00000002,// ASSOCF_OPEN_BYEXENAME,//Windows api and gcc .h file do not match
-								 static_cast<ASSOCSTR>(2), // ASSOCSTR_EXECUTABLE,	//Windows api and gcc .h file do not match
+			#ifdef VCPPCOMPILING
+				HRESULT hres = AssocQueryString(ASSOCF_OPEN_BYEXENAME,
+								 ASSOCSTR_EXECUTABLE,
 								 strCmd.c_str(),
 								 NULL,
 								 path,
 								 &dwSize);
+			#else
+				HRESULT hres = AssocQueryString(0x00000002,//ASSOCF_OPEN_BYEXENAME,// Windows api and gcc .h file do not match
+								 static_cast<ASSOCSTR>(2),	//static_cast<ASSOCSTR>(2), // Windows api and gcc .h file do not match
+								 strCmd.c_str(),
+								 NULL,
+								 path,
+								 &dwSize);
+			#endif
 				if ( (S_OK == hres) || (ShellSuccess(FindExecutable(strCmd.c_str(),NULL,path)) && *path) ) {
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
-					if (s_hIcon.Get() && path)
+					if (!s_hIcon.Get() && dwSize)
 						s_hIcon = g_pTray->GetBigIcon(path);
 					if (S_OK == hres)
 						strHint = path;
 					else
 						strHint = strCmd;
 					QuoteString(strHint);
-					//if ( ! ( S_OK == hres || strCmd.find('.') == strCmd.npos || IsPathExe(strCmd) ) )
-					//	strParam = _T("\"") + strCmd + _T("\"") + strParam;
+
 					if(strParam.length())
-						strHint = strHint + _T(" ") + strParam;
+						strHint += _T(" ") + strParam;
 				}
 				else {
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
 					strHint = strCmdParam;
-					QuoteString(strHint);
+					if (strHint.length() && strHint[0] != '\"')
+						QuoteString(strHint);
 					bFound = false;
 				}
 			}
 		}
 	}
 
-	if (bFound){	
+	if (bFound){
 		//搜索注册表
 		TSTRING strSubKey(_T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"));
 		SearchRegkeyForExe(strCmdParam, strSubKey, _T("Debugger"), s_hIcon, strHint, true);
@@ -457,7 +487,7 @@ bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, HWND 
 	else
 		sei.lpParameters = NULL;
 	sei.lpDirectory = strDir.c_str();
-	sei.nShow = SW_SHOWNORMAL;	
+	sei.nShow = SW_SHOWNORMAL;
 	ShellExecuteEx(&sei);
 	return ShellSuccess(sei.hInstApp);
 }
@@ -474,7 +504,7 @@ HWND WINAPI CreateTT(HWND hwndOwner, HWND hwndTool)
 
     //if(!InitCommonControlsEx(&icex))
     //   return NULL;
-	   
+
     // Create the ToolTip control.
     hwndTT = CreateWindow(TOOLTIPS_CLASS, TEXT(""),
                           WS_POPUP,
@@ -495,7 +525,7 @@ HWND WINAPI CreateTT(HWND hwndOwner, HWND hwndTool)
 	ti.rect.left = rect.left;
 	ti.rect.top = rect.top;
 	ti.rect.bottom = rect.bottom;
-	ti.rect.right = rect.right; 
+	ti.rect.right = rect.right;
 
     // Add the tool to the control, displaying an error if needed.
     if(!SendMessage(hwndTT,TTM_ADDTOOL,0,(LPARAM)&ti)){
@@ -537,8 +567,8 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			DragAcceptFiles( hDlg, TRUE);
 
 			if (hwndTT = CreateTT(hDlg, GetDlgItem(hDlg, IDC_EDT_PATH)) ) {
-				SendMessage(hwndTT, 
-					WM_SETFONT, 
+				SendMessage(hwndTT,
+					WM_SETFONT,
 					SendMessage(GetDlgItem(hDlg, IDC_EDT_PATH), WM_GETFONT, 0,0),
 					FALSE);
 			}
@@ -550,7 +580,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
 				AllowSetForegroundWindow(GetCurrentProcessId());
 				SetForegroundWindow(hDlg);
-				SetFocus(GetDlgItem(hDlg, IDC_CBORUN));				
+				SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
 			}
 			return TRUE;
 	//		break;
@@ -590,14 +620,14 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						LPNMTTDISPINFO pInfo = (LPNMTTDISPINFO) lParam;
 						if ((pInfo->uFlags & TTF_IDISHWND) && GetDlgItem(hDlg, IDC_EDT_PATH) ==  (HWND)(pnmh->idFrom)) {
 							memset (szHint, 0, sizeof(szHint));
-							if (MyGetDlgItemText(hDlg, IDC_EDT_PATH, szHint, iCmdSize) ){								
+							if (MyGetDlgItemText(hDlg, IDC_EDT_PATH, szHint, iCmdSize) ){
 								pInfo->lpszText = szHint;
 								pInfo->hinst = NULL;
 							}
 						}
 					}
 					break;
-				case TTN_SHOW:	
+				case TTN_SHOW:
 					if(hwndTT){
 						SetWindowPos(hwndTT, HWND_TOPMOST,100, 0, 0, 0, SWP_NOSIZE|SWP_NOACTIVATE);
 					}
@@ -644,6 +674,8 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							//执行成功，加入历史列表
 							if (AddToHis(StrHis(), szCommand, HISTORYSIZE))
 								UpdateHistoryRecordsInFile();
+							if (GetKeyState(VK_SHIFT)&0x8000)
+								return TRUE;
 						}
 					}
 					//继续向下执行，销毁窗口
@@ -736,13 +768,13 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					break;
 				//case IDC_IMG_ICON:
-				//	switch (HIWORD(wParam)) 					
+				//	switch (HIWORD(wParam))
 				//	{
 				//	case STN_CLICKED:
-				//		//todo 剪切板						
+				//		//todo 剪切板
 				//		break;
 				//	default:
-				//		break;				
+				//		break;
 				//	}
 				//	break;
 				default:
@@ -781,8 +813,8 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	MyGetDlgItemTextBeforeCursor(hDlg, IDC_CBORUN, strEditLast);
-	
-		
+
+
 	return FALSE;
 }
 

@@ -821,19 +821,29 @@ ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, 
 		// 文件路径用的是缩写，如 "notepad"
 		TCHAR path[MAX_PATH] ={0};
 		DWORD dwSize = MAX_PATH;
-
-		HRESULT hres = AssocQueryString(ASSOCSTR_EXECUTABLE,//ASSOCF_OPEN_BYEXENAME,
+	#ifdef VCPPCOMPILING
+		HRESULT hres = AssocQueryString(ASSOCF_OPEN_BYEXENAME,
 						 ASSOCSTR_EXECUTABLE,
 						 pPath,
 						 NULL,
 						 path,
 						 &dwSize);
+	#else
+		HRESULT hres = AssocQueryString(0x00000002,//ASSOCF_OPEN_BYEXENAME,// Windows api and gcc .h file do not match
+						 static_cast<ASSOCSTR>(2),	//static_cast<ASSOCSTR>(2), // Windows api and gcc .h file do not match
+						 pPath,
+						 NULL,
+						 path,
+						 &dwSize);
+	#endif
+
 		if ((S_OK == hres) || ((ForceCast<int, HINSTANCE>(FindExecutable(pPath,NULL,path))) > SHELL_MAX_ERROR_VALUE && *path)) {
 			if (bIcon32)
 				ExtractIconEx(path,0, &hIcon,NULL,1);
 			else
 				ExtractIconEx(path,0, NULL,&hIcon,1);
-		}
+
+		}		
 		// 现在还没有图标，可能：文件根本不存在
 	}
 // */
