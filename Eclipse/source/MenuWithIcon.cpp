@@ -1171,7 +1171,7 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 }
 
 
-//! 找出完全匹配,根据名称找命令和图标。
+//! 找出完全匹配,根据名称找命令和图标,成功返回id，失败返回 0。
 unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath)
 {
 	if(strName.empty() || strName.length() >= MAX_PATH)
@@ -1180,7 +1180,7 @@ unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath)
 	ToLowerCase(strSearch);
 
 	std::map<TSTRING,IDTYPE>::const_iterator iter;
-	if((iter = m_NameIdMap.find(strName)) != m_NameIdMap.end() && Cmd(iter->second)) {
+	if((iter = m_NameIdMap.find(strSearch)) != m_NameIdMap.end() && Cmd(iter->second)) {
 		strPath = Cmd(iter->second);
 		if(strPath.length() && strPath[0] != '\"')
 			strPath = _T("\"") + strPath + _T("\"");
@@ -1192,31 +1192,48 @@ unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath)
 }
 
 
-//! 找出部分匹配，加入到指定字符串向量末尾，已存在的跳过。
-unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName)
+//! 找出部分匹配，加入到指定字符串向量末尾，bNoDup = true 已存在的跳过。
+unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup)
 {
 	if(strBeginWith.empty() || strBeginWith.length()>=MAX_PATH)
 		return 0;
 	TSTRING strSearch(strBeginWith);
 	ToLowerCase(strSearch);
-	TSTRING::size_type size = strSearch.length();
+	const TSTRING::size_type size = strSearch.length();
 
 	unsigned int iFound = 0;
 	std::map<TSTRING,IDTYPE>::const_iterator iter;
 	for(iter = m_NameIdMap.begin(); iter != m_NameIdMap.end(); ++iter) { //m_NameIdMap是按照字母表顺序的
 		if(iter->first.length() >= size && iter->first.substr(0,size) == strSearch) {
 			bool bIgnoreThis = false;
-			for (std::vector<TSTRING>::size_type i = 0; i < vStrName.size(); ++i) {
-				if (vStrName[i] == iter->first) {
-					bIgnoreThis = true;
-					break;
+			if (!bAllowDup) {
+				for (std::vector<TSTRING>::size_type i = 0; i < vStrName.size(); ++i) {
+					if (vStrName[i].length() == iter->first.length() && IsStrEndWith(vStrName[i],iter->first,false)) {
+						//不考虑大小写，相同
+						bIgnoreThis = true;
+						break;
+					}
 				}
 			}
 			if (!bIgnoreThis) {
 				const TCHAR * pCmd = Cmd(iter->second); //用于排除标题。
 				if (pCmd && *pCmd) {
 					++iFound;
-					vStrName.push_back(iter->first);
+					tString strName = ItemName(iter->second);
+					//移除每次出现的第一个 &
+					TSTRING::size_type len = strName.length();
+					TSTRING::size_type move = 0;
+					for (TSTRING::size_type j = 0; j < len; ++j) {
+						if(strName[j] == '&') {
+							++move;
+							++j;
+						}
+						if(move)
+							strName[j-move] = strName[j];
+					}
+					//截断;
+					strName.resize(strName.size() - move);
+					vStrName.push_back(strName);
 				}
 			}
 		}

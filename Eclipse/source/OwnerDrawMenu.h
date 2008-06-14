@@ -65,7 +65,7 @@ protected:
 	typedef std::map<MENUTYPE,ICONTYPE> MenuIconMap;
 	typedef MenuIconMap::const_iterator MenuIconIter;
 
-	enum {MENUSIDE = 6, MENUHEIGHT = 22, MENUICON = 16, MENUSEP = 5,MAXMENUWIDTH = 500,NBUF = 1024, SHELL_MAX_ERROR_VALUE = 32};
+	enum {MENUSIDE = 6, MENUHEIGHT = 22, MENUICON = 16, MENUSEP = 5,MAXMENUWIDTH = 384,NBUF = 1024, SHELL_MAX_ERROR_VALUE = 32};
 	IdStrMap & ItemNameMap() {return m_ItemName;};
 	MenuStrMap & MenuNameMap() {return m_MenuName;};
 

@@ -164,7 +164,8 @@ void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& 
 //! 设置命令行提示信息
 void SetHint(HWND hDlg, ICONTYPE hIcon, const TCHAR *pHint)
 {
-	SendMessage(GetDlgItem(hDlg, IDC_IMG_ICON),STM_SETICON, reinterpret_cast<WPARAM>(hIcon),0);
+	if (reinterpret_cast<LRESULT>(hIcon) != SendMessage(GetDlgItem(hDlg, IDC_IMG_ICON),STM_GETICON, reinterpret_cast<WPARAM>(hIcon),0))
+		SendMessage(GetDlgItem(hDlg, IDC_IMG_ICON),STM_SETICON, reinterpret_cast<WPARAM>(hIcon),0);
 	SetDlgItemText(hDlg, IDC_EDT_PATH, pHint);
 }
 
@@ -241,8 +242,12 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 bool ExpandRelativePaths(tString & src) {
 
 	bool bExpanded = false;
-	TSTRING strCmd,strParam;
-	GetCmdAndParam(src, strCmd, strParam);
+	bool bQuote = false;
+	TSTRING strCmd(src),strParam;
+	if (src.length() && *src.begin() == '\"') {
+		GetCmdAndParam(src, strCmd, strParam);
+		bQuote = true;
+	}
 
 	if (strCmd.length() > 1 && strCmd.substr(0,2) == _T(".\\") ||
 		strCmd.length() > 2 && strCmd.substr(0,3) == _T("..\\") )
@@ -252,7 +257,8 @@ bool ExpandRelativePaths(tString & src) {
 		if (GetFullPathName(strCmd.c_str(),nBuf, buf.Get(), 0)) {
 			src = buf.Get();
 		}
-		QuoteString(src);
+		if (bQuote)
+			QuoteString(src);
 		if (strParam.length())
 			src += _T(" ") + strParam;
 		bExpanded = true;
@@ -600,29 +606,67 @@ int FindFiles(const tString & strSearch, std::vector<tString> & vStr, unsigned i
 
 //! \param vStr : vector<tString>, 结果追加到这里
 //! \return : int, 找到的个数
-int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr)
+int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr, bool bAllowDup = true)
 {
 	int iFound = 0;
+	//允许第一个字母是 '\"'
+	bool bQuote(strSrc.length() && '\"' == strSrc[0]);
+	
 	tString::size_type pos = strSrc.find_last_of(_T("\\"));
+	// 如果发现 *, ?, 非起始位置的 '\"' , 就禁止搜索
 	if (pos != tString::npos && tString::npos == strSrc.find_first_of(_T("*?")) && strSrc.find('\"',1) == tString::npos) {
 
-		tString strDir(strSrc.substr(0, pos+1)); // end with '\\'
+		tString strDir(strSrc.substr(bQuote, pos+1-bQuote)); // end with '\\'
 		std::vector<tString> vFound;
 
 		tString strSearch(strDir);
-		if(strSearch[0] == '\"')
-			strSearch.erase(strSearch.begin());
-		if(ExpandRelativePaths(strSearch))
-			strSearch = strSearch.substr(1, strSearch.length()-2);
 
-		strSearch += strSrc.substr(pos + 1) + _T("*");
-		iFound = FindFiles(strSearch, vFound);
-		for (int i = 0; i < iFound; ++i) {
-			vStr.push_back(strDir + vFound[i]);
+		ExpandRelativePaths(strSearch);
+		if ( 2 < strSearch.length() && strSearch.substr(1,2) == _T(":\\")) {
+			strSearch += strSrc.substr(pos + 1) + _T("*");
+			iFound = FindFiles(strSearch, vFound);
+			const tString strQuote = bQuote?_T("\""):g_strEmpty;
+			if (bAllowDup) {
+				for (int i = 0; i < iFound; ++i) {
+					vStr.push_back(strQuote + strDir + vFound[i]);
+				}
+			}
+			else {
+				tString strDest;
+				for (int i = 0; i < iFound; ++i) {
+					strDest = strQuote + strDir + vFound[i];
+					if (std::find(vStr.begin(), vStr.end(), strDest) == vStr.end())
+						vStr.push_back(strDest);
+				}
+			}
 		}
 	}
 
 	return iFound;
+}
+
+// 不区分大小写，比较字符串相等 
+bool EqualNoCase(const tString & s1, const tString & s2) {
+	return (s1.length() == s2.length() && StrEndWith(s1,s2, false) );
+}
+
+template <class T>
+void MyUniqueVector(std::vector<T> & v) {
+	bool bChange = true;
+	while (bChange) {
+		try {
+			for (int r = v-1; r >= 0; --r) {
+				for (int i = 0; i < r; ++i) {
+					if (v[i] == v[r]) {
+						bChange = true;
+						throw(1);
+					}
+				}
+			}
+			bChange = false;
+		}
+		catch(...){	}
+	}
 }
 
 //! 执行对话框 的消息处理函数。
@@ -641,9 +685,11 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static ICONTYPE s_hIconDefault = GRunIcon().Get()? GRunIcon().Get():LoadIcon(ThisHinstGet(), MAKEINTRESOURCE(IDI_UNKNOWN));
 
 	static TSTRING strEditLast(g_strEmpty);//用于建议命令
+	static TSTRING strUserInput(g_strEmpty);//用于建议命令
 
 	switch (message) {
 		case WM_INITDIALOG:
+			strUserInput = g_strEmpty;
 			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETMINVISIBLE,10,0);
 			SetWindowText(hDlg,GetLang(_T("Run")));
 			SetDlgItemText(hDlg, IDC_CBORUN, szCommand);
@@ -779,59 +825,22 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				case IDC_CBORUN:
 					//编辑框的通知消息。
 					switch (HIWORD(wParam))	{
-						case CBN_EDITUPDATE:	//编辑框的内容更改了,搜索
-
-							if (MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize)) {
-								TSTRING strEdit(szCommand);//用户输入的编辑框的內容。
+						case CBN_EDITUPDATE:	//编辑框的内容更改了,搜索 //? 似乎只是用户的输入
+							MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize);
+							strUserInput = szCommand;
+							if (strUserInput.length()) {								
+								const TSTRING & strEdit(strUserInput);//用户输入的编辑框的內容。
 								int iEditSize = static_cast<int>(strEdit.size());
 
+								static int iFoundLast = -1;//init
 								//用户在末尾输入字符
 								DWORD dwSel = static_cast<DWORD>(SendMessage(GetDlgItem(hDlg, IDC_CBORUN), CB_GETEDITSEL, 0, 0));
-								if (iEditSize > static_cast<int>(strEditLast.size())
-									&& (strEdit.substr(0,strEditLast.size()) == strEditLast)
+								const bool bAppendChar ( iEditSize > static_cast<int>(strEditLast.size())
+									&& EqualNoCase(strEdit.substr(0,strEditLast.size()), strEditLast)
 									&& LOWORD(dwSel) == HIWORD(dwSel)
 									&& LOWORD(dwSel) == iEditSize
-									) //只处理末尾的输入
-								{
-									//用户输入新字符
-									//搜索历史记录，和菜单名称。
-									std::vector<TSTRING> vStrNameFound;
-									int iFound = 0; //统计匹配个数,不是简单的只找一个
-
-									iFound += SearchToBuildList(strEdit, vStrNameFound);
-
-									for (unsigned int i = 0; i < StrHis().size(); ++i) {
-										if (StrHis()[i].substr(0,iEditSize) == strEdit) {
-											vStrNameFound.push_back(StrHis()[i]);
-											++iFound;
-										}
-									}
-
-									iFound += g_pTray->FindAllBeginWith(strEdit,vStrNameFound);
-
-									//清空列表控件，也会把编辑框清空
-									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_RESETCONTENT ,0,0);
-
-									//重建列表控件,
-									std::vector<TSTRING>::size_type iNum = vStrNameFound.size();
-									for (unsigned int i = 0; i < iNum; ++i)
-										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_ADDSTRING ,0,(LPARAM)vStrNameFound[i].c_str());
-
-									iNum = StrHis().size();
-									for (unsigned int i = 0; i < iNum; ++i) {
-										if (CB_ERR == SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_FINDSTRINGEXACT ,static_cast<WPARAM>(-1),(LPARAM)StrHis()[i].c_str()))
-											SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_ADDSTRING ,0,(LPARAM)StrHis()[i].c_str());
-									}
-									//找到２个以上时，显示下拉框
-									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN ,static_cast<WPARAM>(iFound > 1),0);
-
-									if (iFound)
-										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETCURSEL ,0,0);
-									else
-										SetDlgItemText(hDlg, IDC_CBORUN, strEdit.c_str());
-									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(iEditSize,-1));
-								}
-								else {
+									);
+								if (!bAppendChar){
 									//隐藏下拉框
 									if ( SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_GETDROPPEDSTATE, 0,0)) {
 										LRESULT dwSel = SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_GETEDITSEL,0,0);
@@ -839,9 +848,80 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 										SetDlgItemText(hDlg, IDC_CBORUN, szCommand);
 										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,dwSel);
 									}
+									iFoundLast = -1;
+								}
+								else if (iFoundLast != 0 || strEdit.length() <= 3 || *strEdit.rbegin() == '\\') //只处理末尾的输入
+								{
+									//用户输入新字符
+									//搜索历史记录，和菜单名称。
+									int iFound = 0; //统计匹配个数,不是简单的只找一个
+
+									std::vector<TSTRING> vStrNameFound;
+									if (iFoundLast > 0 && *strEdit.rbegin() != '\\') {
+										//直接过滤当前列表
+										int count = static_cast<int>(SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_GETCOUNT,0,0));
+										tString strList;
+										for (int i = 0; i < count; ++i) {
+											if(SendMessage(GetDlgItem(hDlg, IDC_CBORUN), static_cast<unsigned int>(CB_GETLBTEXT), i, (LPARAM) szCommand)) {
+												strList = szCommand;
+												if (strList.length() >= strEdit.length() && EqualNoCase(strEdit, strList.substr(0, strEdit.length()))) {
+													vStrNameFound.push_back(strList);
+													++iFound;
+												}
+											}
+										}
+
+									}
+									else {
+										// 重新搜索
+										iFound += SearchToBuildList(strEdit, vStrNameFound);
+
+										for (unsigned int i = 0; i < StrHis().size(); ++i) {
+											if (EqualNoCase(StrHis()[i].substr(0,iEditSize),strEdit) && 
+												std::find(vStrNameFound.begin(),vStrNameFound.end(),StrHis()[i]) == vStrNameFound.end()	) 
+											{												
+												vStrNameFound.push_back(StrHis()[i]);
+												++iFound;
+											}
+										}
+
+										iFound += g_pTray->FindAllBeginWith(strEdit,vStrNameFound);
+									}
+
+									// disable redraw
+									SendMessage(GetDlgItem(hDlg, IDC_CBORUN), WM_SETREDRAW, FALSE, 0);
+
+									//清空列表控件，也会把编辑框清空
+									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_RESETCONTENT ,0,0);
+
+									//重建列表控件,
+
+									std::vector<TSTRING>::size_type iNum = vStrNameFound.size();
+									for (unsigned int i = 0; i < iNum; ++i) {
+										if (CB_ERR == SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_FINDSTRINGEXACT ,static_cast<WPARAM>(-1),(LPARAM)vStrNameFound[i].c_str()))
+											SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_ADDSTRING ,0,(LPARAM)vStrNameFound[i].c_str());
+									}
+
+									iNum = StrHis().size();
+									for (unsigned int i = 0; i < iNum; ++i) {
+										if (CB_ERR == SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_FINDSTRINGEXACT ,static_cast<WPARAM>(-1),(LPARAM)StrHis()[i].c_str()))
+											SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_ADDSTRING ,0,(LPARAM)StrHis()[i].c_str());
+									}
+
+									//找到２个以上时，显示下拉框
+									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN ,static_cast<WPARAM>(iFound > 1),0);
+									// enable redraw
+									SendMessage(GetDlgItem(hDlg, IDC_CBORUN), WM_SETREDRAW, TRUE, 0);
+
+									if (iFound)
+										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETCURSEL ,0,0);
+									else
+										SetDlgItemText(hDlg, IDC_CBORUN, strEdit.c_str());
+									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(iEditSize,-1));
+									iFoundLast = iFound;
 								}
 							}
-							strEditLast = szCommand;
+							strEditLast = strUserInput;//szCommand;
 
 							return TRUE;//break;
 
@@ -851,6 +931,12 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							int count;  count = static_cast<int>(SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_GETCOUNT,0,0));
 							if (count && (index < 0 || index >= count))
 								SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETCURSEL,0,0);
+							if (SendMessage(GetDlgItem(hDlg, IDC_CBORUN), static_cast<unsigned int>(CB_GETLBTEXT), index, (LPARAM) szCommand)) { //MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize)) {
+								tString str(szCommand);
+								if (StrEndWith(str.substr(0, strUserInput.length()), strUserInput, false)){
+									PostMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(strUserInput.length(),-1));
+								}
+							}
 
 							//break;
 						case CBN_EDITCHANGE:

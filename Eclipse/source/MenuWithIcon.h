@@ -58,7 +58,7 @@ public:
 	//! 返回菜单项对应的命令行(不含参数)
 	const TCHAR * Cmd(const IDTYPE nID){return GetStr(m_ItemCmd,nID);};
 	unsigned int Find(const TSTRING& strName, TSTRING& strPath);
-	unsigned int FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName);
+	unsigned int FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup = false);
 	bool TryProcessCommand(unsigned int id);
 	const TSTRING GetCurrentCommandLine(unsigned int nSysID);
 	int ItemIDCount(){return m_ID - m_startID;};
@@ -173,7 +173,7 @@ private :
 	int MultiModeBuildMenu(MENUTYPE, const tString & strPath, const tString & strName, EBUILDMODE mode,bool bNoFileIcon = false);
 
 
-	std::map<TSTRING, IDTYPE> m_NameIdMap;//用于查找名称和命令的对应关系
+	std::map<TSTRING, IDTYPE> m_NameIdMap;//用于查找名称和命令的对应关系,全部小写字母
 	ICONTYPE m_hIconOpen;
 	ICONTYPE m_hIconClose;
 	ICONTYPE m_hIconUnknowFile;

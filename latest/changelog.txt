@@ -1,4 +1,6 @@
 v1.9.2
+Added	: ignore mid click if clicked multiple times quickly.
+Change	: limit menu width to 384 pixels.
 Added	: Run dialog lists available files under entered path.
 Fixed	: Run dialog command detection and relative path problems.
 Change	: Run dialog box displayes the same icon as the menu does.
