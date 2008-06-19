@@ -5,20 +5,21 @@ LRESULT CALLBACK MouseProc(int nCode,
 		LPARAM lParam
 		)
 {
-	if (!(GetKeyState(VK_SHIFT) & 0x8000) && (HC_ACTION == nCode || HC_NOREMOVE == nCode)) {
-		HWND hPre(0);
-		switch (wParam) {
-			case WM_MBUTTONUP:
+	if ((HC_ACTION == nCode || HC_NOREMOVE == nCode)) {
+		if (WM_MBUTTONUP == wParam && !(GetKeyState(VK_SHIFT) & 0x8000)) {
+			static DWORD s_dwTime = 0;// GetTickCount();
+			DWORD dwTime = GetTickCount();
+			if (s_dwTime + 1000 < dwTime) {
+				s_dwTime = dwTime;
 				//·¢ÏûÏ¢
-				hPre = ::FindWindow( L"TrayLauncher_WindowClass", NULL);
+				HWND hPre = ::FindWindow( L"TrayLauncher_WindowClass", NULL);
 				if (hPre) {
 					SetForegroundWindow(hPre);
 					PostMessage(hPre, WM_USER + 4, GetKeyState(VK_LBUTTON) & 0x8000, 0);
 					return TRUE;
 				}
-				break;
-			default :
-				break;
+			}
+			s_dwTime = dwTime;
 		}
 	}
 	return CallNextHookEx(NULL, nCode, wParam, lParam);

@@ -1,7 +1,7 @@
-v1.9.2
-Added	: ignore mid click if clicked multiple times quickly.
-Change	: limit menu width to 384 pixels.
-Added	: Run dialog lists available files under entered path.
+[2008-06-15] v1.9.2
+Added	: Run dialog lists available files under entered directory.
+Added	: Ignore mid click if clicked multiple times quickly(within 1 second).
+Change	: Limit maximum menu width to 384 pixels.
 Fixed	: Run dialog command detection and relative path problems.
 Change	: Run dialog box displayes the same icon as the menu does.
 Added	: New hotkey, ctrl + alt + leftWinKey, popup context menu. (same as alt + rightWinKey)
