@@ -159,6 +159,7 @@ LRESULT  MsgHotKey(HWND, UINT, WPARAM, LPARAM);
 LRESULT  MsgClose(HWND, UINT, WPARAM, LPARAM);
 LRESULT  MsgNewInstance(HWND, UINT, WPARAM, LPARAM);
 LRESULT  MsgMidClick(HWND, UINT, WPARAM, LPARAM);
+LRESULT  MsgEndSession(HWND, UINT, WPARAM, LPARAM);
 
 
 BOOL  CALLBACK About(HWND, UINT, WPARAM, LPARAM);
@@ -485,6 +486,7 @@ void InitMsgMap()
 	TheMsgMap().Add(WM_CLOSE,		&MsgClose);
 	TheMsgMap().Add(UM_NEWINSTANCE, &MsgNewInstance);
 	TheMsgMap().Add(UM_MIDCLICK,	&MsgMidClick);
+	TheMsgMap().Add(WM_ENDSESSION,	&MsgEndSession);
 }
 
 
@@ -511,6 +513,16 @@ LRESULT  MsgMidClick(HWND hWnd, UINT, WPARAM bDown, LPARAM)
 	else {
 		Sleep(100);
 		ShowMenu();
+	}
+	return 0;
+}
+
+
+//! 处理关机，注销等 通知
+LRESULT  MsgEndSession(HWND, UINT, WPARAM wParam, LPARAM) // WM_ENDSESSION
+{
+	if (wParam) {
+		Settings().Save();
 	}
 	return 0;
 }

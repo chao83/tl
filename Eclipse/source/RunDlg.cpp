@@ -687,6 +687,8 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static TSTRING strEditLast(g_strEmpty);//用于建议命令
 	static TSTRING strUserInput(g_strEmpty);//用于建议命令
 
+	static int iFoundLast = -1;//上一次所搜索到的匹配命令个数； -1 表示重新搜索。.
+	
 	switch (message) {
 		case WM_INITDIALOG:
 			strUserInput = g_strEmpty;
@@ -729,6 +731,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			return TRUE;
 		case WM_DESTROY:
 			//扫尾，存储输入内容
+			iFoundLast = -1;
 			MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize);
 			//销毁图标
 			s_hIcon.Reset();
@@ -832,7 +835,6 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 								const TSTRING & strEdit(strUserInput);//用户输入的编辑框的內容。
 								int iEditSize = static_cast<int>(strEdit.size());
 
-								static int iFoundLast = -1;//init
 								//用户在末尾输入字符
 								DWORD dwSel = static_cast<DWORD>(SendMessage(GetDlgItem(hDlg, IDC_CBORUN), CB_GETEDITSEL, 0, 0));
 								const bool bAppendChar ( iEditSize > static_cast<int>(strEditLast.size())

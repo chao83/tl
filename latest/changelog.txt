@@ -1,3 +1,7 @@
+[2008-06-26] v1.9.3
+Added	: Save settings when shutting down system.
+Fixed	: Run dialog do not search for commands when reopened.
+
 [2008-06-15] v1.9.2
 Added	: Run dialog lists available files under entered directory.
 Added	: Ignore mid click if clicked multiple times quickly(within 1 second).
