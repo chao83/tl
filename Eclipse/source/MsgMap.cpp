@@ -522,6 +522,7 @@ LRESULT  MsgMidClick(HWND hWnd, UINT, WPARAM bDown, LPARAM)
 LRESULT  MsgEndSession(HWND, UINT, WPARAM wParam, LPARAM) // WM_ENDSESSION
 {
 	if (wParam) {
+		// 即将关闭会话
 		Settings().Save();
 	}
 	return 0;

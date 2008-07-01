@@ -693,6 +693,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_INITDIALOG:
 			strUserInput = g_strEmpty;
 			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETMINVISIBLE,10,0);
+			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_LIMITTEXT, 512,0); // 限制输入长度
 			SetWindowText(hDlg,GetLang(_T("Run")));
 			SetDlgItemText(hDlg, IDC_CBORUN, szCommand);
 			SetDlgItemText(hDlg, IDC_BTNRUN, GetLang(_T("Run")));
