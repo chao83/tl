@@ -1,7 +1,7 @@
 [2008-07-01] v1.9.3
+Fixed	: Run dialog does not search in some cases.
 Change	: Limit run dialog input to 512 characters.
 Added	: Save settings when shutting down system.
-Fixed	: Run dialog do not search for commands when reopened.
 
 [2008-06-15] v1.9.2
 Added	: Run dialog lists available files under entered directory.

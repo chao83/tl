@@ -995,6 +995,19 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	MyGetDlgItemTextBeforeCursor(hDlg, IDC_CBORUN, strEditLast);
+	if (iFoundLast != -1 && !strEditLast.length())
+		iFoundLast = -1;
+
+#ifdef _DEBUG
+	static tString s_strEditLast;
+	if (s_strEditLast != strEditLast) {
+		s_strEditLast = strEditLast;
+	}
+	static int lastMsg, lastW, lastL;
+	lastMsg = message;
+	lastW = wParam;
+	lastL = lParam;
+#endif
 
 
 	return FALSE;
