@@ -313,7 +313,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 		// 广泛匹配
 
 		//搜索菜单名称，匹配分析出的命令，抛弃参数部分
-		if ( (strCmd != strCmdParam) && (uID = g_pTray->Find(strCmd,strPath)) ) {
+		if ( (strCmd != strCmdParam) && 0 != (uID = g_pTray->Find(strCmd,strPath)) ) {
 			// 尝试分析出命令
 			TSTRING strCmdWithinPath,strParamWithinPath;
 			GetCmdAndParam(strPath, strCmdWithinPath, strParamWithinPath);
