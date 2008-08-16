@@ -48,9 +48,9 @@ public:
 	template <unsigned int n>
 	CLng(const TCHAR * (&szDefault)[n], Id startId = 10000);
 	~CLng(){}
-	const TCHAR *GetLang(const TCHAR * szSrc);
-	const TCHAR *GetLang(Id id);
-	bool SetLngFile(const TCHAR * szLngFile, bool bUseDefaultOnFailure = true);
+	const TCHAR * const GetLang(const TCHAR * const szSrc) const;
+	const TCHAR * const GetLang(const Id id) const;
+	bool SetLngFile(const TCHAR * szLngFile, const bool bUseDefaultOnFailure = true);
 private:
 	const Id LNG_BEGIN;
 	const Id LNG_END;

@@ -85,6 +85,7 @@ m_index(_index)
 	Init(size, szDefault);
 }
 
+//private init function, called by ctr
 void CLng::Init(unsigned int size, const TCHAR **szDefault)
 {
 	for(unsigned int i = 0; i < size; ++i) {
@@ -94,7 +95,7 @@ void CLng::Init(unsigned int size, const TCHAR **szDefault)
 	}
 }
 //! 获取当前语言中指定的 ID 对应的字符串
-const TCHAR * CLng::GetLang(Id langId)
+const TCHAR * const CLng::GetLang(const Id langId) const
 {
 	if(langId < LNG_BEGIN || langId >= LNG_END)
 		return g_strEmpty;
@@ -108,7 +109,7 @@ const TCHAR * CLng::GetLang(Id langId)
 }
 
 //主要用这个，GetLang()替换_T(), 就是动态多语言
-const TCHAR *CLng::GetLang(const TCHAR * strSrc)
+const TCHAR * const CLng::GetLang(const TCHAR * const strSrc) const
 {
 	LngIdMap::const_iterator iter = m_index.find(strSrc);
 	if(iter != m_index.end()) {

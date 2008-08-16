@@ -61,13 +61,15 @@ bool CWavePic::IsFlat(void)
 void CWavePic::NextWave()
 {
 	int cx = m_cx + 2;
-	TDepth * const pPri = m_pSrfcPri.Get();
+	const TDepth * const pPri = m_pSrfcPri.Get();
 	TDepth * const pSec = m_pSrfcSec.Get();
 	for (int j = 0, index = 0; j < m_cy; ++j) {
 		index += cx;
 		for (int i = index + 1; i < index + 1 + m_cx; ++i) {
 			// À©É¢
-			pSec[i] = ((pPri[i-cx] + pPri[i+cx] + pPri[i-1] + pPri[i+1]) >> 1) - pSec[i];
+			pSec[i] = ( ( (pPri[i-cx] + pPri[i+cx] + pPri[i-1] + pPri[i+1])*13 +
+                          (pPri[i-cx-1] + pPri[i+cx+1] + pPri[i+cx-1] + pPri[i-cx+1])*3
+                        ) >> 5) - pSec[i];
 			// Ë¥¼õ2^n·ÖÖ®1
 			pSec[i] -= (pSec[i] >> 5);
 		}
