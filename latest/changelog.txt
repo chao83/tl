@@ -1,3 +1,7 @@
+[2008-09-30] v1.9.4
+Added	: Run dailog, double-click on the icon will copy command line.
+Change	: some change in code.
+
 [2008-07-01] v1.9.3
 Fixed	: Run dialog does not search in some cases.
 Change	: Limit run dialog input to 512 characters.

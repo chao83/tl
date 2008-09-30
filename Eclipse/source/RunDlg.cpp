@@ -949,16 +949,40 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							break;
 					}
 					break;
-				//case IDC_IMG_ICON:
-				//	switch (HIWORD(wParam))
-				//	{
-				//	case STN_CLICKED:
-				//		//todo ºÙ«–∞Â
-				//		break;
-				//	default:
-				//		break;
-				//	}
-				//	break;
+				case IDC_IMG_ICON:
+					switch (HIWORD(wParam))
+					{
+					case STN_DBLCLK: //À´ª˜
+						//∏¥÷∆√¸¡Ó -> ºÙ«–∞Â
+						if (OpenClipboard(hDlg)) {
+							
+							EmptyClipboard();
+
+							TCHAR pathFound[MAX_PATH] = {0};
+							const int cch = GetDlgItemText(hDlg,IDC_EDT_PATH,pathFound,MAX_PATH);
+							if (cch) {
+								HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR));
+								if(hglbCopy) {
+										// Lock the handle and copy the text to the buffer. 						 
+										void * lptstrCopy = GlobalLock(hglbCopy); 
+										memcpy(lptstrCopy, pathFound, 
+											(cch+1) * sizeof(TCHAR)); 
+										GlobalUnlock(hglbCopy); 
+
+									#ifdef UNICODE
+										SetClipboardData(CF_UNICODETEXT, hglbCopy); 
+									#else
+										SetClipboardData(CF_TEXT, hglbCopy); 
+									#endif
+								}
+							}
+							CloseClipboard();
+						}
+						break;
+					default:
+						break;
+					}
+					break;
 				default:
 					break;
 			}
