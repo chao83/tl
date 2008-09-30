@@ -25,17 +25,17 @@ public:
 	COwnerDrawMenu(ICONTYPE hIconCheck = NULL);
 	virtual ~COwnerDrawMenu(void);
 	virtual int Display(int x, int y, WINDOWTYPE hWnd = NULL, UINT uFlag = TPM_LEFTALIGN);
-	const UINT_PTR GetCurrentItem() {return SelID();}
-	const MENUTYPE Menu(){return m_hMenu;};
-	const TCHAR * Name (const UINT_PTR indexKey)
+	//const UINT_PTR GetCurrentItem() {return SelID();}
+	const MENUTYPE Menu() const {return m_hMenu;};
+	const TCHAR * Name (const UINT_PTR indexKey) const
 	{
 		const TCHAR * p = ItemName((IDTYPE)indexKey);
 		if (!p && IsMenu((MENUTYPE)indexKey))
 			return MenuName((MENUTYPE)indexKey);
 		return p;
 	}
-	const TCHAR * ItemName(const IDTYPE indexKey)	{return GetStr(m_ItemName,indexKey);};
-	const TCHAR * MenuName(const MENUTYPE indexKey)	{return GetStr(m_MenuName,indexKey);};
+	const TCHAR * ItemName(const IDTYPE indexKey) const	{return GetStr(m_ItemName,indexKey);};
+	const TCHAR * MenuName(const MENUTYPE indexKey)	const {return GetStr(m_MenuName,indexKey);};
 	bool SetName(IDTYPE ID, const TSTRING & strNewName);
 	bool SetName(MENUTYPE hSubMenu, const TSTRING & strNewName);
 	bool SetNameByPos(int i, const TSTRING & strNewName);
@@ -51,7 +51,8 @@ public:
 	static bool IsStrEndWith(const TSTRING & strSrc, const TSTRING & strMatchThis, bool bMatchCase = true);
 
 protected:
-	UINT_PTR & SelID(){return m_selID;};
+	UINT_PTR SelID() const {return m_selID;}
+	void SelID(UINT_PTR id) { m_selID = id; }
 
 	typedef std::map<IDTYPE, TSTRING> IdStrMap;
 	typedef IdStrMap :: const_iterator IdStrIter;
@@ -77,7 +78,7 @@ protected:
 		return reinterpret_cast<To>(from);
 	};
 
-	template<class IdMenu> bool AddToMap(std::map<IdMenu,TSTRING> &strMap, IdMenu indexKey, const TSTRING & str)
+	template<class IdMenu>static bool AddToMap(std::map<IdMenu,TSTRING> &strMap, IdMenu indexKey, const TSTRING & str)
 	{
 		if (str.empty())
 			return false;
@@ -85,7 +86,7 @@ protected:
 		return true;
 	}
 
-	template<class IdMenu> static const TCHAR * GetStr(std::map<IdMenu,TSTRING> &strMap, IdMenu indexKey)
+	template<class IdMenu> static const TCHAR * GetStr(const std::map<IdMenu,TSTRING> &strMap, const IdMenu indexKey) 
 	{
 		typename std::map<IdMenu,TSTRING>::const_iterator it = strMap.find(indexKey);
 		if (it == strMap.end())
@@ -130,7 +131,7 @@ private:
 		typedef LRESULT (CALLBACK *WindowProcessor)(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	public:
 		CWindowClass(HINSTANCE hInstance, const TCHAR * szWindowClass, WindowProcessor WndProc);
-		operator const TCHAR * (){return m_strWndClassName.c_str();}
+		operator const TCHAR * () const {return m_strWndClassName.c_str();}
 	};
 	static CWindowClass s_windowClass;
 

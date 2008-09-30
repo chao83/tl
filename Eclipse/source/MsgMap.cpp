@@ -1095,9 +1095,9 @@ BOOL  CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case WM_MOUSEMOVE:
 			bCloseWindow = false;
-			if (wParam & MK_LBUTTON) {
-				pWavepic->Drop(LOWORD(lParam),HIWORD(lParam),DropDepth << 2, 2);
-			}
+			//if (wParam & MK_LBUTTON)
+			//	pWavepic->Drop(LOWORD(lParam),HIWORD(lParam),DropDepth << 2, 2);
+			pWavepic->Drop(LOWORD(lParam),HIWORD(lParam),DropDepth << (2*static_cast<bool>(wParam & MK_LBUTTON) + 1), 2);
 			bResult = TRUE;
 			break;
 

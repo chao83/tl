@@ -18,14 +18,15 @@ public:
 public:
 	bool Add(UINT message, MsgProc proc) { m_msgMap[message] = proc; return true; }
 	bool Romove(UINT message) { m_msgMap.erase(message); return true; }
-	bool Contain(UINT message) { return ( m_msgMap.find(message) != m_msgMap.end() ); }
-	bool ProcessMessage(HWND hWnd, UINT message, WPARAM wP, LPARAM lP, LRESULT * pResult = NULL) { 
-		if ( !Contain(message))
-			return false;
-		LRESULT result = m_msgMap[message](hWnd, message, wP, lP);
-		if(pResult)
-			*pResult = result;
-		return true;
+	bool Contain(UINT message) const{ return ( m_msgMap.find(message) != m_msgMap.end() ); }
+	bool ProcessMessage(HWND hWnd, UINT message, WPARAM wP, LPARAM lP, LRESULT * pResult = NULL) const { 
+		bool r = Contain(message);
+		if (r) {
+			LRESULT result = (*m_msgMap.find(message)).second(hWnd, message, wP, lP);
+			if(pResult)
+				*pResult = result;
+		}
+		return r;
 	}
 
 private:

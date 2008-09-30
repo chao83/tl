@@ -12,37 +12,8 @@
 #include "FileStrFnc.h"
 
 #include "MenuWithIcon.h"
-/*
 
 //! 按照指定的字符(ch)分割输入字符串(inStr)，输出到指定向量(vStr). 空字符串也有效。
-//! 异常版本
-unsigned int GetSeparatedString(const TSTRING & inStr, const TSTRING::value_type ch, std::vector<TSTRING> & vStr)
-{
-	//估计向量长度。
-	vStr.resize((inStr.length() >> 2) + 2);
-	std::vector<TSTRING>::size_type n(0);
-	TSTRING::size_type iStartPos = 0, iEndPos = 0;
-	do {
-		iEndPos = inStr.find(ch, iStartPos);
-		try{
-			vStr.at(n) = inStr.substr(iStartPos, iEndPos - iStartPos);
-		}
-		catch (std::out_of_range) {
-			// vector is too small, enlarge it and store the new value.
-			vStr.resize( vStr.size() + vStr.size()/2);
-			assert(vStr.size() > n);
-			vStr[n] = inStr.substr(iStartPos, iEndPos - iStartPos);
-		}
-		++n;
-		iStartPos = iEndPos + 1;
-	} while (iEndPos != TSTRING::npos);
-
-	vStr.resize(n);
-	return n;
-}
-/*/
-//! 按照指定的字符(ch)分割输入字符串(inStr)，输出到指定向量(vStr). 空字符串也有效。
-
 unsigned int GetSeparatedString(const TSTRING & inStr, const TSTRING::value_type ch, std::vector<TSTRING> & vStr)
 {
 	vStr.clear();
@@ -56,7 +27,7 @@ unsigned int GetSeparatedString(const TSTRING & inStr, const TSTRING::value_type
 	vStr.push_back(inStr.substr(iStartPos));
 	return vStr.size();
 }
-// */
+
 
 //判断 null 输入。
 unsigned int GetSeparatedString(const TSTRING::value_type * inStr, const TSTRING::value_type ch, std::vector<TSTRING> & vStr)
@@ -106,10 +77,10 @@ LRESULT CMenuWithIcon::MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags)
 	if((uFlags & MF_GRAYED) || (uFlags & MF_DISABLED))
 		return 0;
 	if(uFlags & MF_POPUP) {
-		SelID() = (UINT_PTR)GetSubMenu(hMenu,uItem);
+		SelID((UINT_PTR)GetSubMenu(hMenu,uItem));
 	}
 	else	//菜单项
-		SelID() = uItem;
+		SelID(uItem);
 	BuildDynamic(reinterpret_cast<MENUTYPE>(SelID()));
 	return 0;
 }
@@ -499,7 +470,11 @@ int CMenuWithIcon::DynamicBuild(MENUTYPE hMenu)
 	while (*strPath && _istspace(*strPath)) ++strPath;//去掉空白
 	assert (strPath[_tcslen(strPath) - 1] =='*');
 
-	return MultiModeBuildMenu(hMenu,strPath,(strName && *strName)?strName:_T("*"),EDYNAMIC);
+	UINT uPreErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+	int r = MultiModeBuildMenu(hMenu,strPath,(strName && *strName)?strName:_T("*"),EDYNAMIC);
+	SetErrorMode(uPreErrMode);
+
+	return r;
 }
 
 
@@ -544,7 +519,7 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 	}
 	return result;
 }
-
+/*
 const TSTRING CMenuWithIcon::GetCurrentCommandLine(unsigned int nSysID)
 {
 	if (nSysID < m_startID || nSysID >= m_ID)
@@ -577,7 +552,7 @@ const TSTRING CMenuWithIcon::GetCurrentCommandLine(unsigned int nSysID)
 	}
 	return TSTRING(pCmd);
 }
-
+//*/
 
 //! 从打开的文件构造菜单；
 int CMenuWithIcon::LoadMenuFromFile(const tString & strFileName, UINT uStartID)
@@ -589,7 +564,10 @@ int CMenuWithIcon::LoadMenuFromFile(const tString & strFileName, UINT uStartID)
 
 	m_startID = uStartID;
 	m_ID = m_startID;
+	
+	UINT uPreErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
 	const int nStaticMenus = BuildMenuFromMenuData(m_menuData.Get(), Menu());
+	SetErrorMode(uPreErrMode);
 	
 	m_dynamicStartID = m_ID;
 
@@ -1172,7 +1150,7 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 
 
 //! 找出完全匹配,根据名称找命令和图标,成功返回id，失败返回 0。
-unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath)
+unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath) const
 {
 	if(strName.empty() || strName.length() >= MAX_PATH)
 		return 0;
@@ -1193,7 +1171,7 @@ unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath)
 
 
 //! 找出部分匹配，加入到指定字符串向量末尾，bNoDup = true 已存在的跳过。
-unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup)
+unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup) const
 {
 	if(strBeginWith.empty() || strBeginWith.length()>=MAX_PATH)
 		return 0;

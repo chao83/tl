@@ -283,7 +283,7 @@ void COwnerDrawMenu::UpdateRoot()
 //! œ‘ æ
 int COwnerDrawMenu::Display(int x, int y, WINDOWTYPE hWnd, UINT uFlag)
 {
-	SelID() = (UINT)-1;
+	SelID((UINT)-1);
 	int id = 0;
 #ifndef TPM_NOANIMATION
 #define TPM_NOANIMATION 0x4000L

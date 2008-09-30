@@ -15,7 +15,7 @@ public:
 		}
 	}
 	~ComIniter() { UnInit(); }
-	operator bool() { return m_bSuccess; }
+	operator bool() const { return m_bSuccess; }
 	bool Init() {
 		return m_bSuccess = m_bSuccess || (SUCCEEDED(CoInitializeEx(NULL,COINIT_APARTMENTTHREADED)));
 	}
@@ -52,16 +52,16 @@ public:
 		}
 		return result;
 	}
-	ICONTYPE GetBigIcon(const tString & path, int index = 0){return GetIcon(path,FILEFOLDERICON,index,true);}
+	ICONTYPE GetBigIcon(const tString & path, const int index = 0) {return GetIcon(path,FILEFOLDERICON,index,true);}
 	//! 返回菜单项对应的命令行的参数
-	const TCHAR * Param(const IDTYPE nID){return GetStr(m_ItemParam,nID);};
+	const TCHAR * Param(const IDTYPE nID) const {return GetStr(m_ItemParam,nID);};
 	//! 返回菜单项对应的命令行(不含参数)
-	const TCHAR * Cmd(const IDTYPE nID){return GetStr(m_ItemCmd,nID);};
-	unsigned int Find(const TSTRING& strName, TSTRING& strPath);
-	unsigned int FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup = false);
+	const TCHAR * Cmd(const IDTYPE nID) const {return GetStr(m_ItemCmd,nID);};
+	unsigned int Find(const TSTRING& strName, TSTRING& strPath) const;
+	unsigned int FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup = false) const;
 	bool TryProcessCommand(unsigned int id);
-	const TSTRING GetCurrentCommandLine(unsigned int nSysID);
-	int ItemIDCount(){return m_ID - m_startID;};
+	// const TSTRING GetCurrentCommandLine(unsigned int nSysID);
+	// int ItemIDCount(){return m_ID - m_startID;};
 	void DestroyDynamic(void);
 	int BuildDynamic(MENUTYPE hSubMenu);
 	bool & ShowHidden() {return m_bShowHidden;};

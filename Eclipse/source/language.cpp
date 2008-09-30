@@ -31,7 +31,6 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("Option"),
 	_T("Use Mid Click")
 
-	// , 0  //	”√NULLΩ·Œ≤£ø
 };
 
 static CLng g_lng(g_strEnglishLngArray, 1000);
