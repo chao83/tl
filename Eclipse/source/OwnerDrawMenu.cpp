@@ -764,10 +764,3 @@ LRESULT COwnerDrawMenu::MenuChar(MENUTYPE hMenu,TCHAR ch)
 	return MAKELRESULT(vFound.front(),MNC_SELECT);
 }
 
-
-//// 为什么 gcc 链接出错呢？
-//template <class IdMenu> const int COwnerDrawMenu::EraseFromMap(std::map<IdMenu,TSTRING> &strMap, IdMenu indexKey)
-//{
-//	return static_cast<int>(strMap.erase(indexKey));
-//}
-

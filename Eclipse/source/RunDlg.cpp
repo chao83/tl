@@ -731,6 +731,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			UpdateHint(hDlg,s_hIcon,s_hIconDefault);
 			return TRUE;
 		case WM_DESTROY:
+			DragAcceptFiles( hDlg, FALSE);
 			//…®Œ≤£¨¥Ê¥¢ ‰»Îƒ⁄»›
 			iFoundLast = -1;
 			MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize);

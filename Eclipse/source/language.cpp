@@ -51,6 +51,8 @@ const TCHAR * GetLang(const TCHAR * strSrc)
 	return g_lng.GetLang(strSrc);
 }
 
+
+#ifdef _UNICODE
 const TCHAR * GetLang(const char * strSrc)
 {
 	const int n = strlen(strSrc)+1;
@@ -59,6 +61,7 @@ const TCHAR * GetLang(const char * strSrc)
 	MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,strSrc,-1,str.Get(), n);
 	return g_lng.GetLang(str.Get());
 }
+#endif
 
 bool SetLanguageFile(const TCHAR * szFileName)
 {

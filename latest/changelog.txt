@@ -1,4 +1,5 @@
-[2008-09-30] v1.9.4
+[2008-10-21] v1.9.4
+Change	: Updated readme.
 Added	: Run dailog, double-click on the icon will copy command line.
 Change	: some change in code.
 
