@@ -781,6 +781,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			switch (LOWORD(wParam)) {
 				case IDC_BTNRUN:
 					if (MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize)) {
+						ShowWindow(hDlg, SW_HIDE); // 先隐藏
 						TSTRING strEdit(szCommand);
 						if (strEdit == _T("-clear") || strEdit == _T(":clear")) {
 							StrHis().clear();
@@ -796,7 +797,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							return TRUE;
 						}
 
-						//执行命令行,隐藏自己
+						//执行命令行
 						bool bSuccessShell = false;
 						TCHAR pathFound[MAX_PATH] = {0};
 						if(GetDlgItemText(hDlg,IDC_EDT_PATH,pathFound,MAX_PATH)>0 && *pathFound) {
@@ -805,7 +806,8 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						bSuccessShell = bSuccessShell || Execute(szCommand);
 						if (!bSuccessShell) {
 							//执行命令失败
-							 MessageBox(hDlg,szCommand,GetLang(_T("Failed To Execute:")),MB_ICONERROR);
+							MessageBox(hDlg,szCommand,GetLang(_T("Failed To Execute:")),MB_ICONERROR);
+							ShowWindow(hDlg, SW_SHOW); //运行失败， 重新显示窗口
 							SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
 							SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
 							return TRUE;

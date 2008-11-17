@@ -209,6 +209,14 @@ private :
 	int BuildMenuFromMenuData(CMenuData *pMenu, MENUTYPE hMenu);
 	int BuildMyComputer(MENUTYPE hMenu, const tString & strName);
 
+public:
+	bool OpenDynamicDir() { return m_bOpenDynamicDir; }
+	void OpenDynamicDir(const bool newValue) {
+		m_bOpenDynamicDir = newValue;
+	}
+private:
+	bool m_bOpenDynamicDir;
+
 };
 
 #endif //MENU_WITH_ICON_H

@@ -26,14 +26,16 @@ CSTR keyLanguage = _T("language");
 CSTR keyShowHidden = _T("showhidden");
 CSTR keyMClick = _T("midclick");
 CSTR keySkin = _T("skin");
+CSTR keyShowOpenHere = _T("ShowOpenHere");
 CSTR sectionHistory = _T("history");
 CSTR sectionColor = _T("color");
 
 // ∂‡π˙”Ô—‘”≥…‰£¨
 class CLng
 {
-private:
+public:
 	typedef unsigned int Id;
+private:
 	typedef std::map<Id, tString> IdLngMap;
 	typedef std::map<tString, Id> LngIdMap;
 	
@@ -51,6 +53,8 @@ public:
 	const TCHAR * const GetLang(const TCHAR * const szSrc) const;
 	const TCHAR * const GetLang(const Id id) const;
 	bool SetLngFile(const TCHAR * szLngFile, const bool bUseDefaultOnFailure = true);
+	const Id Begin() const { return LNG_BEGIN; }
+	const Id End() const { return LNG_END; }
 private:
 	const Id LNG_BEGIN;
 	const Id LNG_END;

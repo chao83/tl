@@ -29,14 +29,44 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("Internal"),
 	_T("&Language"),
 	_T("Option"),
-	_T("Use Mid Click")
+	_T("Use Mid Click"),
+	_T("[ . ]")
 
 };
 
 static CLng g_lng(g_strEnglishLngArray, 1000);
 
+
+
+#ifdef _DEBUG
+void SaveLngFile(const CLng & lng, const TCHAR *szSaveName = _T("TL_Language.txt"))
+{
+	file_ptr fileLng(szSaveName,TEXT("wb"));
+
+	if(fileLng) {
+		_fputtc(0xfeff,fileLng);
+
+		TSTRING strLine;
+		TCHAR szID[8];
+
+		for (unsigned int id = lng.Begin(); id != lng.End(); ++id) {
+			memset(szID,0,sizeof(szID));
+			_itot(id, szID,10);
+			strLine = szID;
+			strLine = strLine + _T(" = ") + lng.GetLang(id) + _T("\r\n");
+			fwrite(strLine.c_str(), sizeof(strLine[0]),strLine.length(),fileLng);
+
+		}
+	}
+}
+#endif
+
+
 void InitLanguage()
 {
+#ifdef _DEBUG
+	SaveLngFile(g_lng);
+#endif
 	Settings().AddSection(sectionGeneral);
 	TSTRING strLanguage;
 	if (! Settings().Get(sectionGeneral, keyLanguage, strLanguage)) {
@@ -71,6 +101,9 @@ bool SetLanguageFile(const TCHAR * szFileName)
 	}
 	return g_lng.SetLngFile(strFile.c_str());
 }
+
+
+
 
 ///////////////////////////////////////////////////////////////////
 //////////////
@@ -133,11 +166,6 @@ bool CLng::SetLngFile(const TCHAR * szFileName, bool bUseDefaultOnFailure)
 			LanguageFromFile(fileLng);
 			return true;
 		}
-	//#ifdef _DEBUG
-	//	else {
-	//		ShowError(_T("Not UNICODE FILE"));
-	//	}
-	//#endif
 	}
 	if (bUseDefaultOnFailure) {
 		m_lng = m_default;

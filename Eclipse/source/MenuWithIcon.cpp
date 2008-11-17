@@ -46,7 +46,8 @@ CMenuWithIcon::CMenuWithIcon(ICONTYPE hOpen,ICONTYPE hClose,ICONTYPE hUnknownFil
 :COwnerDrawMenu(),
 m_hIconOpen(hOpen),m_hIconClose(hClose),m_hIconUnknowFile(hUnknownFile),
 m_startID(0),m_ID(0),m_strEmpty (_T("Empty")),m_dynamicStartID(0),
-m_bShowHidden(false),m_bFilterEmptySubMenus(true),m_menuData ( new CMenuData(_T("root")) )
+m_bShowHidden(false),m_bFilterEmptySubMenus(true),m_menuData ( new CMenuData(_T("root")) ), 
+m_bOpenDynamicDir(true)
 {
 	if (szEmpty && *szEmpty)
 		m_strEmpty = szEmpty;
@@ -126,7 +127,7 @@ bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 					sizeof(SHFILEINFO),
 					SHGFI_SYSICONINDEX | SHGFI_SMALLICON
 					);
-			bDraw = (0 != (sfi).iIcon);
+			bDraw = (0 != hImgList);
 			if (bDraw)
 				ImageList_DrawEx(hImgList,sfi.iIcon,pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2,MENUICON,MENUICON,CLR_NONE,CLR_NONE,ILD_NORMAL);
 
@@ -159,7 +160,7 @@ bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 				//读文件，目前知道 .ico 图标文件的图标需要读文件获取，但对其他一些文件	会失败
 				// | SHGFI_USEFILEATTRIBUTES //不读文件，取图标，这样  目前看来   不会失败
 				);
-		if (!sfi.iIcon) {
+		if (!hImgList) {
 			hImgList = (HIMAGELIST)SHGetFileInfo(Cmd(iMaybeID),
 					FILE_ATTRIBUTE_NORMAL,
 					&sfi,
@@ -169,8 +170,8 @@ bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 					);
 
 		}
-		assert(sfi.iIcon);
-		if (sfi.iIcon) {
+
+		if (hImgList) {
 			ImageList_DrawEx(hImgList,sfi.iIcon,pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2,MENUICON,MENUICON,CLR_NONE,CLR_NONE,ILD_NORMAL);
 			//DrawIconEx(pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2 ,sfi.hIcon,MENUICON,MENUICON,0,NULL,DI_NORMAL|DI_COMPAT);
 		}
@@ -263,13 +264,11 @@ bool CMenuWithIcon::AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & 
 		}
 		else {
 			SHFILEINFO sfi = {0};
-
-			SHGetFileInfo(strPath.c_str(),
+			if (!SHGetFileInfo(strPath.c_str(),
 					FILE_ATTRIBUTE_NORMAL,
 					&sfi,
 					sizeof(SHFILEINFO),
-					SHGFI_SYSICONINDEX | SHGFI_SMALLICON);
-			if (!sfi.iIcon) {
+					SHGFI_SYSICONINDEX | SHGFI_SMALLICON)) {
 				//在系统中找不到，加入我的记录。
 				m_SubMenuIcons.Add(hSubMenu, GetIcon(strPath,needIcon));
 			}
@@ -331,14 +330,13 @@ int CMenuWithIcon::AddMenuItem(MENUTYPE hMenu, const tString & strName, const tS
 			else  {
 				//动态，不在系统列表中的才存储
 				SHFILEINFO sfi = {0};
-				SHGetFileInfo(szIconPath,
+				if (!SHGetFileInfo(szIconPath,
 						FILE_ATTRIBUTE_NORMAL,
 						&sfi,
 						sizeof(SHFILEINFO),
 						SHGFI_SYSICONINDEX | SHGFI_SMALLICON
 						| (FILEICON == needIcon ? SHGFI_USEFILEATTRIBUTES : 0)
-						);
-				if (!sfi.iIcon) {
+						)) {
 					m_MenuItemIcons.Add(m_ID,GetIcon(szIconPath,needIcon));
 				}
 			}
@@ -1022,6 +1020,9 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 			bool bStaticMenu = IsStaticMenu(hMenu);
 			switch (mode) {
 				case EDYNAMIC:
+					if (OpenDynamicDir()) {
+						AddMenuItem(hMenu, GetLang(_T("[ . ]")), inStrPathForSearch.substr(0, inStrPathForSearch.length()-1), NOICON);
+					}
 					for (itName = nameName.begin(); itName != nameName.end(); ++itName) {
 						hSubMenu = CreatePopupMenu();
 						strWildCardPath = namePath[itName->second] + _T("\\*");
