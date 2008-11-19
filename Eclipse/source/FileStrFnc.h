@@ -20,6 +20,8 @@ public:
 		return ToLowerCase(s);
 	}
 
+	static bool GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILETIME *pSTAccess,  FILETIME *pSTWrite);
+
 protected:
 	CFileStrFnc(void);
 	~CFileStrFnc(void);

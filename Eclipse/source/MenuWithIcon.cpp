@@ -750,7 +750,7 @@ ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, 
 	// 对快捷方式 ICONTYPE 是带有箭头的，index可以是没有箭头的,
 	// 还是用老办法取 ICONTYPE 吧
 
-	if (!m_bCoInited)
+	if (!m_comInited && !m_comInited.Init())
 		return NULL;
 	SHFILEINFO sfi = {0};
 	SHGetFileInfo(pPath,
@@ -1022,6 +1022,9 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 				case EDYNAMIC:
 					if (OpenDynamicDir()) {
 						AddMenuItem(hMenu, GetLang(_T("[ . ]")), inStrPathForSearch.substr(0, inStrPathForSearch.length()-1), NOICON);
+						// empty, saperator
+						InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
+						SetMenuDefaultItem(hMenu, 0, TRUE);
 					}
 					for (itName = nameName.begin(); itName != nameName.end(); ++itName) {
 						hSubMenu = CreatePopupMenu();

@@ -327,6 +327,26 @@ void Systray(const HWND hWnd, const DWORD dwMessage, ICONTYPE hIcon = NULL)
 	Shell_NotifyIcon(dwMessage, &nid);
 }
 
+// refresh automatically if file is changed
+void UpdateMenu(const bool bForce = false) {
+	static FILETIME s_tmCreate = {0};
+	static FILETIME s_tmWrite = {0};
+	bool bBuild(bForce);
+	FILETIME tmCreate, tmAccess, tmWrite;
+	if (CFileStrFnc::GetLastFileTime(g_fileName.c_str(), &tmCreate, &tmAccess, &tmWrite) ) {
+		if (bForce || CompareFileTime(&tmCreate, &s_tmCreate) || CompareFileTime(&tmWrite , &s_tmWrite) ) {
+			s_tmCreate = tmCreate;
+			s_tmWrite = tmWrite;
+			bBuild = true;
+		}
+	}
+	
+	if (bBuild) {
+			BuildMenuFromFile(g_fileName.c_str());
+	}
+}
+
+//! Display menu and process command
 void ShowMenu(const POINT * p = NULL, bool bLast = false)
 {
 	if (!IgnoreUser()) {
@@ -337,6 +357,9 @@ void ShowMenu(const POINT * p = NULL, bool bLast = false)
 		else if (!bLast) {
 			GetCursorPos(&s_point);
 		}
+		// refresh
+		UpdateMenu();
+
 		if (g_pTray->Display(s_point.x, s_point.y) ) {
 			SetProcessWorkingSetSize(GetCurrentProcess(),static_cast<DWORD>(-1), static_cast<DWORD>(-1));
 		}
@@ -418,7 +441,7 @@ int MyProcessCommand(HWND hWnd, int id)
 		case RELOAD:
 			if (Settings().Read())
 				ShowHiddenJudge(g_pTray.Get());
-			BuildMenuFromFile(g_fileName.c_str());
+			UpdateMenu(true);
 			ShowMenu(0,true);
 			break;
 		case RUNDLG:
@@ -738,7 +761,8 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 		Settings().Set(sectionGeneral, keyCommand, g_fileName, true);
 	}
 
-	BuildMenuFromFile(g_fileName.c_str());
+	//BuildMenuFromFile(g_fileName.c_str());
+	UpdateMenu();
 
 	if (AutoStart(AR_CHECK) == 1)
 		CheckMenuItem(g_pSysTray->Menu(), AUTOSTART,MF_BYCOMMAND | MF_CHECKED);

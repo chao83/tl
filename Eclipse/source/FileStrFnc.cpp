@@ -61,3 +61,13 @@ const TSTRING CFileStrFnc::StripSpaces(const TSTRING & inStr)
 	return inStr.substr(iStart, iEnd - iStart);
 }
 
+bool CFileStrFnc::GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILETIME *pSTAccess,  FILETIME *pSTWrite) {
+	bool r = false;
+	HANDLE hFile = CreateFile(szFN, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	if (INVALID_HANDLE_VALUE != hFile) {		
+		r = !!GetFileTime(hFile, pSTCreate, pSTAccess, pSTWrite);
+		CloseHandle(hFile);
+	}
+	return r;
+
+}
