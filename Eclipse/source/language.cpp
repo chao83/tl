@@ -29,8 +29,7 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("Internal"),
 	_T("&Language"),
 	_T("Option"),
-	_T("Use Mid Click"),
-	_T("[ . ]")
+	_T("Use Mid Click")
 
 };
 

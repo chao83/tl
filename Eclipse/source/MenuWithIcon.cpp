@@ -13,6 +13,8 @@
 
 #include "MenuWithIcon.h"
 
+const TCHAR * szHiddenMenuItem = _T("< . >");// normal items should not contain "<"
+
 //! 按照指定的字符(ch)分割输入字符串(inStr)，输出到指定向量(vStr). 空字符串也有效。
 unsigned int GetSeparatedString(const TSTRING & inStr, const TSTRING::value_type ch, std::vector<TSTRING> & vStr)
 {
@@ -90,6 +92,9 @@ LRESULT CMenuWithIcon::MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags)
 //! 绘制菜单。
 bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 {
+	if (!pDI || pDI->rcItem.bottom == pDI->rcItem.top) {
+		return true;
+	}
 	//两个可能的类型，菜单与项
 	IDTYPE iMaybeID = pDI->itemID;
 	MENUTYPE hMaybeMenu = MatchRect(pDI);
@@ -194,8 +199,12 @@ bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 int CMenuWithIcon::MeasureItem(MEASUREITEMSTRUCT *pMI)
 {
 	COwnerDrawMenu::MeasureItem(pMI);
-	if (pMI->itemID)
+	if (pMI->itemID) {
 		pMI->itemWidth += MENUBLANK * 3;
+		if (TSTRING(Name(pMI->itemID)) == szHiddenMenuItem) {
+			pMI->itemHeight = 0;
+		}
+	}
 	return 0;
 }
 
@@ -1021,10 +1030,10 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 			switch (mode) {
 				case EDYNAMIC:
 					if (OpenDynamicDir()) {
-						AddMenuItem(hMenu, GetLang(_T("[ . ]")), inStrPathForSearch.substr(0, inStrPathForSearch.length()-1), NOICON);
-						// empty, saperator
-						InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
+						AddMenuItem(hMenu, szHiddenMenuItem, inStrPathForSearch.substr(0, inStrPathForSearch.length()-1), NOICON);
 						SetMenuDefaultItem(hMenu, 0, TRUE);
+						// empty, saperator
+						//InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
 					}
 					for (itName = nameName.begin(); itName != nameName.end(); ++itName) {
 						hSubMenu = CreatePopupMenu();

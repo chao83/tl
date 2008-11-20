@@ -1,7 +1,7 @@
-[2008-11-19] v1.9.5
+[2008-11-20] v1.9.5
 Added	: Refresh automatically if command file is changed.
 Fixed	: file icon may not be displayed.
-Added	: open dynamic directories, and double click works.
+Added	: open dynamic directories, using double click.
 
 [2008-10-21] v1.9.4
 Change	: Updated readme.
