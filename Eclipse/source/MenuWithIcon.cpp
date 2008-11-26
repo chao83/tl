@@ -13,7 +13,6 @@
 
 #include "MenuWithIcon.h"
 
-const TCHAR * szHiddenMenuItem = _T("< . >");// normal items should not contain "<"
 
 //! 按照指定的字符(ch)分割输入字符串(inStr)，输出到指定向量(vStr). 空字符串也有效。
 unsigned int GetSeparatedString(const TSTRING & inStr, const TSTRING::value_type ch, std::vector<TSTRING> & vStr)
@@ -199,11 +198,8 @@ bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 int CMenuWithIcon::MeasureItem(MEASUREITEMSTRUCT *pMI)
 {
 	COwnerDrawMenu::MeasureItem(pMI);
-	if (pMI->itemID) {
+	if (!Skin()) {
 		pMI->itemWidth += MENUBLANK * 3;
-		if (TSTRING(Name(pMI->itemID)) == szHiddenMenuItem) {
-			pMI->itemHeight = 0;
-		}
 	}
 	return 0;
 }
@@ -269,7 +265,7 @@ bool CMenuWithIcon::AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & 
 	if (needIcon) {
 		if ( ! IsDynamicMenu(hSubMenu) ) {
 			//静态目录或文件中的强制目录，必须加入图标
-			m_SubMenuIcons.Add(hSubMenu,GetIcon(strPath,needIcon));
+			MenuIcon(hSubMenu,GetIcon(strPath,needIcon));
 		}
 		else {
 			SHFILEINFO sfi = {0};
@@ -279,7 +275,7 @@ bool CMenuWithIcon::AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & 
 					sizeof(SHFILEINFO),
 					SHGFI_SYSICONINDEX | SHGFI_SMALLICON)) {
 				//在系统中找不到，加入我的记录。
-				m_SubMenuIcons.Add(hSubMenu, GetIcon(strPath,needIcon));
+				MenuIcon(hSubMenu, GetIcon(strPath,needIcon));
 			}
 		}
 	}
@@ -334,7 +330,7 @@ int CMenuWithIcon::AddMenuItem(MENUTYPE hMenu, const tString & strName, const tS
 			
 			AddToMap(m_ItemIconPath, m_ID, strIcon);
 			if ( ! IsStaticMenu(hMenu) && ! IsDynamicMenu(hMenu)) {
-				m_MenuItemIcons.Add(m_ID,GetIcon(szIconPath, needIcon));
+				ItemIcon(m_ID,GetIcon(szIconPath, needIcon));
 			}
 			else  {
 				//动态，不在系统列表中的才存储
@@ -346,7 +342,7 @@ int CMenuWithIcon::AddMenuItem(MENUTYPE hMenu, const tString & strName, const tS
 						SHGFI_SYSICONINDEX | SHGFI_SMALLICON
 						| (FILEICON == needIcon ? SHGFI_USEFILEATTRIBUTES : 0)
 						)) {
-					m_MenuItemIcons.Add(m_ID,GetIcon(szIconPath,needIcon));
+					ItemIcon(m_ID,GetIcon(szIconPath,needIcon));
 				}
 			}
 		}
@@ -697,7 +693,7 @@ void CMenuWithIcon::DestroyDynamic()
 
 	// 1 清理 动态菜单项
 	for (IDTYPE i = m_dynamicStartID; i < m_ID; ++i) {
-		//清理图标，命令，名称
+		//清理命令，名称； //动态菜单项没有保存图标，不用清理图标
 		m_ItemCmd.erase(i);
 		ItemNameMap().erase(i);
 	}
@@ -705,7 +701,8 @@ void CMenuWithIcon::DestroyDynamic()
 	// 2 清理子菜单记录
 	for (MenuStrIter it = m_DynamicPath.begin(); it != m_DynamicPath.end(); ++it) {
 		// 清理图标
-		m_SubMenuIcons.Remove(it->first);
+		//m_SubMenuIcons.Remove(it->first);
+		MenuIcon(it->first, 0);//赋0值，实现删除。
 		// 清理名称记录
 		MenuNameMap().erase(it->first);
 	}
@@ -738,9 +735,6 @@ void CMenuWithIcon::Destroy(void)
 
 	m_StaticMenuWildcard.clear();
 	m_Wildcard.clear();
-
-	m_MenuItemIcons.Clear();
-	m_SubMenuIcons.Clear();
 
 	m_ID = m_startID;
 	m_dynamicStartID = m_ID;
@@ -932,7 +926,6 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 				AddToMap(m_StaticPath, hSubMenu, strDrive+_T("*"));//static 表示不删除的 dynamic
 				m_StaticMenuWildcard[hSubMenu] = AddWildcard(strName);
 
-				strMenuName = _T("[&") + strDrive + _T("] ");
 				tString strVolName;
 				if (GetVolumeInformation(strDrive.c_str(), szVolName, MAX_PATH + 1, 0,0,0, szFSName, MAX_PATH + 1) && *szVolName) {
 					strVolName = szVolName;
@@ -943,7 +936,8 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 					strVolName = sfi.szTypeName;
 				}
 				DoubleChar(strVolName, '&');
-				strMenuName += strVolName;
+				strMenuName = strVolName;
+				strMenuName += _T(" [&") + strDrive.substr(0,2) + _T("]");
 				AddSubMenu(hMenu, hSubMenu, strMenuName, strDrive);
 			}
 

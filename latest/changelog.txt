@@ -1,3 +1,11 @@
+[2008-11-22] v1.9.5.1
+Change	: About dialog: contact email changed.
+Change	: home page moved -> http://sites.google.com/site/chaosplaceorg/tools/traylauncher
+	because all google pages sites are blocked in China.
+Added	: Office skin (microsoft office 2007 skin) by Denny Weinberg
+Added	: German translation "TL_de.lng" by Denny Weinberg
+Fixed	: skin and lng names displayed in correct cases now.
+
 [2008-11-20] v1.9.5
 Added	: Refresh automatically if command file is changed.
 Fixed	: file icon may not be displayed.

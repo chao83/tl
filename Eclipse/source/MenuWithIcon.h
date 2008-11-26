@@ -84,15 +84,7 @@ private:
 	//typedef std::map<TSTRING, MENUTYPE> StrMenuMap;
 	typedef std::map<TSTRING, TSTRING> StrStrMap;
 
-	enum {MENUBLANK = COwnerDrawMenu::MENUHEIGHT - MENUICON};
-	const ICONTYPE ItemIcon(const int nID)
-	{
-		return m_MenuItemIcons[nID];
-	}
-	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu)
-	{
-		return m_SubMenuIcons[hSubMenu];
-	}
+	//enum {MENUBLANK = COwnerDrawMenu::MENUHEIGHT - MENUICON};
 
 	bool AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & strName, const tString & strPath, EICONGETTYPE needIcon = FILEFOLDERICON);
 	int AddMenuItem(MENUTYPE hMenu, const tString & strName, const tString & inStrPath, EICONGETTYPE needIcon = FILEFOLDERICON, const tString & strIcon = _T(""));
@@ -105,48 +97,6 @@ private:
 
 	bool GetDirectory(const IDTYPE nID, TSTRING & strWorkPath);
 
-	// 模板类定义，存放 菜单-图标 的类
-	template <class CKey, class CValue>
-	class CNoNullMap
-	{
-	public:
-		bool Add(const CKey & key, const CValue & value) {
-			if (m_map.find(key) != m_map.end()) {
-				DestroyIcon(m_map[key]);
-			}
-			if (value) {
-				m_map[key] = value;
-				return true;
-			}
-			return false;
-		}
-		void Remove(const CKey & key)
-		{
-			if (m_map.find(key) != m_map.end()) {
-				DestroyIcon(m_map[key]);
-			}
-			m_map.erase(key);
-		}
-		void Clear()
-		{
-			for (typename CMap::iterator it = m_map.begin(); it != m_map.end(); ++it) {
-				DestroyIcon(it->second);
-			}
-			m_map.clear();
-		}
-		CValue operator [] (const CKey & key)
-		{
-			typename CMap::const_iterator pos(m_map.find(key));
-			if (pos != m_map.end())
-				return pos->second;
-			return NULL;
-		}
-	private:
-		typedef std::map<CKey,CValue> CMap;
-		CMap m_map;
-	};
-	typedef CNoNullMap<IDTYPE,HICON> CIdIconMap;
-	typedef CNoNullMap<MENUTYPE,HICON> CMenuIconMap;
 
 	bool IsStaticMenu(MENUTYPE hMenu)
 	{
@@ -182,8 +132,6 @@ private :
 	IdStrMap m_ItemParam;
 	IdStrMap m_ItemIconPath;
 
-	CIdIconMap m_MenuItemIcons;
-	CMenuIconMap m_SubMenuIcons;
 
 	IDTYPE m_startID;
 	IDTYPE m_ID;

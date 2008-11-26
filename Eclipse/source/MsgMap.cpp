@@ -255,6 +255,7 @@ void SetMenuSkin(const TSTRING & skinSubDir)
 	if (skinSubDir.empty() || skinSubDir == _T("")) {
 		HBITMAP hBit[nPicPerItem] = {0};
 		g_pTray->SetSkin(0, hBit, hBit, hBit, 0);
+		g_pSysTray->SetSkin(0, hBit, hBit, hBit, 0);
 	}
 	else {
 		const TCHAR * szSkinBk[] = {TEXT("bk.bmp"), TEXT("bkLeft.bmp"), TEXT("bkRight.bmp")};
@@ -286,6 +287,7 @@ void SetMenuSkin(const TSTRING & skinSubDir)
 		HBITMAP hTital = ((HBITMAP)LoadImage(ThisHinstGet(),strSkinPicPath.c_str(),IMAGE_BITMAP,0,0,LR_LOADFROMFILE));
 
 		g_pTray->SetSkin(hSide, hBitBk, hBitSel, hSep, hTital);
+		g_pSysTray->SetSkin(hSide, hBitBk, hBitSel, hSep, hTital);
 	}
 
 	HMENU hSkinMenu = GetSubMenu(g_pSysTray->Menu(), 3);
@@ -648,9 +650,9 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 
 				// 忽略大小写
 				TSTRING strNameLower(strFileName);
-				TSTRING::size_type size = str.length();
+				TSTRING::size_type size = strNameLower.length();
 				for (TSTRING::size_type i = 0; i < size; ++i) {
-					str[i] = _totlower(str[i]);
+					strNameLower[i] = _totlower(strNameLower[i]);
 				}
 
 				nameName[strNameLower] = strFileName;
@@ -697,9 +699,9 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 
 				// 忽略大小写
 				TSTRING strNameLower(strFileName);
-				TSTRING::size_type size = str.length();
+				TSTRING::size_type size = strNameLower.length();
 				for (TSTRING::size_type i = 0; i < size; ++i) {
-					str[i] = _totlower(str[i]);
+					strNameLower[i] = _totlower(strNameLower[i]);
 				}
 
 				nameName[strNameLower] = strFileName;

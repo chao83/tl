@@ -66,7 +66,7 @@ protected:
 	typedef std::map<MENUTYPE,ICONTYPE> MenuIconMap;
 	typedef MenuIconMap::const_iterator MenuIconIter;
 
-	enum {MENUSIDE = 6, MENUHEIGHT = 22, MENUICON = 16, MENUSEP = 5,MAXMENUWIDTH = 384,NBUF = 1024, SHELL_MAX_ERROR_VALUE = 32};
+	enum {MENUSIDE = 6, MENUHEIGHT = 22, MENUICON = 16, MENUBLANK = MENUHEIGHT - MENUICON, MENUSEP = 5,MAXMENUWIDTH = 384,NBUF = 1024, SHELL_MAX_ERROR_VALUE = 32};
 	IdStrMap & ItemNameMap() {return m_ItemName;};
 	MenuStrMap & MenuNameMap() {return m_MenuName;};
 
@@ -94,6 +94,66 @@ protected:
 		return it->second.c_str();
 	}
 
+	// 模板类定义，存放 菜单-图标 的类
+	template <class CKey, class CValue>
+	class CNoNullIconMap
+	{
+	public:
+		bool Add(const CKey & key, const CValue & value) {
+			// @todo: value == map[key] ???
+			if (m_map.find(key) != m_map.end()) {
+				Remove(key);
+			}
+			if (value) {
+				m_map[key] = value;
+				return true;
+			}
+			return false;
+		}
+		void Remove(const CKey & key)
+		{
+			if (m_map.find(key) != m_map.end()) {
+				DestroyIcon(m_map[key]);
+			}
+			m_map.erase(key);
+		}
+		void Clear()
+		{
+			for (typename CMap::iterator it = m_map.begin(); it != m_map.end(); ++it) {
+				DestroyIcon(it->second);
+			}
+			m_map.clear();
+		}
+		CValue operator [] (const CKey & key)
+		{
+			typename CMap::const_iterator pos(m_map.find(key));
+			if (pos != m_map.end())
+				return pos->second;
+			return 0;
+		}
+	private:
+		typedef std::map<CKey,CValue> CMap;
+		CMap m_map;
+	};
+	typedef CNoNullIconMap<IDTYPE,HICON> CIdIconMap;
+	typedef CNoNullIconMap<MENUTYPE,HICON> CMenuIconMap;
+
+	const ICONTYPE ItemIcon(const int nID)
+	{
+		return m_MenuItemIcons[nID];
+	}
+	void ItemIcon(const int nID, const ICONTYPE hIcon)
+	{
+		m_MenuItemIcons.Add(nID, hIcon);
+	}
+	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu)
+	{
+		return m_SubMenuIcons[hSubMenu];
+	}
+	void MenuIcon(const MENUTYPE hSubMenu, const ICONTYPE hIcon)
+	{
+		m_SubMenuIcons.Add(hSubMenu, hIcon);
+	}
 
 	void Destroy(void);
 	bool AccordingToState(DRAWITEMSTRUCT * pDI);
@@ -119,9 +179,9 @@ private:
 					ClrIndex_Num};
 	std::vector<COLORREF> m_vClrs;
 
-	IdIconMap m_IdIcon;
-	MenuIconMap m_MenuIcon;
-
+	//store icons
+	CIdIconMap m_MenuItemIcons;
+	CMenuIconMap m_SubMenuIcons;
 
 	class CWindowClass
 	{
@@ -165,9 +225,11 @@ protected:
 public:
 	typedef HBITMAP BITMAPTYPE;
 	void SetSkin(BITMAPTYPE hSide, const BITMAPTYPE (&hBk)[3], const BITMAPTYPE (&hSelBk)[3], const BITMAPTYPE (&hSep)[3], BITMAPTYPE hTitalPic);
+	bool Skin();
 
 private:
 	// skin about
+
 
 	MemDC_H m_hSkinDC;
 
@@ -206,6 +268,8 @@ private:
 
 	SkinPic m_hTitalPic;
 	int m_titalPicWidth;
+protected:
+	static const TCHAR * szHiddenMenuItem;// = _T("< . >");// normal items should not contain "<"
 };
 
 #endif // OWNER_DRAW_MENU_H
