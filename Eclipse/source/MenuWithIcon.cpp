@@ -74,7 +74,7 @@ int CMenuWithIcon::Display(int x, int y, WINDOWTYPE hWnd, UINT uFlag)
 
 
 
-LRESULT CMenuWithIcon::MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags)
+LRESULT CMenuWithIcon::MenuSelect_impl(MENUTYPE hMenu,UINT uItem,UINT uFlags)
 {
 	if((uFlags & MF_GRAYED) || (uFlags & MF_DISABLED))
 		return 0;
@@ -89,11 +89,14 @@ LRESULT CMenuWithIcon::MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags)
 
 
 //! 绘制菜单。
-bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
+bool CMenuWithIcon::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 {
 	if (!pDI || pDI->rcItem.bottom == pDI->rcItem.top) {
+		return false;
+	} else if (Super::DrawItem_impl(pDI)) {
 		return true;
 	}
+
 	//两个可能的类型，菜单与项
 	IDTYPE iMaybeID = pDI->itemID;
 	MENUTYPE hMaybeMenu = MatchRect(pDI);
@@ -101,23 +104,9 @@ bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 	if (!hMaybeMenu && (iMaybeID < m_startID || iMaybeID >= m_ID) ) {
 		hMaybeMenu = (HMENU)iMaybeID;
 	}
-	AccordingToState(pDI);
-
 	// 主菜单 和 子菜单
-	const TCHAR * pPath = NULL;
-	if ( ! IsMenu(hMaybeMenu))
-		pPath = Cmd(iMaybeID);
 
-	// 菜单图标
-	ICONTYPE hIcon = NULL;
-	if (hMaybeMenu && IsMenu(hMaybeMenu))
-		hIcon = MenuIcon(hMaybeMenu);
-	else
-		hIcon = ItemIcon(iMaybeID);
-
-	if (hIcon)
-		DrawIconEx(pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2 ,hIcon,MENUICON,MENUICON,0,NULL,DI_NORMAL|DI_COMPAT);
-	else if (hMaybeMenu && IsMenu(hMaybeMenu)) {
+	if (hMaybeMenu && IsMenu(hMaybeMenu)) {
 		// 子菜单图标
 		ICONTYPE hIconSub = NULL;
 		bool bDraw = false;//成功绘制动态子菜单
@@ -147,9 +136,9 @@ bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 				DrawIconEx(pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2 ,hIconSub,MENUICON,MENUICON, 0,NULL,DI_NORMAL);
 		}
 	}
-	else if(!pPath) {
+	else if(!Cmd(iMaybeID)) {
 		//标题
-		DrawText(pDI->hDC,Name(iMaybeID),-1,&(pDI->rcItem),DT_CENTER | DT_SINGLELINE |DT_VCENTER);
+		//DrawText(pDI->hDC,Name(iMaybeID),-1,&(pDI->rcItem),DT_CENTER | DT_SINGLELINE |DT_VCENTER);
 		return true;
 	}
 	else if ( IsStaticMenu(MENUTYPE(pDI->hwndItem)) || IsDynamicMenu(MENUTYPE(pDI->hwndItem)) || IsExpanedMenu(MENUTYPE(pDI->hwndItem))) {
@@ -184,20 +173,14 @@ bool CMenuWithIcon::DrawItem(DRAWITEMSTRUCT * pDI)
 		//显示默认未知文件图标
 		DrawIconEx(pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2 ,m_hIconUnknowFile,MENUICON,MENUICON,0,NULL,DI_NORMAL|DI_COMPAT);
 
-	pDI->rcItem.left += MENUHEIGHT + (MENUBLANK << 1);
-
-	const TCHAR *str = ( hMaybeMenu && IsMenu(hMaybeMenu) ) ? MenuName(hMaybeMenu) : ItemName(iMaybeID);
-	if(str && *str) {
-		DrawText(pDI->hDC, str,-1,&(pDI->rcItem),DT_LEFT | DT_SINGLELINE |DT_VCENTER);
-	}
 	return true;
 }
 
 
 //! 设定菜单大小
-int CMenuWithIcon::MeasureItem(MEASUREITEMSTRUCT *pMI)
+int CMenuWithIcon::MeasureItem_impl(MEASUREITEMSTRUCT *pMI)
 {
-	COwnerDrawMenu::MeasureItem(pMI);
+	COwnerDrawMenu::MeasureItem_impl(pMI);
 	if (!Skin()) {
 		pMI->itemWidth += MENUBLANK * 3;
 	}

@@ -38,9 +38,9 @@ public:
 
 	virtual int Display(int x, int y, WINDOWTYPE hWnd = NULL, UINT uFlag = TPM_LEFTALIGN);
 private:
-	bool DrawItem(DRAWITEMSTRUCT * pDI);
-	int MeasureItem(MEASUREITEMSTRUCT *pMI);
-	LRESULT MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags);
+	bool DrawItem_impl(DRAWITEMSTRUCT * pDI);
+	int MeasureItem_impl(MEASUREITEMSTRUCT *pMI);
+	LRESULT MenuSelect_impl(MENUTYPE hMenu,UINT uItem,UINT uFlags);
 public:
 	ICONTYPE GetBigIcon(const unsigned int id, int index = 0){
 		ICONTYPE result = 0;

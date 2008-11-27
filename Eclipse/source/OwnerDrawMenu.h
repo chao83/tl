@@ -217,11 +217,16 @@ private:
 
 protected:
 	MENUTYPE MatchRect(const DRAWITEMSTRUCT * pDI);
-	virtual bool DrawItem(DRAWITEMSTRUCT * pDI);
-	virtual int MeasureItem(MEASUREITEMSTRUCT *pMI);
-	virtual LRESULT MenuChar(MENUTYPE hMenu,TCHAR ch);
-	virtual LRESULT MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags);
+	bool DrawItem(DRAWITEMSTRUCT * pDI);
+	int MeasureItem(MEASUREITEMSTRUCT *pMI);
+	LRESULT MenuChar(MENUTYPE hMenu,TCHAR ch);
+	LRESULT MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags);
+	bool DrawMenuIcon(const DRAWITEMSTRUCT * pDI);
 
+	virtual bool DrawItem_impl(DRAWITEMSTRUCT * pDI);
+	virtual int MeasureItem_impl(MEASUREITEMSTRUCT *pMI);
+	virtual LRESULT MenuChar_impl(MENUTYPE hMenu,TCHAR ch);
+	virtual LRESULT MenuSelect_impl(MENUTYPE hMenu,UINT uItem,UINT uFlags);
 public:
 	typedef HBITMAP BITMAPTYPE;
 	void SetSkin(BITMAPTYPE hSide, const BITMAPTYPE (&hBk)[3], const BITMAPTYPE (&hSelBk)[3], const BITMAPTYPE (&hSep)[3], BITMAPTYPE hTitalPic);
@@ -229,6 +234,7 @@ public:
 
 private:
 	// skin about
+	
 
 
 	MemDC_H m_hSkinDC;

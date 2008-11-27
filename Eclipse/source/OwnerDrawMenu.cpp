@@ -632,44 +632,57 @@ MENUTYPE COwnerDrawMenu::MatchRect(const DRAWITEMSTRUCT * pDI)
 	return hResult;
 }
 
-bool COwnerDrawMenu::DrawItem(DRAWITEMSTRUCT * pDI)
-{
+bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
+	bool bDrawed = false;
+	
+	int xBlank = (MENUHEIGHT - MENUSIDE - MENUICON/2)/2;
+	if (Skin()) {
+		xBlank = (MENUHEIGHT + MENUBLANK * 3 )/2 - MENUSIDE;
+	}
 	//两个可能的类型，菜单与项
 	IDTYPE iMaybeID = pDI->itemID;
 	MENUTYPE hMaybeMenu = MatchRect(pDI);
-	int iconSize = 8;
-	int xBlank = (MENUHEIGHT - MENUSIDE - iconSize)/2;
-	if (Skin()) {
-		iconSize = MENUICON;
-		xBlank = (MENUHEIGHT + MENUBLANK * 2 + MENUSIDE - iconSize)/2;
-	}
-	//int yBlank = (MENUHEIGHT - iconSize)/2;
-
-	AccordingToState(pDI);
 
 	if(m_hIconCheck && (pDI->itemState & ODS_CHECKED)) {
 		ICONINFO ii;
 		GetIconInfo(m_hIconCheck, &ii);
-		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, m_hIconCheck,0,0, 0,NULL,DI_NORMAL);
+		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - ii.xHotspot, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, m_hIconCheck,0,0, 0,NULL,DI_NORMAL);
+		bDrawed = true;
 	} else if (hMaybeMenu && IsMenu(hMaybeMenu) ) {
 		if (HICON hIcon = MenuIcon(hMaybeMenu)) {//m_MenuIcon[hMaybeMenu]) {
 			ICONINFO ii;
 			GetIconInfo(hIcon, &ii);
-			DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, hIcon,0,0, 0,NULL,DI_NORMAL);
+			DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - ii.xHotspot, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, hIcon,0,0, 0,NULL,DI_NORMAL);
+			bDrawed = true;
 		}
 	} else if (HICON hIcon = ItemIcon(iMaybeID) ) {
 		ICONINFO ii;
 		GetIconInfo(hIcon, &ii);
-		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, hIcon, 0,0, 0,NULL,DI_NORMAL);
+		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - ii.xHotspot, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, hIcon, 0,0, 0,NULL,DI_NORMAL);
+		bDrawed = true;
+	}
+	return bDrawed;
+
+}
+
+// return true if drawed icon
+bool COwnerDrawMenu::DrawItem_impl(DRAWITEMSTRUCT * pDI)
+{
+	if (!pDI || pDI->rcItem.bottom == pDI->rcItem.top) {
+		return false;
 	}
 
+	AccordingToState(pDI);
+
+	IDTYPE iMaybeID = pDI->itemID;
+	MENUTYPE hMaybeMenu = MatchRect(pDI);
+
+	const bool bDrawedIcon = DrawMenuIcon(pDI);
 
 	RECT rect = pDI->rcItem;
+	rect.left += MENUHEIGHT - MENUSIDE;
 	if (Skin()) {
-		rect.left += MENUHEIGHT + MENUBLANK * 2;
-	}
-	else {
-		rect.left += MENUHEIGHT - MENUSIDE;
+		rect.left += MENUBLANK * 3;
 	}
 
 	const TCHAR *str = IsMenu(hMaybeMenu) ? MenuName(hMaybeMenu) : ItemName(iMaybeID);
@@ -678,11 +691,17 @@ bool COwnerDrawMenu::DrawItem(DRAWITEMSTRUCT * pDI)
 		DrawText(pDI->hDC,str,-1,&(rect),DT_LEFT | DT_SINGLELINE | DT_VCENTER);
 	}
 
+	return bDrawedIcon;
+}
+
+
+bool COwnerDrawMenu::DrawItem(DRAWITEMSTRUCT * pDI) {
+	DrawItem_impl(pDI);
 	return true;
 }
 
-//! 计算并设置菜单项的长宽
-int COwnerDrawMenu::MeasureItem(MEASUREITEMSTRUCT *pMI)
+//! 实现，计算并设置菜单项的长宽
+int COwnerDrawMenu::MeasureItem_impl(MEASUREITEMSTRUCT *pMI)
 {
 	if (!pMI || !pMI->itemID) {
 		pMI->itemHeight = MENUSEP;
@@ -727,8 +746,14 @@ int COwnerDrawMenu::MeasureItem(MEASUREITEMSTRUCT *pMI)
 	return pMI->itemWidth;
 }
 
-// 记录当前选中菜单项ID或子菜单句柄
-LRESULT COwnerDrawMenu::MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags)
+//! 计算并设置菜单项的长宽
+int COwnerDrawMenu::MeasureItem(MEASUREITEMSTRUCT *pMI) {
+	MeasureItem_impl(pMI);
+	return true;
+}
+
+// 实现，记录当前选中菜单项ID或子菜单句柄
+LRESULT COwnerDrawMenu::MenuSelect_impl(MENUTYPE hMenu,UINT uItem,UINT uFlags)
 {
 	if((uFlags & MF_GRAYED) || (uFlags & MF_DISABLED))
 		return 0;
@@ -740,8 +765,14 @@ LRESULT COwnerDrawMenu::MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags)
 	return 0;
 }
 
-// 处理用户按键选择菜单项
-LRESULT COwnerDrawMenu::MenuChar(MENUTYPE hMenu,TCHAR ch)
+// 记录当前选中菜单项ID或子菜单句柄
+LRESULT COwnerDrawMenu::MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags) {
+	MenuSelect_impl(hMenu, uItem, uFlags);
+	return 0;
+}
+
+// 实现，处理用户按键选择菜单项
+LRESULT COwnerDrawMenu::MenuChar_impl(MENUTYPE hMenu,TCHAR ch)
 {
 	assert(hMenu == m_hMenu || IsParentMenu(m_hMenu,(UINT_PTR)hMenu));
 	int itemCount = GetMenuItemCount(hMenu);
@@ -798,6 +829,11 @@ LRESULT COwnerDrawMenu::MenuChar(MENUTYPE hMenu,TCHAR ch)
 	return MAKELRESULT(vFound.front(),MNC_SELECT);
 }
 
+// 处理用户按键选择菜单项
+LRESULT COwnerDrawMenu::MenuChar(MENUTYPE hMenu,TCHAR ch) {
+	return MenuChar_impl(hMenu, ch);
+}
+
 bool COwnerDrawMenu::Skin() {
-	return 	m_BkWidth || m_BkLeftWidth || m_BkRightWidth;
+	return 	1;//m_BkWidth || m_BkLeftWidth || m_BkRightWidth;
 }
