@@ -12,6 +12,9 @@ typedef HMENU MENUTYPE;
 typedef HICON ICONTYPE;
 typedef HWND WINDOWTYPE;
 
+//! 图标 自动指针
+class IconTypeDestroyer{public : static void Free(ICONTYPE &hIcon) {DestroyIcon(hIcon); hIcon = NULL;}  };
+typedef auto_handle<HICON, IconTypeDestroyer, 0, false>  HIcon;
 
 //! 自绘菜单类
 class COwnerDrawMenu
@@ -41,14 +44,41 @@ public:
 	bool SetNameByPos(int i, const TSTRING & strNewName);
 	BOOL Insert(IDTYPE ID,const TCHAR * strName, UINT pos = static_cast<UINT>(-1), ICONTYPE hIcon = NULL);
 	BOOL Insert(MENUTYPE hSubMenu,const TCHAR * strName, UINT pos = static_cast<UINT>(-1), ICONTYPE hIcon = NULL);
-	void AddStaticIcon(IDTYPE ID,ICONTYPE hIcon);
-	void AddStaticIcon(MENUTYPE hSub, ICONTYPE hIcon);
+	//void AddStaticIcon(IDTYPE ID,ICONTYPE hIcon);
+	//void AddStaticIcon(MENUTYPE hSub, ICONTYPE hIcon);
 	int Reset();
 	UINT SetColor(int index, UINT value);//设置颜色
 	void UpdateRoot();
 
 	//! 判断字符串是否以 给定的字符串结尾。
 	static bool IsStrEndWith(const TSTRING & strSrc, const TSTRING & strMatchThis, bool bMatchCase = true);
+
+	const ICONTYPE ItemIcon(const int nID)
+	{
+		return m_MenuItemIcons[nID];
+	}
+	bool ItemIcon(const int nID, const ICONTYPE hIcon)
+	{
+		return m_MenuItemIcons.Add(nID, hIcon);
+	}
+	//const ICONTYPE ItemCheckIcon(const int nID)
+	//{
+	//	return m_MenuItemCheckIcons[nID];
+	//}
+	//bool ItemCheckIcon(const int nID, const ICONTYPE hIcon)
+	//{
+	//	return m_MenuItemCheckIcons.Add(nID, hIcon);
+	//}
+	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu)
+	{
+		return m_SubMenuIcons[hSubMenu];
+	}
+	bool MenuIcon(const MENUTYPE hSubMenu, const ICONTYPE hIcon)
+	{
+		return m_SubMenuIcons.Add(hSubMenu, hIcon);
+	}
+
+	bool IconByPos(const int iPos, const ICONTYPE hIcon);
 
 protected:
 	UINT_PTR SelID() const {return m_selID;}
@@ -80,8 +110,8 @@ protected:
 
 	template<class IdMenu>static bool AddToMap(std::map<IdMenu,TSTRING> &strMap, IdMenu indexKey, const TSTRING & str)
 	{
-		if (str.empty())
-			return false;
+		//if (str.empty())
+		//	return false;
 		strMap[indexKey] = str;
 		return true;
 	}
@@ -94,6 +124,7 @@ protected:
 		return it->second.c_str();
 	}
 
+	// auto_handle 不适合作为容器元素，所以不存储 HIcon  
 	// 模板类定义，存放 菜单-图标 的类
 	template <class CKey, class CValue>
 	class CNoNullIconMap
@@ -101,21 +132,19 @@ protected:
 	public:
 		bool Add(const CKey & key, const CValue & value) {
 			// @todo: value == map[key] ???
-			if (m_map.find(key) != m_map.end()) {
-				Remove(key);
-			}
-			if (value) {
+			Remove(key);
+			const bool r = value?true:false;
+			if (r) {
 				m_map[key] = value;
-				return true;
 			}
-			return false;
+			return r;
 		}
 		void Remove(const CKey & key)
 		{
 			if (m_map.find(key) != m_map.end()) {
 				DestroyIcon(m_map[key]);
+				m_map.erase(key);
 			}
-			m_map.erase(key);
 		}
 		void Clear()
 		{
@@ -137,23 +166,6 @@ protected:
 	};
 	typedef CNoNullIconMap<IDTYPE,HICON> CIdIconMap;
 	typedef CNoNullIconMap<MENUTYPE,HICON> CMenuIconMap;
-
-	const ICONTYPE ItemIcon(const int nID)
-	{
-		return m_MenuItemIcons[nID];
-	}
-	void ItemIcon(const int nID, const ICONTYPE hIcon)
-	{
-		m_MenuItemIcons.Add(nID, hIcon);
-	}
-	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu)
-	{
-		return m_SubMenuIcons[hSubMenu];
-	}
-	void MenuIcon(const MENUTYPE hSubMenu, const ICONTYPE hIcon)
-	{
-		m_SubMenuIcons.Add(hSubMenu, hIcon);
-	}
 
 	void Destroy(void);
 	bool AccordingToState(DRAWITEMSTRUCT * pDI);
@@ -181,6 +193,7 @@ private:
 
 	//store icons
 	CIdIconMap m_MenuItemIcons;
+	//CIdIconMap m_MenuItemCheckIcons;
 	CMenuIconMap m_SubMenuIcons;
 
 	class CWindowClass

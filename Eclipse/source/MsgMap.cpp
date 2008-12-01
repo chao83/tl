@@ -8,6 +8,7 @@
 #include "GDIWavePic.h"
 #include "RunDlg.h"
 #include "MsgMap.h"
+//#include <gdiplus.h>
 #include "SettingFile.h"
 
 CSettingFile & Settings()
@@ -144,7 +145,7 @@ CMsgMap & TheMsgMap()
 	return msgMap;
 }
 
-bool & IgnoreUser() 
+bool & IgnoreUser()
 {
 	static bool s_bIgnoreUser = false;
 	return s_bIgnoreUser;
@@ -248,14 +249,87 @@ inline unsigned int ArrayN (const TItem (&)[N])
 	return N;
 }
 
+ICONTYPE MyLoadIcon(const int id) {
+	return id
+		?(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(id),IMAGE_ICON,0,0,LR_DEFAULTCOLOR)
+		:0;
+}
+ICONTYPE MyLoadIcon(const TSTRING & strFileName) {
+	return (ICONTYPE)LoadImage(0, strFileName.c_str(), IMAGE_ICON,0,0,LR_LOADFROMFILE);
+}
+
+void SetMenuIcons(const TSTRING & iconDir = _T(""))
+{
+	std::vector<int> vIDs;
+	vIDs.push_back(IDI_EXIT);
+	vIDs.push_back(IDI_EDIT);
+	vIDs.push_back(IDI_REFRESH);
+	vIDs.push_back(IDI_SKIN);
+	vIDs.push_back(IDI_LNG);
+	vIDs.push_back(0);
+	vIDs.push_back(0);
+	vIDs.push_back(0);
+	vIDs.push_back(IDI_PENCIL);
+
+	const TSTRING & strIconDir(iconDir);
+	if (iconDir.empty()) {
+		for (unsigned int i = 0;i < vIDs.size(); ++i) {
+			g_pSysTray->IconByPos(i,MyLoadIcon(vIDs[i]));
+		}
+	} else {
+		std::vector<TSTRING> vFNs; //filenames
+		vFNs.push_back(strIconDir + _T("exit.ico"));
+		vFNs.push_back(strIconDir + _T("edit.ico"));
+		vFNs.push_back(strIconDir + _T("refresh.ico"));
+		vFNs.push_back(strIconDir + _T("skin.ico"));
+		vFNs.push_back(strIconDir + _T("language.ico"));
+		vFNs.push_back(strIconDir + _T("runsmall.ico"));
+		vFNs.push_back(strIconDir + _T("mclick.ico"));
+		vFNs.push_back(strIconDir + _T("autostart.ico"));
+		vFNs.push_back(strIconDir + _T("about.ico"));
+		for (unsigned int i = 0;i < vFNs.size(); ++i) {
+			if (ICONTYPE hIcon = MyLoadIcon(vFNs[i])) {
+				g_pSysTray->IconByPos(i, hIcon);
+			} else {
+				g_pSysTray->IconByPos(i, MyLoadIcon(vIDs[i]));
+			}
+		}
+	}
+
+	vIDs.clear();
+	vIDs.push_back(IDI_OPEN);
+	vIDs.push_back(IDI_CLOSE);
+	vIDs.push_back(IDI_UNKNOWN);
+	if (iconDir.empty()) {
+		g_pTray->DefaultIcons(MyLoadIcon(vIDs[0]), MyLoadIcon(vIDs[1]), MyLoadIcon(vIDs[2]));
+	} else {
+
+		std::vector<TSTRING> vFNs; //filenames
+		vFNs.push_back(strIconDir + _T("open.ico"));
+		vFNs.push_back(strIconDir + _T("close.ico"));
+		vFNs.push_back(strIconDir + _T("unknown.ico"));
+		std::vector<ICONTYPE> icons;
+		for (unsigned int i = 0;i < vFNs.size(); ++i) {
+			if (ICONTYPE hIcon = MyLoadIcon(vFNs[i])) {
+				icons.push_back(hIcon);
+			} else {
+				icons.push_back(MyLoadIcon(vIDs[i]));
+			}
+		}
+		g_pTray->DefaultIcons(icons[0], icons[1], icons[2]);
+	}
+
+
+}
 //! 设置菜单皮肤
 void SetMenuSkin(const TSTRING & skinSubDir)
 {
 	const int nPicPerItem = 3;
-	if (skinSubDir.empty() || skinSubDir == _T("")) {
+	if (skinSubDir.empty()) {
 		HBITMAP hBit[nPicPerItem] = {0};
 		g_pTray->SetSkin(0, hBit, hBit, hBit, 0);
 		g_pSysTray->SetSkin(0, hBit, hBit, hBit, 0);
+		SetMenuIcons();
 	}
 	else {
 		const TCHAR * szSkinBk[] = {TEXT("bk.bmp"), TEXT("bkLeft.bmp"), TEXT("bkRight.bmp")};
@@ -271,23 +345,24 @@ void SetMenuSkin(const TSTRING & skinSubDir)
 		assert(ArrayN(hBitSel) == ArrayN(szSkinSelBk));
 		for (int i = 0; i < nPicPerItem; ++i) {
 			strSkinPicPath = strSkinPath + szSkinBk[i];
-			hBitBk[i] = (HBITMAP)LoadImage(ThisHinstGet(), strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+			hBitBk[i] = (HBITMAP)LoadImage(0, strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 		}
 		for (int i = 0; i < nPicPerItem; ++i) {
 			strSkinPicPath = strSkinPath + szSkinSelBk[i];
-			hBitSel[i] = (HBITMAP)LoadImage(ThisHinstGet(), strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+			hBitSel[i] = (HBITMAP)LoadImage(0, strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 		}
 		for (int i = 0; i < nPicPerItem; ++i) {
 			strSkinPicPath = strSkinPath + szSkinSep[i];
-			hSep[i] = (HBITMAP)LoadImage(ThisHinstGet(), strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+			hSep[i] = (HBITMAP)LoadImage(0, strSkinPicPath.c_str(), IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 		}
 		strSkinPicPath = strSkinPath + TEXT("side.bmp");
-		HBITMAP hSide = ((HBITMAP)LoadImage(ThisHinstGet(),strSkinPicPath.c_str(),IMAGE_BITMAP,0,0,LR_LOADFROMFILE));
+		HBITMAP hSide = ((HBITMAP)LoadImage(0,strSkinPicPath.c_str(),IMAGE_BITMAP,0,0,LR_LOADFROMFILE));
 		strSkinPicPath = strSkinPath + TEXT("tital.bmp");
-		HBITMAP hTital = ((HBITMAP)LoadImage(ThisHinstGet(),strSkinPicPath.c_str(),IMAGE_BITMAP,0,0,LR_LOADFROMFILE));
+		HBITMAP hTital = ((HBITMAP)LoadImage(0,strSkinPicPath.c_str(),IMAGE_BITMAP,0,0,LR_LOADFROMFILE));
 
 		g_pTray->SetSkin(hSide, hBitBk, hBitSel, hSep, hTital);
 		g_pSysTray->SetSkin(hSide, hBitBk, hBitSel, hSep, hTital);
+		SetMenuIcons(strSkinPath + _T("icons\\"));
 	}
 
 	HMENU hSkinMenu = GetSubMenu(g_pSysTray->Menu(), 3);
@@ -342,7 +417,7 @@ void UpdateMenu(const bool bForce = false) {
 			bBuild = true;
 		}
 	}
-	
+
 	if (bBuild) {
 			BuildMenuFromFile(g_fileName.c_str());
 	}
@@ -731,25 +806,24 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 
 		//EnableMenuItem(hOptionMenu,0,MF_BYPOSITION | MF_ENABLED);
 	// */
-	g_pSysTray->AddStaticIcon(EXIT,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_EXIT),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
-	g_pSysTray->AddStaticIcon(EDITCMDS,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_EDIT),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
-	g_pSysTray->AddStaticIcon(RELOAD,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_REFRESH),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
-	g_pSysTray->AddStaticIcon(ABOUT,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_PENCIL),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
 
-	ICONTYPE hIconClose = (ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_CLOSE),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
-	ICONTYPE hIconOpen = (ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_OPEN),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
-	ICONTYPE hIconUnknownFile = (ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_UNKNOWN),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
-	g_pTray = new CMenuWithIcon(hIconOpen,hIconClose,hIconUnknownFile, GetLang(_T("Empty")));
+	g_pTray = new CMenuWithIcon(
+		(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_CLOSE),IMAGE_ICON,16,16,LR_DEFAULTCOLOR),
+		(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_OPEN),IMAGE_ICON,16,16,LR_DEFAULTCOLOR),
+		(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_UNKNOWN),IMAGE_ICON,16,16,LR_DEFAULTCOLOR),
+		GetLang(_T("Empty")));
 
+//	SetMenuIcons();
 	// set skin
 	TSTRING strValue;
 	if(!Settings().Get(sectionGeneral, keySkin, strValue)) {
-		strValue = _T("");
+		strValue.clear();
 	}
 	SetMenuSkin(strValue);
+
 	// set Lng
 	if(!Settings().Get(sectionGeneral, keyLanguage, strValue)) {
-		strValue = _T("");
+		strValue.clear();
 	}
 	SetLanguage(strValue);
 
@@ -776,7 +850,7 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 	AddHotkey(hWnd,HOTKEYPOPEXECUTE,MOD_WIN | MOD_CONTROL, VK_LWIN);
 	AddHotkey(hWnd,HOTKEYMIDCLICK,MOD_SHIFT | MOD_WIN, VK_LWIN);
 	AddHotkey(hWnd,HOTKEYPOPSYSMENU_ALTER,MOD_ALT | MOD_CONTROL | MOD_WIN, VK_LWIN);
-	
+
 
 	//尝试读取用户自定义图标
 	TSTRING strIcon;
@@ -784,13 +858,13 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 		strIcon = TEXT(".\\TLRun.ico");
 		Settings().Set(sectionGeneral, keyRunIcon, strIcon,true);
 	}
-	GRunIcon() = (ICONTYPE)LoadImage(ThisHinstGet(),strIcon.c_str(),IMAGE_ICON,0,0,LR_LOADFROMFILE);
+	GRunIcon() = (ICONTYPE)LoadImage(0,strIcon.c_str(),IMAGE_ICON,0,0,LR_LOADFROMFILE);
 
 	if (!Settings().Get(sectionGeneral, keyTrayIcon, strIcon)) {
 		strIcon = TEXT(".\\TLTray.ico");
 		Settings().Set(sectionGeneral, keyTrayIcon, strIcon,true);
 	}
-	GTrayIcon() = (ICONTYPE)LoadImage(ThisHinstGet(),strIcon.c_str(),IMAGE_ICON,0,0,LR_LOADFROMFILE);
+	GTrayIcon() = (ICONTYPE)LoadImage(0,strIcon.c_str(),IMAGE_ICON,0,0,LR_LOADFROMFILE);
 	Systray(hWnd,NIM_ADD,GTrayIcon().Get());
 
 	// 读取历史记录
@@ -1026,7 +1100,7 @@ BOOL  CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) {
 		case WM_TIMER:
-			if (// bUserLogo && 
+			if (// bUserLogo &&
 				bRain && (++iTimerEnter > iTimerDrawEvery)) {
 				iTimerEnter = 0;
 				DWORD dwTime = GetTickCount() & 0xffffff;
@@ -1061,7 +1135,7 @@ BOOL  CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			//	bResult = TRUE;
 			//	break;
 			//}
-			//else 
+			//else
 			if (NULL != (hdc = GetWindowDC(hDlg))) {
 				SetBkMode(hdc, TRANSPARENT);
 				// 允许 TLLogo.bmp 自定义关于对话框 logo

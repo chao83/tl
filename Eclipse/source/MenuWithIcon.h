@@ -35,6 +35,7 @@ class CMenuWithIcon : public COwnerDrawMenu
 public:
 	CMenuWithIcon(ICONTYPE hOpen = NULL,ICONTYPE hClose = NULL,ICONTYPE hUnknownFile = NULL,const TCHAR * szEmpty = NULL);
 	~CMenuWithIcon(void);
+	void DefaultIcons(ICONTYPE hOpen,ICONTYPE hClose,ICONTYPE hUnknown);
 
 	virtual int Display(int x, int y, WINDOWTYPE hWnd = NULL, UINT uFlag = TPM_LEFTALIGN);
 private:
@@ -42,16 +43,7 @@ private:
 	int MeasureItem_impl(MEASUREITEMSTRUCT *pMI);
 	LRESULT MenuSelect_impl(MENUTYPE hMenu,UINT uItem,UINT uFlags);
 public:
-	ICONTYPE GetBigIcon(const unsigned int id, int index = 0){
-		ICONTYPE result = 0;
-		if (m_startID <= id && id < m_dynamicStartID) {
-			if (m_ItemIconPath.find(id) != m_ItemIconPath.end())
-				result = GetIcon(m_ItemIconPath[id],FILEFOLDERICON,index,true);
-			else
-				result = GetIcon(Cmd(id),FILEFOLDERICON,index,true);
-		}
-		return result;
-	}
+	ICONTYPE GetBigIcon(const unsigned int id, int index = 0);
 	ICONTYPE GetBigIcon(const tString & path, const int index = 0) {return GetIcon(path,FILEFOLDERICON,index,true);}
 	//! 返回菜单项对应的命令行的参数
 	const TCHAR * Param(const IDTYPE nID) const {return GetStr(m_ItemParam,nID);};
@@ -84,12 +76,9 @@ private:
 	//typedef std::map<TSTRING, MENUTYPE> StrMenuMap;
 	typedef std::map<TSTRING, TSTRING> StrStrMap;
 
-	//enum {MENUBLANK = COwnerDrawMenu::MENUHEIGHT - MENUICON};
-
 	bool AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & strName, const tString & strPath, EICONGETTYPE needIcon = FILEFOLDERICON);
 	int AddMenuItem(MENUTYPE hMenu, const tString & strName, const tString & inStrPath, EICONGETTYPE needIcon = FILEFOLDERICON, const tString & strIcon = _T(""));
 	int MultiAddMenuItem(MENUTYPE hMenu, const tString & inStrPath,const tString & strName);
-	//int BuildMenu(FILE * pFile, MENUTYPE hMenu);
 	int DynamicBuild(MENUTYPE hMenu);
 	void Destroy(void);
 	ICONTYPE GetIcon(const tString & strPath, EICONGETTYPE needIcon = FILEFOLDERICON,int iconIndex = 0, bool bIcon32 = false);
@@ -124,9 +113,9 @@ private :
 
 
 	std::map<TSTRING, IDTYPE> m_NameIdMap;//用于查找名称和命令的对应关系,全部小写字母
-	ICONTYPE m_hIconOpen;
-	ICONTYPE m_hIconClose;
-	ICONTYPE m_hIconUnknowFile;
+	HIcon m_hIconOpen;
+	HIcon m_hIconClose;
+	HIcon m_hIconUnknowFile;
 
 	IdStrMap m_ItemCmd;
 	IdStrMap m_ItemParam;

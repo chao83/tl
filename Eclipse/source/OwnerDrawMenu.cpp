@@ -203,6 +203,7 @@ void COwnerDrawMenu::SetSkin(BITMAPTYPE hSide, const BITMAPTYPE (&hBk)[3], const
 		m_BkHeight = bmp.bmHeight;
 		m_BkWidth = bmp.bmWidth;
 	}
+
 	if (m_hBkPicLeft) {
 		GetObject(m_hBkPicLeft,sizeof(bmp),&bmp);
 		if (m_BkHeight == bmp.bmHeight)
@@ -296,9 +297,7 @@ int COwnerDrawMenu::Display(int x, int y, WINDOWTYPE hWnd, UINT uFlag)
 	}
 	AllowSetForegroundWindow(GetCurrentProcessId());
 	SetForegroundWindow(hWndMenu);
-	//if (GetMenuItemCount(Menu())) {
-	//	SetMenuDefaultItem(Menu(),0,MF_BYPOSITION);
-	//}
+
 	id = TrackPopupMenuEx(Menu(), uFlag, x, y, hWndMenu, NULL);
 //	if (!id) {
 //		DWORD dwErr = GetLastError();//maybe 1446 : Popup menu already active.
@@ -309,6 +308,7 @@ int COwnerDrawMenu::Display(int x, int y, WINDOWTYPE hWnd, UINT uFlag)
 	return id;
 }
 
+//! 更改现有 菜单项 的显示名称
 bool COwnerDrawMenu::SetName(IDTYPE ID, const TSTRING & strNewName)
 {
 	if(m_ItemName.find(ID) != m_ItemName.end()) {
@@ -317,6 +317,9 @@ bool COwnerDrawMenu::SetName(IDTYPE ID, const TSTRING & strNewName)
 	}
 	return false;
 }
+
+
+//! 更改现有 子菜单 的显示名称
 bool COwnerDrawMenu::SetName(MENUTYPE hSubMenu, const TSTRING & strNewName)
 {
 	if(m_MenuName.find(hSubMenu) != m_MenuName.end()) {
@@ -325,6 +328,8 @@ bool COwnerDrawMenu::SetName(MENUTYPE hSubMenu, const TSTRING & strNewName)
 	}
 	return false;
 }
+
+//! 更改现有菜单条目的名称
 bool COwnerDrawMenu::SetNameByPos(int i, const TSTRING & strNewName)
 {
 	if( i < 0 || i >= GetMenuItemCount(Menu()) ) {
@@ -336,6 +341,19 @@ bool COwnerDrawMenu::SetNameByPos(int i, const TSTRING & strNewName)
 	}
 	else {
 		return SetName(GetMenuItemID(Menu(),i), strNewName);
+	}
+}
+
+bool COwnerDrawMenu::IconByPos(const int iPos, const ICONTYPE hIcon) {
+	if( iPos < 0 || iPos >= GetMenuItemCount(Menu()) ) {
+		return false;
+	}
+	MENUTYPE hMenu = GetSubMenu(Menu(),iPos);
+	if(IsMenu(hMenu)) {
+		return MenuIcon(hMenu, hIcon);
+	}
+	else {
+		return ItemIcon(GetMenuItemID(Menu(),iPos), hIcon);
 	}
 }
 
@@ -394,7 +412,6 @@ BOOL COwnerDrawMenu::Insert(MENUTYPE hSubMenu,const TCHAR * strName, UINT pos, I
 	if (m_MenuName.find(hSubMenu) != m_MenuName.end())
 		return 0;
 	if (hIcon) {
-		//m_MenuIcon[hSubMenu] = hIcon;
 		MenuIcon(hSubMenu, hIcon);
 	}
 	AddToMap(m_MenuName,hSubMenu, strName);
@@ -403,28 +420,11 @@ BOOL COwnerDrawMenu::Insert(MENUTYPE hSubMenu,const TCHAR * strName, UINT pos, I
 }
 
 
-//! 添加图标，不销毁
-void COwnerDrawMenu::AddStaticIcon(IDTYPE ID, ICONTYPE hIcon)
-{
-	//m_IdIcon[ID] = hIcon;
-	ItemIcon(ID, hIcon);
-}
-
-
-void COwnerDrawMenu::AddStaticIcon(MENUTYPE hSub, ICONTYPE hIcon)
-{
-	//m_MenuIcon[hSub] = hIcon;
-	MenuIcon(hSub, hIcon);
-}
-
-
 // 销毁菜单内容，仅供 reset() 和 析构函数 调用
 void COwnerDrawMenu::Destroy(void)
 {
 	m_ItemName.clear();	//ClearMap(m_ItemName);
 	m_MenuName.clear(); //ClearMap(m_MenuName);
-	//m_IdIcon.clear();
-	//m_MenuIcon.clear();
 	m_MenuItemIcons.Clear();
 	m_SubMenuIcons.Clear();
 	if (m_hMenu)
@@ -432,7 +432,7 @@ void COwnerDrawMenu::Destroy(void)
 		DestroyMenu(m_hMenu);
 		m_hMenu = NULL;
 	}
-	
+
 }
 
 
@@ -632,9 +632,10 @@ MENUTYPE COwnerDrawMenu::MatchRect(const DRAWITEMSTRUCT * pDI)
 	return hResult;
 }
 
+
 bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
 	bool bDrawed = false;
-	
+
 	int xBlank = (MENUHEIGHT - MENUSIDE - MENUICON/2)/2;
 	if (Skin()) {
 		xBlank = (MENUHEIGHT + MENUBLANK * 3 )/2 - MENUSIDE;
@@ -642,25 +643,44 @@ bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
 	//两个可能的类型，菜单与项
 	IDTYPE iMaybeID = pDI->itemID;
 	MENUTYPE hMaybeMenu = MatchRect(pDI);
+	HICON hIcon = 0;
+	if (hMaybeMenu && IsMenu(hMaybeMenu) ) {
+		hIcon = MenuIcon(hMaybeMenu);
+	} else  {
+		hIcon = ItemIcon(iMaybeID);
+	}
+	// a function to get icon size;
+	class CGetIconSize {
+	public:
+		static bool GetIconSize(ICONTYPE hIcon, int &x, int &y) {
+			bool r = false;
+			ICONINFO ii;
+			if (GetIconInfo(hIcon, &ii)) {
+				x = ii.xHotspot * 2;
+				y = ii.yHotspot * 2;
+				DeleteObject(ii.hbmColor);
+				DeleteObject(ii.hbmMask);
+				r = true;
+			}
+			return r;
+		}
+	};
+
+	if (hIcon) {
+		int x = MENUICON, y = MENUICON;
+		CGetIconSize::GetIconSize(hIcon, x,y);
+		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - x/2, pDI->rcItem.top + (MENUHEIGHT - y)/2, hIcon, 0,0, 0,NULL,DI_NORMAL);
+		bDrawed = true;
+		xBlank += x;
+	}
 
 	if(m_hIconCheck && (pDI->itemState & ODS_CHECKED)) {
-		ICONINFO ii;
-		GetIconInfo(m_hIconCheck, &ii);
-		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - ii.xHotspot, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, m_hIconCheck,0,0, 0,NULL,DI_NORMAL);
-		bDrawed = true;
-	} else if (hMaybeMenu && IsMenu(hMaybeMenu) ) {
-		if (HICON hIcon = MenuIcon(hMaybeMenu)) {//m_MenuIcon[hMaybeMenu]) {
-			ICONINFO ii;
-			GetIconInfo(hIcon, &ii);
-			DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - ii.xHotspot, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, hIcon,0,0, 0,NULL,DI_NORMAL);
-			bDrawed = true;
-		}
-	} else if (HICON hIcon = ItemIcon(iMaybeID) ) {
-		ICONINFO ii;
-		GetIconInfo(hIcon, &ii);
-		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - ii.xHotspot, pDI->rcItem.top + MENUHEIGHT/2 - ii.yHotspot, hIcon, 0,0, 0,NULL,DI_NORMAL);
-		bDrawed = true;
+		hIcon = m_hIconCheck;
+		int x = MENUICON, y = MENUICON;
+		CGetIconSize::GetIconSize(hIcon, x,y);
+		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - x/2, pDI->rcItem.top + (MENUHEIGHT - y)/2, hIcon, 0,0, 0,NULL,DI_NORMAL);
 	}
+
 	return bDrawed;
 
 }
@@ -719,7 +739,7 @@ int COwnerDrawMenu::MeasureItem_impl(MEASUREITEMSTRUCT *pMI)
 		const TCHAR * str = Name(pMI->itemID);
 		if (!str || !*str)
 			return 0;
-		
+
 		if (TSTRING(Name(pMI->itemID)) == szHiddenMenuItem) {
 			pMI->itemHeight = 0;
 		}
@@ -837,3 +857,4 @@ LRESULT COwnerDrawMenu::MenuChar(MENUTYPE hMenu,TCHAR ch) {
 bool COwnerDrawMenu::Skin() {
 	return 	1;//m_BkWidth || m_BkLeftWidth || m_BkRightWidth;
 }
+

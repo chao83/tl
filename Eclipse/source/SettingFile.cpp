@@ -188,7 +188,7 @@ int CSettingFile::TryGet(const TSTRING & strIndex, std::vector<TSTRING> & vStr)
 //! 获取指定字段的内容
 bool CSettingFile::Get(const TSTRING & strSection, const TSTRING & strIndex, TSTRING & str)
 {
-	str = _T("");
+	str.clear();
 	for (Setting::size_type i = 0; i < m_Settings.size(); ++i) {
 		if (m_Settings[i].first == strSection) {
 			StrStrMap::const_iterator iter = m_Settings[i].second.find(strIndex);

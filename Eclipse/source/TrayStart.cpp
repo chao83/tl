@@ -2,10 +2,15 @@
 //
 
 #include "stdafx.h"
+
+#ifdef USE_GDIPLUS
+    #include <objbase.h>
+    #include <gdiplus.h>
+#endif
+
 #include "MsgMap.h"
 #include "TrayStart.h"
 #include "language.h"
-#include <memory>
 //#define MAX_LOADSTRING 100
 
 // 全局变量:
@@ -60,15 +65,29 @@ void MustBeFirstInstance(const TCHAR * pTitle = NULL)
 		exit(0);
 	}
 }
-
-
+#ifdef USE_GDIPLUS
+class GDIplusIniter{
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	ULONG_PTR           gdiplusToken;
+public:
+	GDIplusIniter() {
+		// Initialize GDI+.
+		Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+	}
+	~GDIplusIniter() {
+		Gdiplus::GdiplusShutdown(gdiplusToken);
+	}
+};
+#endif
 //! WinMain 程序入口
 int APIENTRY WinMain(HINSTANCE hInstance,
 					 HINSTANCE /*hPrevInstance*/,
 					 LPSTR	/*lpCmdLine*/,
 					 int	   nCmdShow)
 {
-	 // TODO:在此放置代码。
+#ifdef USE_GDIPLUS
+	const GDIplusIniter init;
+#endif
 	TCHAR path[MAX_PATH] = {0};
 	int n = GetModuleFileName(NULL,path,MAX_PATH);
 	while(n > 0 && path[n] != '\\') --n;

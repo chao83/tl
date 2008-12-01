@@ -72,7 +72,12 @@ int CMenuWithIcon::Display(int x, int y, WINDOWTYPE hWnd, UINT uFlag)
 	return id;
 }
 
-
+void CMenuWithIcon::DefaultIcons(ICONTYPE hOpen,ICONTYPE hClose,ICONTYPE hUnknown)
+{
+	m_hIconOpen = hOpen;
+	m_hIconClose = hClose;
+	m_hIconUnknowFile = hUnknown;
+}
 
 LRESULT CMenuWithIcon::MenuSelect_impl(MENUTYPE hMenu,UINT uItem,UINT uFlags)
 {
@@ -129,9 +134,9 @@ bool CMenuWithIcon::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 			if (pDI->itemState & ODS_GRAYED || pDI->itemState & ODS_DISABLED)
 				hIconSub = NULL;
 			else if (!(pDI->itemState & ODS_SELECTED)) // 没有打开
-				hIconSub = m_hIconClose;
+				hIconSub = m_hIconClose.Get();
 			else
-				hIconSub = m_hIconOpen;
+				hIconSub = m_hIconOpen.Get();
 			if(hIconSub)
 				DrawIconEx(pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2 ,hIconSub,MENUICON,MENUICON, 0,NULL,DI_NORMAL);
 		}
@@ -171,7 +176,7 @@ bool CMenuWithIcon::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 	}
 	else
 		//显示默认未知文件图标
-		DrawIconEx(pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2 ,m_hIconUnknowFile,MENUICON,MENUICON,0,NULL,DI_NORMAL|DI_COMPAT);
+		DrawIconEx(pDI->hDC,pDI->rcItem.left + MENUBLANK,pDI->rcItem.top + MENUBLANK/2 ,m_hIconUnknowFile.Get(),MENUICON,MENUICON,0,NULL,DI_NORMAL|DI_COMPAT);
 
 	return true;
 }
@@ -257,7 +262,8 @@ bool CMenuWithIcon::AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & 
 					&sfi,
 					sizeof(SHFILEINFO),
 					SHGFI_SYSICONINDEX | SHGFI_SMALLICON)) {
-				//在系统中找不到，加入我的记录。
+
+				//在系统中找不到，加入我的记录。//note: it seems this never happen
 				MenuIcon(hSubMenu, GetIcon(strPath,needIcon));
 			}
 		}
@@ -270,48 +276,48 @@ bool CMenuWithIcon::AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & 
 int CMenuWithIcon::AddMenuItem(MENUTYPE hMenu, const tString & strName, const tString & inStrPath, EICONGETTYPE needIcon, const tString & strIcon)
 {
 	// ID的起始位置 CMDS;
-	Arr<TCHAR> strPath;
-	int a = 0;
-	a = sizeof(strPath);
-	if(int inLen = inStrPath.length()) {
-		strPath= new TCHAR [inLen + 1];
-		memcpy(strPath.Get(),inStrPath.c_str(), sizeof(TCHAR)*(inLen + 1));
-	}
 	assert(strName.length());
 
 	// 单一菜单项
 	AddToMap(ItemNameMap(),m_ID, strName);
 	InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW,m_ID,NULL);//ItemName(m_ID));//
 
-	if(!strPath.Get() || !strPath[0]) {
+	if(!inStrPath.length()) {
 		// 处理标题
 		EnableMenuItem(hMenu,m_ID,MF_BYCOMMAND | MF_DISABLED);
 	}
 	else {
+
 		// 判断是否有命令行参数。
 		// 文件路径加引号
-		TCHAR *strCmd = strPath.Get();
-		if (*strCmd != '\"')
-			AddToMap(m_ItemCmd, m_ID, strPath.Get());
+		if (inStrPath[0] != '\"')
+			AddToMap(m_ItemCmd, m_ID, inStrPath);
 		else {
-			while(*(++strCmd) && *strCmd != '\"') ; //处理双引号
+			//const int inLen = inStrPath.length();
+			//Arr<TCHAR> strPath(new TCHAR [inLen + 1]);
+			//memcpy(strPath.Get(),inStrPath.c_str(), sizeof(TCHAR)*(inLen + 1));
+			const TCHAR *strBegin = inStrPath.c_str();
+			const TCHAR *strCmd = strBegin;
+
+			while(*(++strCmd) && *strCmd != '\"') ; //搜索第二个双引号
 
 			if(!*strCmd)
-				AddToMap(m_ItemCmd, m_ID, strPath.Get());
+				AddToMap(m_ItemCmd, m_ID, inStrPath);//双引号不配对，原样保存
 			else {
-				*strCmd = '\0';
-				AddToMap(m_ItemCmd, m_ID, strPath.Get() + 1);
+				//*strCmd = '\0';
+				AddToMap(m_ItemCmd, m_ID, inStrPath.substr(1,strCmd - strBegin - 1));
 				while(*++strCmd && _istspace(*strCmd)) ;
-				if(*strCmd)
-					AddToMap(m_ItemParam, m_ID, strCmd);
+				if(*strCmd) {
+					AddToMap(m_ItemParam, m_ID, inStrPath.substr(strCmd-strBegin));
+				}
 			}
 		}
 
 		if (needIcon != NOICON) {
 			// 非动态菜单项，要图标
 			const TCHAR *szIconPath = strIcon.empty()?Cmd(m_ID):strIcon.c_str();
-			
-			AddToMap(m_ItemIconPath, m_ID, strIcon);
+			if (!strIcon.empty())
+				AddToMap(m_ItemIconPath, m_ID, strIcon);
 			if ( ! IsStaticMenu(hMenu) && ! IsDynamicMenu(hMenu)) {
 				ItemIcon(m_ID,GetIcon(szIconPath, needIcon));
 			}
@@ -351,7 +357,7 @@ int CMenuWithIcon::MultiAddMenuItem(MENUTYPE hMenu, const tString & inStrPath,co
 
 	// 末尾格式：“\*”，“\*.*”，“\**”,其他格式不处理
 	// 新模式\*+* :一次性直接展开，但是不保存图标
-//* 
+
 	assert (*strPath.rbegin() == '*');
 	EBUILDMODE mode = EFOLDER;
 	if(IsStrEndWith(strPath, _T("\\**"), false)){
@@ -374,33 +380,6 @@ int CMenuWithIcon::MultiAddMenuItem(MENUTYPE hMenu, const tString & inStrPath,co
 		strPath = strPath.substr(1);
 
 	return MultiModeBuildMenu(hMenu,strPath,strName,mode);
-
-/*/
-	assert (p[len - 1] =='*');
-
-	EBUILDMODE mode = EFOLDER;
-	if(IsStrEndWith(p, _T("\\**"), false)){
-		p[_tcslen(p) - 1] = '\0';
-		mode = EEXPAND;
-	}
-	else if (IsStrEndWith(p, _T("\\*+*"), false)){
-		mode = EEXPANDNOW;
-		p[_tcslen(p) - 2] = '\0';
-	}
-	else if(IsStrEndWith(p, _T("\\*.*"), false)){
-		mode = EFILE;
-		p[_tcslen(p) - 2] = '\0';
-	}
-
-	if (EFOLDER == mode && p[len-2] != '\\') {
-		return 0;
-	}
-
-	while(_istspace(*p)) ++p; //去掉空白
-
-	return MultiModeBuildMenu(hMenu,p,strName,mode);
-// */
-
 }
 
 
@@ -684,8 +663,10 @@ void CMenuWithIcon::DestroyDynamic()
 	// 2 清理子菜单记录
 	for (MenuStrIter it = m_DynamicPath.begin(); it != m_DynamicPath.end(); ++it) {
 		// 清理图标
-		//m_SubMenuIcons.Remove(it->first);
-		MenuIcon(it->first, 0);//赋0值，实现删除。
+		if(MenuIcon(it->first)) {
+			//note: it seems this never happen
+			MenuIcon(it->first, 0);//赋0值，实现删除。
+		}
 		// 清理名称记录
 		MenuNameMap().erase(it->first);
 	}
@@ -813,6 +794,16 @@ ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, 
 
 }
 
+ICONTYPE CMenuWithIcon::GetBigIcon(const unsigned int id, int index){
+	ICONTYPE result = 0;
+	if (m_startID <= id && id < m_dynamicStartID) {
+		if (m_ItemIconPath.find(id) != m_ItemIconPath.end())
+			result = GetIcon(m_ItemIconPath[id],FILEFOLDERICON,index,true);
+		else
+			result = GetIcon(Cmd(id),FILEFOLDERICON,index,true);
+	}
+	return result;
+}
 
 //! 清除所以菜单项
 int CMenuWithIcon::Reset()
@@ -920,7 +911,7 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 				}
 				DoubleChar(strVolName, '&');
 				strMenuName = strVolName;
-				strMenuName += _T(" [&") + strDrive.substr(0,2) + _T("]");
+				strMenuName += _T(" (&") + strDrive.substr(0,2) + _T(")");
 				AddSubMenu(hMenu, hSubMenu, strMenuName, strDrive);
 			}
 
@@ -1209,212 +1200,5 @@ unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::ve
 	return iFound;
 }
 
+
 //////////////////////////////////////////////////////////////////////////////
-
-/*
-int CMenuWithIcon::BuildMenu(FILE * pFile,UINT uStartID)
-{
-	Reset();
-	if(!pFile) {
-		return 0;
-	}
-
-	m_startID = uStartID;
-	m_ID = m_startID;
-	const int nStaticMenus = BuildMenu(pFile,Menu());
-	m_dynamicStartID = m_ID;
-
-	//构造 <名称,ID> 映射
-	TSTRING strName;
-	TSTRING::size_type size = 0;
-	for (IDTYPE i = m_startID; i < m_dynamicStartID; ++i) {
-		strName = ItemName(i);
-		ToLowerCase(strName);
-
-		//移除每次出现的第一个 &
-		size = strName.length();
-		TSTRING::size_type move = 0;
-		for (TSTRING::size_type j = 0; j < size; ++j) {
-			if(strName[j] == '&') {
-				++move;
-				++j;
-			}
-			if(move)
-				strName[j-move] = strName[j];
-		}
-		//截断;
-		strName.resize(strName.size() - move);
-
-		m_NameIdMap[strName] = i;
-	}
-	return nStaticMenus;
-}
-
-//! 从打开的文件构造菜单；递归构造子菜单; 负责去掉空白。
-
-//! 私有函数，传入的文件 FILE * 必须已经打开
-//! 否则就会出错失败。
-int CMenuWithIcon::BuildMenu(FILE * pFile, MENUTYPE hMenu)
-{
-	assert(pFile);
-	int nItems = 0;
-
-	TCHAR buf[NBUF] = {0};
-	int i = 0;//偏移，读入的字符个数
-	int iStartOfPath = 0; // 菜单目标路径
-
-#ifdef UNICODE
-	wint_t ch;
-#else
-	int ch;
-#endif
-
-	while(i < NBUF && (ch = _fgettc(pFile)) != _TEOF) {
-		// 去掉行首的空白
-		if (0 == i)
-			while(_istspace(ch) && ch != '\r' && ch != '\n')
-				ch = _fgettc(pFile);
-
-		buf[i] = (TCHAR)ch;
-		switch (buf[i])
-		{
-		case '=':
-			if (0 == iStartOfPath) {
-				// 去掉 命令行开头的空白符号
-				while((ch = _fgettc(pFile))!=_TEOF && _istspace(ch) && ch != '\r' && ch != '\n') ;
-				_ungettc(ch,pFile);
-
-				buf[i] = '\0';
-				// 去掉 名称后面的空白
-				while(i > 0 && _istspace(buf[--i])){
-					buf[i] = '\0';
-				}
-				if (i < 0) // 本行格式错误跳过
-				{
-					while((ch = _fgettc(pFile)) !='\r' && ch != '\n');// 处理换行符类别
-					if ((ch = _fgettc(pFile)) != '\n' && '\r' != ch)
-						_ungettc(ch, pFile);
-					i = 0;
-				}
-				else {	i += 2;
-					iStartOfPath = i;
-				}
-			}
-			else {
-				//从第二个开始的等号 "=" 当成普通字符
-				++i; //读入字符到 buf 中
-			}
-			break;
-		case ';':
-			// 分号表示 行注释
-			while((ch = _fgettc(pFile)) !='\r' && ch != '\n'&& ch != (int)_TEOF) {
-				;
-			}
-			// 处理换行符类别
-			if ((ch = _fgettc(pFile)) != '\n' && '\r' != ch)
-				_ungettc(ch, pFile);
-			if (i == 0) {
-				// 整行都是注释，跳过。
-				iStartOfPath = 0;
-				continue;//继续循环读取字符。
-			}
-			else { ; }
-			// 继续向下
-		case '\n':
-		case '\r':
-			if (('\r' == ch || ch == '\n') && i == 0) {
-				// 空行，当成分隔线
-				InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
-				if ((ch = _fgettc(pFile)) != '\n' && '\r' != ch)
-					_ungettc(ch, pFile);
-				iStartOfPath = 0;
-				continue;//目前和break是同意的，break是跳出switch，正好到循环尾部了，continue是继续循环。
-			}
-
-			// 处理换行符类别
-			if ((ch = _fgettc(pFile)) != '\n' && '\r' != ch)
-				_ungettc(ch, pFile);
-
-			// 本字符串结束，
-			buf[i] = '\0';
-			while(_istspace(buf[--i]) && buf[i] != '\0')//去掉行末尾空白
-				buf[i] = '\0';
-
-			switch(*buf)
-			{
-				MENUTYPE hSubMenu;
-				const TCHAR * pName;
-			//case '[':
-			case '>':
-			case '{':
-				// 子菜单
-				pName = buf + 1;
-				while(*pName && _istspace(*pName)) ++pName;
-				if(!*pName) // 没写名字,缺省加问号
-				{
-					pName = _T("< ??? >");
-				}
-				hSubMenu = CreatePopupMenu();
-				nItems += BuildMenu(pFile,hSubMenu);
-
-				if (GetMenuItemCount(hSubMenu) <= 0 && m_bFilterEmptySubMenus) {
-					DestroyMenu(hSubMenu);
-				}
-				else {
-					AddSubMenu(hMenu,hSubMenu,pName,iStartOfPath > 0 ? buf + iStartOfPath : NULL);
-					if (GetMenuItemCount(hSubMenu) <= 0) {
-						for(int i = 0; i < GetMenuItemCount(hMenu); ++i)
-							if(GetSubMenu(hMenu,i) == hSubMenu) {
-								EnableMenuItem(hMenu,i,MF_BYPOSITION | MF_GRAYED);
-								break;
-							}
-					}
-				}
-				break;
-			//case ']':
-			case '<':
-			case '}':
-				// 子菜单结束
-				return nItems;
-
-			default:
-				if(0 < iStartOfPath) {
-					// 常规菜单项
-
-					// 尝试匹配通配符
-					TCHAR * strPath = buf + iStartOfPath;
-					if (strPath && *strPath && strPath[_tcslen(strPath)-1]=='*')
-						nItems += MultiAddMenuItem(hMenu,strPath,buf);
-					else {
-						pName = buf;
-						while(*pName && _istspace(*pName)) ++pName;
-						if(!*pName) {
-							// 没写名字,缺省加问号
-							pName = _T("< ??? >");
-						}
-						nItems += (AddMenuItem(hMenu,pName, buf + iStartOfPath));//统计菜单项总数
-					}
-				}
-				else //if (buf[0] != '\0' && buf[0] != ';' && (!_istspace(buf[0])))//当成标题
-					nItems += AddMenuItem(hMenu,buf,_T(""));
-				break;
-
-			} // end if switch(*buf)
-
-			memset(buf, 0, sizeof(buf));
-			i = 0;
-			iStartOfPath = 0;
-			break;
-		default:
-			//普通字符
-			++i; //读入字符到 buf 中
-			break;
-
-		} //end of switch(buf[i])
-
-	}//end of while
-return nItems;
-}
-
-
-// */

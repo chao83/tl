@@ -69,7 +69,7 @@ void InitLanguage()
 	Settings().AddSection(sectionGeneral);
 	TSTRING strLanguage;
 	if (! Settings().Get(sectionGeneral, keyLanguage, strLanguage)) {
-		strLanguage = _T("");
+		strLanguage.clear();
 		Settings().Set(sectionGeneral, keyLanguage, strLanguage,true);
 	}
 	SetLanguageFile(strLanguage.c_str());
