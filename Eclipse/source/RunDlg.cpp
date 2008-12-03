@@ -128,10 +128,11 @@ void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& 
 	strCmd = g_strEmpty;
 	strParam = g_strEmpty;
 	//去掉引导空白
-	while(strCmdParam.length() && _istspace(strCmdParam[0])) {
-		strCmdParam = strCmdParam.substr(1);
+	if (strCmdParam.length() && (_istspace(*strCmdParam.begin()) || _istspace(*strCmdParam.rbegin()) )) {
+		strCmdParam = CFileStrFnc::StripSpaces(strCmdParam);
 	}
-	if(strCmdParam.length()) {
+
+	if( ! strCmdParam.empty()) {
 		TSTRING::size_type pos;
 		if(strCmdParam[0] == '\"') {
 			if ((pos = strCmdParam.find('\"',1)) != TSTRING::npos) {
@@ -151,11 +152,11 @@ void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& 
 			}
 		}
 
-		while(strCmd.length() && _istspace(strCmd[0]) ) {
-			strCmd = strCmd.substr(1);
+		if (strCmd.length() && (_istspace(*strCmd.begin()) || _istspace(*strCmd.rbegin()) )) {
+			strCmd = CFileStrFnc::StripSpaces(strCmd);
 		}
-		while(strParam.length() && _istspace(strParam[0]) ) {
-			strParam = strParam.substr(1);
+		if (strParam.length() && (_istspace(*strParam.begin()) || _istspace(*strParam.rbegin()) ) ){
+			strParam = CFileStrFnc::StripSpaces(strParam);
 		}
 	}
 }
@@ -244,7 +245,7 @@ bool ExpandRelativePaths(tString & src) {
 	bool bExpanded = false;
 	bool bQuote = false;
 	TSTRING strCmd(src),strParam;
-	if (src.length() && *src.begin() == '\"') {
+	if ( ! src.empty() && src[0] == '\"') {
 		GetCmdAndParam(src, strCmd, strParam);
 		bQuote = true;
 	}
@@ -259,7 +260,7 @@ bool ExpandRelativePaths(tString & src) {
 		}
 		if (bQuote)
 			QuoteString(src);
-		if (strParam.length())
+		if ( ! strParam.empty())
 			src += _T(" ") + strParam;
 		bExpanded = true;
 	}
@@ -321,9 +322,9 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 
 			strHint = strCmdWithinPath;
 			QuoteString(strHint);
-			if (strParamWithinPath.length())
+			if ( ! strParamWithinPath.empty())
 				strHint += _T(" ") + strParamWithinPath;
-			if(strParam.length())
+			if( ! strParam.empty())
 				strHint += _T(" ") + strParam;
 		}
 		else {
@@ -337,7 +338,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
 					strHint = strCmd;
 					QuoteString(strHint);
-					if(strParam.length())
+					if( ! strParam.empty())
 						strHint += _T(" ") + strParam;
 					bKeyFound = true;
 				}
@@ -372,7 +373,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 								s_hIcon = g_pTray->GetBigIcon(strMaybe);
 								strHint = strMaybe;
 								QuoteString(strHint);
-								if(strParam.length())
+								if( ! strParam.empty())
 									strHint = strHint + _T(" ") + strParam;
 								bKeyFound = true;
 								break;
@@ -410,7 +411,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 						strHint = strCmd;
 					QuoteString(strHint);
 
-					if(strParam.length())
+					if( ! strParam.empty())
 						strHint += _T(" ") + strParam;
 				}
 				else {
@@ -427,7 +428,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 					if (!bOkAsFull) {
 						s_hIcon = g_pTray->GetBigIcon(strCmd);
 						strHint = strCmdParam;
-						if (strHint.length() && strHint[0] != '\"')
+						if ( ! strHint.empty() && strHint[0] != '\"')
 							QuoteString(strHint);
 						bFound = false;
 					}
@@ -610,7 +611,7 @@ int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr, bool 
 {
 	int iFound = 0;
 	//允许第一个字母是 '\"'
-	bool bQuote(strSrc.length() && '\"' == strSrc[0]);
+	bool bQuote( !strSrc.empty() && '\"' == strSrc[0]);
 	
 	tString::size_type pos = strSrc.find_last_of(_T("\\"));
 	// 如果发现 *, ?, 非起始位置的 '\"' , 就禁止搜索
@@ -835,7 +836,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						case CBN_EDITUPDATE:	//编辑框的内容更改了,搜索 //? 似乎只是用户的输入
 							MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize);
 							strUserInput = szCommand;
-							if (strUserInput.length()) {								
+							if ( ! strUserInput.empty()) {								
 								const TSTRING & strEdit(strUserInput);//用户输入的编辑框的內容。
 								int iEditSize = static_cast<int>(strEdit.size());
 
@@ -1022,7 +1023,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	MyGetDlgItemTextBeforeCursor(hDlg, IDC_CBORUN, strEditLast);
-	if (iFoundLast != -1 && !strEditLast.length())
+	if (iFoundLast != -1 && strEditLast.empty())
 		iFoundLast = -1;
 
 #ifdef _DEBUG

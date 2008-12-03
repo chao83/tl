@@ -230,7 +230,7 @@ void SetLanguage(const TSTRING & lngFile)
 		for (unsigned int i = 0; i < count; ++i) {
 			CheckMenuItem( hLngMenu, i, MF_BYPOSITION | MF_UNCHECKED);
 		}
-		if (lngFile.length() && lngFile != _T("")) {
+		if ( ! lngFile.empty()) {
 			for (unsigned int i = 1; i < count; ++i) {
 				if (lngFile == g_pSysTray->Name(GetMenuItemID(hLngMenu, i))) {
 					CheckMenuItem( hLngMenu, i, MF_BYPOSITION | MF_CHECKED);
@@ -283,7 +283,7 @@ void SetMenuIcons(const TSTRING & iconDir = _T(""))
 		vFNs.push_back(strIconDir + _T("refresh.ico"));
 		vFNs.push_back(strIconDir + _T("skin.ico"));
 		vFNs.push_back(strIconDir + _T("language.ico"));
-		vFNs.push_back(strIconDir + _T("runsmall.ico"));
+		vFNs.push_back(strIconDir + _T("run.ico"));
 		vFNs.push_back(strIconDir + _T("mclick.ico"));
 		vFNs.push_back(strIconDir + _T("autostart.ico"));
 		vFNs.push_back(strIconDir + _T("about.ico"));
@@ -371,7 +371,7 @@ void SetMenuSkin(const TSTRING & skinSubDir)
 		for (unsigned int i = 0; i < count; ++i) {
 			CheckMenuItem( hSkinMenu, i, MF_BYPOSITION | MF_UNCHECKED);
 		}
-		if (skinSubDir.length()) {
+		if ( ! skinSubDir.empty()) {
 			for (unsigned int i = 1; i < count; ++i) {
 				if (skinSubDir == g_pSysTray->Name(GetMenuItemID(hSkinMenu, i))) {
 					CheckMenuItem( hSkinMenu, i, MF_BYPOSITION | MF_CHECKED);
@@ -676,10 +676,13 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 #endif
 
 	// */
-	for (int i = CMDID_START; i < CMDID_END; ++i) {
-		if (IsMenu( (HMENU)i ) )
-			DestroyMenu( (HMENU)i );
-	}
+	//for (int i = CMDID_START; i < CMDID_END; ++i) {
+	//	if (IsMenu( (HMENU)i ) ) {
+	//		//TrackPopupMenuEx((HMENU)i, 0, 0, 0, hWnd, NULL);
+	//		DestroyMenu( (HMENU)i );
+
+	//	}
+	//}
 	UINT WM_TASKBARCREATED = RegisterWindowMessage(_T("TaskbarCreated")); // 获取托盘重建消息，恢复托盘图标。
 	if (WM_TASKBARCREATED != 0)
 		TheMsgMap().Add(WM_TASKBARCREATED, &MsgTaskbarCreated);
@@ -687,6 +690,7 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 	ICONTYPE hIconCheck = (ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_RIGHT),IMAGE_ICON,0,0,LR_DEFAULTCOLOR);
 
 	g_pSysTray = new COwnerDrawMenu(hIconCheck);
+	g_pSysTray->UseActualIconSize(true);
 	g_pSysTray->Insert(EXIT,GetLang(_T("E&xit")));
 	g_pSysTray->Insert(EDITCMDS,GetLang(_T("&Edit Command")));
 	g_pSysTray->Insert(RELOAD,GetLang(_T("&Refresh")));

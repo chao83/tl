@@ -96,7 +96,7 @@ protected:
 	typedef std::map<MENUTYPE,ICONTYPE> MenuIconMap;
 	typedef MenuIconMap::const_iterator MenuIconIter;
 
-	enum {MENUSIDE = 6, MENUHEIGHT = 22, MENUICON = 16, MENUBLANK = MENUHEIGHT - MENUICON, MENUSEP = 5,MAXMENUWIDTH = 384,NBUF = 1024, SHELL_MAX_ERROR_VALUE = 32};
+	enum {MENUSIDE = 0, MENUHEIGHT = 22, MENUICON = 16, MENUBLANK = MENUHEIGHT - MENUICON, MENUSEP = 5,MAXMENUWIDTH = 384,NBUF = 1024, SHELL_MAX_ERROR_VALUE = 32};
 	IdStrMap & ItemNameMap() {return m_ItemName;};
 	MenuStrMap & MenuNameMap() {return m_MenuName;};
 
@@ -116,7 +116,7 @@ protected:
 		return true;
 	}
 
-	template<class IdMenu> static const TCHAR * GetStr(const std::map<IdMenu,TSTRING> &strMap, const IdMenu indexKey) 
+	template<class IdMenu> static const TCHAR * GetStr(const std::map<IdMenu,TSTRING> &strMap, const IdMenu indexKey)
 	{
 		typename std::map<IdMenu,TSTRING>::const_iterator it = strMap.find(indexKey);
 		if (it == strMap.end())
@@ -124,7 +124,7 @@ protected:
 		return it->second.c_str();
 	}
 
-	// auto_handle 不适合作为容器元素，所以不存储 HIcon  
+	// auto_handle 不适合作为容器元素，所以不存储 HIcon
 	// 模板类定义，存放 菜单-图标 的类
 	template <class CKey, class CValue>
 	class CNoNullIconMap
@@ -243,11 +243,17 @@ protected:
 public:
 	typedef HBITMAP BITMAPTYPE;
 	void SetSkin(BITMAPTYPE hSide, const BITMAPTYPE (&hBk)[3], const BITMAPTYPE (&hSelBk)[3], const BITMAPTYPE (&hSep)[3], BITMAPTYPE hTitalPic);
-	bool Skin();
+
+    // Set UseActualIconSize
+    void UseActualIconSize (const bool newValue) { bUseActualIconSize = newValue; }
+
+    // Get UseActualIconSize
+    const bool UseActualIconSize() const { return bUseActualIconSize; }
+
 
 private:
 	// skin about
-	
+
 
 
 	MemDC_H m_hSkinDC;
@@ -287,8 +293,10 @@ private:
 
 	SkinPic m_hTitalPic;
 	int m_titalPicWidth;
+
+	bool bUseActualIconSize;
 protected:
-	static const TCHAR * szHiddenMenuItem;// = _T("< . >");// normal items should not contain "<"
+	static const TSTRING szHiddenMenuItem;// = _T("< . >");// normal items should not contain "<"
 };
 
 #endif // OWNER_DRAW_MENU_H

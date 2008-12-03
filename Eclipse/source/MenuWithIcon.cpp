@@ -81,14 +81,15 @@ void CMenuWithIcon::DefaultIcons(ICONTYPE hOpen,ICONTYPE hClose,ICONTYPE hUnknow
 
 LRESULT CMenuWithIcon::MenuSelect_impl(MENUTYPE hMenu,UINT uItem,UINT uFlags)
 {
-	if((uFlags & MF_GRAYED) || (uFlags & MF_DISABLED))
-		return 0;
-	if(uFlags & MF_POPUP) {
+	if((uFlags & MF_GRAYED) || (uFlags & MF_DISABLED)) {
+		SelID((UINT)-1);
+	} else if (uFlags & MF_POPUP) {
 		SelID((UINT_PTR)GetSubMenu(hMenu,uItem));
-	}
-	else	//菜单项
+		BuildDynamic(reinterpret_cast<MENUTYPE>(SelID()));
+	} else {
+		//菜单项
 		SelID(uItem);
-	BuildDynamic(reinterpret_cast<MENUTYPE>(SelID()));
+	}
 	return 0;
 }
 
@@ -98,7 +99,7 @@ bool CMenuWithIcon::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 {
 	if (!pDI || pDI->rcItem.bottom == pDI->rcItem.top) {
 		return false;
-	} else if (Super::DrawItem_impl(pDI)) {
+	} else if (Super::DrawItem_impl(pDI) || !pDI->itemID) {
 		return true;
 	}
 
@@ -107,11 +108,13 @@ bool CMenuWithIcon::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 	MENUTYPE hMaybeMenu = MatchRect(pDI);
 	assert(!hMaybeMenu || hMaybeMenu == (HMENU)iMaybeID);
 	if (!hMaybeMenu && (iMaybeID < m_startID || iMaybeID >= m_ID) ) {
-		hMaybeMenu = (HMENU)iMaybeID;
+		hMaybeMenu = MatchRect(pDI);
+	//	hMaybeMenu = (HMENU)iMaybeID;
 	}
 	// 主菜单 和 子菜单
 
-	if (hMaybeMenu && IsMenu(hMaybeMenu)) {
+	if (hMaybeMenu ) {
+		assert ( IsMenu(hMaybeMenu) );
 		// 子菜单图标
 		ICONTYPE hIconSub = NULL;
 		bool bDraw = false;//成功绘制动态子菜单
@@ -181,16 +184,6 @@ bool CMenuWithIcon::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 	return true;
 }
 
-
-//! 设定菜单大小
-int CMenuWithIcon::MeasureItem_impl(MEASUREITEMSTRUCT *pMI)
-{
-	COwnerDrawMenu::MeasureItem_impl(pMI);
-	if (!Skin()) {
-		pMI->itemWidth += MENUBLANK * 3;
-	}
-	return 0;
-}
 
 
 //! 获取快捷方式（.lnk文件）图标
@@ -282,7 +275,7 @@ int CMenuWithIcon::AddMenuItem(MENUTYPE hMenu, const tString & strName, const tS
 	AddToMap(ItemNameMap(),m_ID, strName);
 	InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW,m_ID,NULL);//ItemName(m_ID));//
 
-	if(!inStrPath.length()) {
+	if(inStrPath.empty()) {
 		// 处理标题
 		EnableMenuItem(hMenu,m_ID,MF_BYCOMMAND | MF_DISABLED);
 	}
@@ -376,7 +369,7 @@ int CMenuWithIcon::MultiAddMenuItem(MENUTYPE hMenu, const tString & inStrPath,co
 	if (EFOLDER == mode && strPath[len-2] != '\\') {
 		return 0;
 	}
-	while (strPath.length() && _istspace(strPath[0]))
+	while (!strPath.empty() && _istspace(strPath[0]))
 		strPath = strPath.substr(1);
 
 	return MultiModeBuildMenu(hMenu,strPath,strName,mode);
@@ -605,7 +598,7 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 			else {
 				tString::size_type sepPos = strPath.find(strSep) ;
 				tString strIcon = tString::npos == sepPos? _T("") : CFileStrFnc::StripSpaces ( strPath.substr(sepPos + strSep.length()) );
-				if (strIcon.length()) {
+				if (!strIcon.empty()) {
 					if ('\"' == strIcon[0]) {
 						tString::size_type pos = strIcon.find('\"', 1);
 						strIcon = strIcon.substr(1, pos == tString::npos ? pos : pos - 1);
@@ -620,7 +613,7 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 					);//统计菜单项总数			
 			}
 		}
-		else if ( pMenu->Item(index)->Name().length() ) {
+		else if ( ! (pMenu->Item(index)->Name().empty()) ) {
 			//当成标题
 			nItems += AddMenuItem(hMenu,pMenu->Item(index)->Name(),_T(""));
 		}
@@ -818,7 +811,7 @@ int CMenuWithIcon::Reset()
 //! 添加通配符记录，返回索引。
 int CMenuWithIcon::AddWildcard(const tString & str)
 {
-	if (str.length()) {
+	if ( ! str.empty()) {
 		int n = static_cast<int>(m_Wildcard.size());
 		for (int i = 0; i < n; ++i)
 			if (m_Wildcard[i] == TSTRING(str))
@@ -863,7 +856,7 @@ TSTRING & CMenuWithIcon::DoubleChar(TSTRING & str, const TSTRING::value_type ch)
 int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & inStrName, EBUILDMODE mode,bool bNoFileIcon/* = false*/)
 {
 	tString strName(inStrName);
-	if (!strName.length())
+	if (strName.empty())
 		strName = _T("*");
 	std::vector<TSTRING> vStrFilter;
 	GetSeparatedString(strName, '|', vStrFilter);
@@ -1067,13 +1060,13 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 	StrStrMap nameName;
 	for (std::vector<TSTRING>::size_type i = 0; i < vStrFilter.size(); ++i) {
 
-		if (!vStrFilter[i].length() && vStrFilter.size() > 1) {
-			continue;
-		}
-		else if ( vStrFilter[i].length() )
-			memcpy(fullPath + len,vStrFilter[i].c_str(),(1 + vStrFilter[i].length())*sizeof(TCHAR));
-		else
+		if (vStrFilter[i].empty() && vStrFilter.size() > 1) {
+			continue; // 如果有多个过滤器，跳过空白
+		} else if ( vStrFilter[i].empty() ) {
 			fullPath[len] = '*', fullPath[len+1] = '\0';
+		} else {
+			memcpy(fullPath + len,vStrFilter[i].c_str(),(1 + vStrFilter[i].length())*sizeof(TCHAR));
+		}
 
 		const TSTRING strSearch(fullPath);
 		handle = FindFirstFile(strSearch.c_str(),&fd); // 系统会缓存搜索条件？fullPath可以改动？  Ans：应该是的. 不要冒险，新建一个吧。

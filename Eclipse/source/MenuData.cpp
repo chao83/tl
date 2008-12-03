@@ -13,7 +13,7 @@ bool CItem::OutPut(FILE * pFile, TCHAR pad, int nPad) const{
 		return false;
 	if (!(Name() == Empty() && Path() == Empty())) {
 		WriteStringToFile(tString(nPad, pad) + Name() + _T(" = ") + Path(), pFile);
-		if (Ex().length()) {
+		if (!Ex().empty()) {
 			WriteStringToFile(tString(3,'|') + Ex(), pFile);
 		}
 	}

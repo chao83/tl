@@ -52,7 +52,7 @@ bool CSettingFile::SaveAs(const TSTRING & strFileName)
 
 	_fputtc(0xfeff, file);
 	for (Setting::size_type i = 0; i < m_Settings.size(); ++i) {
-		if (m_Settings[i].first.length() > 0) {
+		if ( ! m_Settings[i].first.empty()) {
 			WriteStringToFile(_T("[") + m_Settings[i].first + _T("]\r\n"), file);
 		}
 		for (StrStrMap::const_iterator iter = m_Settings[i].second.begin(); iter != m_Settings[i].second.end(); ++iter) {
