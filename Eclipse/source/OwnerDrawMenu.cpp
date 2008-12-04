@@ -116,22 +116,24 @@ LRESULT  COwnerDrawMenu::MsgMenuChar(HWND hWnd, UINT /*message*/, WPARAM wParam,
 LRESULT CALLBACK COwnerDrawMenu::MyWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT result(0xDEADBEEF);
-	if (msgMap.ProcessMessage(hWnd, message, wParam, lParam, &result))
-		return result;
+	if (msgMap.ProcessMessage(hWnd, message, wParam, lParam, &result)) {
+		;//return result;
+	}
 	else if (WM_CREATE == message) {
 		msgMap.Add(WM_DRAWITEM, &MsgDrawItem);
 		msgMap.Add(WM_MEASUREITEM, &MsgMeasureItem);
 		msgMap.Add(WM_MENUCHAR, &MsgMenuChar);
 		msgMap.Add(WM_MENUSELECT, &MsgMenuSelect);
-		return 0;
+		result = 0;
 	}
 	else {
 #ifdef _DEBUG
 		static std::map<UINT, int> msgRecorder;
 		++msgRecorder[message];
 #endif
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		result = DefWindowProc(hWnd, message, wParam, lParam);
 	}
+	return result;
 }
 
 
@@ -627,7 +629,7 @@ MENUTYPE COwnerDrawMenu::MatchRect(const DRAWITEMSTRUCT * pDI)
 			int right = n;
 			while (left < right) {
 				const int mid = left + (right-left)/2;
-				GetMenuItemRect(m_hWnd, hMenu, mid, &rcItem);
+				GetMenuItemRect(hMenuWnd, hMenu, mid, &rcItem);
 				if (rcItem.top == pt.y && rcItem.bottom == pt2.y) {
 					hResult = GetSubMenu(hMenu, mid);
 					break;
@@ -652,7 +654,8 @@ bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
 	IDTYPE iMaybeID = pDI->itemID;
 	MENUTYPE hMaybeMenu = MatchRect(pDI);
 	HICON hIcon = 0;
-	if (hMaybeMenu && IsMenu(hMaybeMenu) ) {
+	if ( hMaybeMenu ) {
+		assert( IsMenu(hMaybeMenu) );
 		hIcon = MenuIcon(hMaybeMenu);
 	} else  {
 		hIcon = ItemIcon(iMaybeID);
