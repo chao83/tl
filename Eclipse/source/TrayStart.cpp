@@ -4,8 +4,8 @@
 #include "stdafx.h"
 
 #ifdef USE_GDIPLUS
-    #include <objbase.h>
-    #include <gdiplus.h>
+	#include <objbase.h>
+	#include <gdiplus.h>
 #endif
 
 #include "MsgMap.h"
@@ -68,7 +68,7 @@ void MustBeFirstInstance(const TCHAR * pTitle = NULL)
 #ifdef USE_GDIPLUS
 class GDIplusIniter{
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR           gdiplusToken;
+	ULONG_PTR		   gdiplusToken;
 public:
 	GDIplusIniter() {
 		// Initialize GDI+.

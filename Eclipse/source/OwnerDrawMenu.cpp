@@ -147,10 +147,10 @@ COwnerDrawMenu::CWindowClass COwnerDrawMenu::s_windowClass(ThisHinstGet(), szMen
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-COwnerDrawMenu::COwnerDrawMenu(ICONTYPE hIconCheck)
+COwnerDrawMenu::COwnerDrawMenu(ICONTYPE hIconCheck, const unsigned int iLeftSide )
 :m_hWnd(CreateWindow(s_windowClass, NULL, WS_OVERLAPPED, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, ThisHinstGet(), NULL))
 ,m_bUseAble(!(!m_hWnd)),m_hMenu(NULL),m_hIconCheck(hIconCheck)
-,m_vClrs(ClrIndex_Num),m_hSkinDC(CreateCompatibleDC(NULL)), bUseActualIconSize(false)
+,m_vClrs(ClrIndex_Num),m_hSkinDC(CreateCompatibleDC(NULL)), bUseActualIconSize(false), m_iExtraLeftSideWidth(iLeftSide)
 {
 	AddThis();
 
@@ -332,52 +332,88 @@ bool COwnerDrawMenu::SetName(MENUTYPE hSubMenu, const TSTRING & strNewName)
 }
 
 //! 更改现有菜单条目的名称
-bool COwnerDrawMenu::SetNameByPos(int i, const TSTRING & strNewName)
+bool COwnerDrawMenu::SetNameByPos( const int i, const TSTRING & strNewName)
 {
-	if( i < 0 || i >= GetMenuItemCount(Menu()) ) {
-		return false;
+	bool r(false);
+	if( 0 <= i && i < GetMenuItemCount(Menu()) ) {
+		MENUTYPE hMenu = GetSubMenu(Menu(),i);
+		if(IsMenu(hMenu)) {
+			r = SetName(hMenu, strNewName);
+		}
+		else {
+			r = SetName(GetMenuItemID(Menu(),i), strNewName);
+		}
 	}
-	MENUTYPE hMenu = GetSubMenu(Menu(),i);
-	if(IsMenu(hMenu)) {
-		return SetName(hMenu, strNewName);
-	}
-	else {
-		return SetName(GetMenuItemID(Menu(),i), strNewName);
-	}
+	return r;
 }
 
 bool COwnerDrawMenu::IconByPos(const int iPos, const ICONTYPE hIcon) {
-	if( iPos < 0 || iPos >= GetMenuItemCount(Menu()) ) {
-		return false;
+	bool r = false;
+	if( 0 <= iPos && iPos < GetMenuItemCount(Menu()) ) {
+		//MENUTYPE hMenu = GetSubMenu(Menu(),iPos);
+		if(MENUTYPE hMenu = GetSubMenu(Menu(),iPos) ) {//IsMenu(hMenu)) {
+			r = MenuIcon(hMenu, hIcon);
+		} else {
+			IDTYPE id = GetMenuItemID(Menu(),iPos);
+			if (id && id != static_cast<IDTYPE>(-1) ) {
+				r = ItemIcon(id, hIcon);
+			}
+		}
 	}
-	MENUTYPE hMenu = GetSubMenu(Menu(),iPos);
-	if(IsMenu(hMenu)) {
-		return MenuIcon(hMenu, hIcon);
-	}
-	else {
-		return ItemIcon(GetMenuItemID(Menu(),iPos), hIcon);
-	}
+	return false;
 }
 
 //! 插入一个菜单项
 BOOL COwnerDrawMenu::Insert(IDTYPE ID,const TCHAR * strName, UINT pos, ICONTYPE hIcon)
 {
-	if (IsMenu(ForceCast<MENUTYPE,IDTYPE>(ID)))
+	if (IsMenu(ForceCast<MENUTYPE,IDTYPE>(ID))) {
+#ifdef _DEBUG
+		TrackPopupMenu(ForceCast<MENUTYPE,IDTYPE>(ID), 0, 0, 0,0,m_hWnd,0);
+#endif
 		DestroyMenu(ForceCast<MENUTYPE,IDTYPE>(ID));
+	}
 
 	assert( ! IsMenu(ForceCast<MENUTYPE,IDTYPE>(ID)));
 
 	if(hIcon) {
-		//m_IdIcon[ID] = hIcon;
 		ItemIcon(ID, hIcon);
 	}
-	if(m_ItemName.find(ID) != m_ItemName.end())
-	{
+
+	if(m_ItemName.find(ID) != m_ItemName.end()) {
 		AddToMap(m_ItemName,ID,strName);
 		return ModifyMenu(m_hMenu,ID,MF_BYCOMMAND | MF_OWNERDRAW | (0xFF & GetMenuState(m_hMenu,ID,MF_BYCOMMAND) ),ID,NULL);
 	}
 	AddToMap(m_ItemName,ID,strName);
 	return InsertMenu(m_hMenu,pos,MF_BYPOSITION | MF_OWNERDRAW,ID,NULL);//ItemName(ID));
+}
+
+ BOOL COwnerDrawMenu::InsertSep(UINT pos, MENUTYPE hMenu) {
+	 return InsertMenu(hMenu?hMenu:m_hMenu,pos,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
+}
+
+//Get ItemIcon
+const ICONTYPE COwnerDrawMenu::ItemIcon(const int nID)
+{
+	return m_MenuItemIcons[nID];
+}
+
+//Set ItemIcon
+bool COwnerDrawMenu::ItemIcon(const int nID, const ICONTYPE hIcon)
+{
+	return m_MenuItemIcons.Add(nID, hIcon);
+}
+
+
+//Get MenuIcon
+const ICONTYPE COwnerDrawMenu::MenuIcon(const MENUTYPE hSubMenu)
+{
+	return m_SubMenuIcons[hSubMenu];
+}
+
+//Set MenuIcon
+bool COwnerDrawMenu::MenuIcon(const MENUTYPE hSubMenu, const ICONTYPE hIcon)
+{
+	return m_SubMenuIcons.Add(hSubMenu, hIcon);
 }
 
 
@@ -513,17 +549,17 @@ bool COwnerDrawMenu::AccordingToState(DRAWITEMSTRUCT * pDI)
 
 	if (m_hSidePic && m_hSkinDC) {
 		BITMAPTYPE hold = (BITMAPTYPE)SelectObject(m_hSkinDC, m_hSidePic);
-		BitBlt(pDI->hDC, pDI->rcItem.left,pDI->rcItem.top, MENUSIDE, MENUHEIGHT, m_hSkinDC, 0,0, SRCCOPY);
+		BitBlt(pDI->hDC, pDI->rcItem.left,pDI->rcItem.top, m_iExtraLeftSideWidth, MENUHEIGHT, m_hSkinDC, 0,0, SRCCOPY);
 		SelectObject(m_hSkinDC, hold);
 	}
 	else {
-		rect.right = MENUSIDE >> 1;
+		rect.right = m_iExtraLeftSideWidth >> 1;
 		FillRectWithColor(pDI->hDC,rect,m_vClrs[ClrIndex_Side]);
 		OffsetRect(&rect,rect.right-rect.left,0);
 		FillRectWithColor(pDI->hDC,rect,m_vClrs[ClrIndex_Bk]);
 	}
 
-	pDI->rcItem.left += MENUSIDE;
+	pDI->rcItem.left += m_iExtraLeftSideWidth;
 	rect = pDI->rcItem;
 
 	// 设置 菜单
@@ -680,7 +716,7 @@ bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
 	if (hIcon) {
 		int x = MENUICON, y = MENUICON;
 		if (UseActualIconSize()) {
-            CGetIconSize::GetIconSize(hIcon, x,y);
+			CGetIconSize::GetIconSize(hIcon, x,y);
 		}
 		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - x/2, pDI->rcItem.top + (MENUHEIGHT - y)/2, hIcon, x, y, 0,NULL,DI_NORMAL);
 		bDrawed = true;
@@ -691,7 +727,7 @@ bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
 		hIcon = m_hIconCheck;
 		int x = MENUICON, y = MENUICON;
 		if (UseActualIconSize()) {
-		    CGetIconSize::GetIconSize(hIcon, x,y);
+			CGetIconSize::GetIconSize(hIcon, x,y);
 		}
 		DrawIconEx(pDI->hDC,pDI->rcItem.left + xBlank - x/2, pDI->rcItem.top + (MENUHEIGHT - y)/2, hIcon, x, y, 0,NULL,DI_NORMAL);
 	}
@@ -703,7 +739,7 @@ bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
 // return true if drawed icon
 bool COwnerDrawMenu::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 {
-	if (!pDI || pDI->rcItem.bottom == pDI->rcItem.top) {
+	if ((!pDI) || (pDI->rcItem.bottom == pDI->rcItem.top)) {
 		return false;
 	}
 
@@ -711,10 +747,11 @@ bool COwnerDrawMenu::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 
 	IDTYPE iMaybeID = pDI->itemID;
 	MENUTYPE hMaybeMenu = MatchRect(pDI);
+	assert(!hMaybeMenu || hMaybeMenu == (HMENU)iMaybeID);
 
 	const bool bDrawedIcon = DrawMenuIcon(pDI);
 
-	const TCHAR *str = IsMenu(hMaybeMenu) ? MenuName(hMaybeMenu) : ItemName(iMaybeID);
+	const TCHAR *str = hMaybeMenu ? MenuName(hMaybeMenu) : ItemName(iMaybeID);
 
 	if(str && *str) {
 		RECT rect = pDI->rcItem;
@@ -761,7 +798,7 @@ int COwnerDrawMenu::MeasureItem_impl(MEASUREITEMSTRUCT *pMI)
 				GetTextExtentPoint32(hdc,str,static_cast<int>(_tcslen(str)),&size);
 				if (size.cy > static_cast<int>(pMI->itemHeight))
 					pMI->itemHeight = size.cy;
-				pMI->itemWidth = size.cx + MENUICON + MENUSIDE;
+				pMI->itemWidth = size.cx + MENUICON + m_iExtraLeftSideWidth;
 
 				pMI->itemWidth += MENUBLANK*3;
 

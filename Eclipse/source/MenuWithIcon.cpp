@@ -44,10 +44,10 @@ unsigned int GetSeparatedString(const TSTRING::value_type * inStr, const TSTRING
 
 //! 构造函数 CMenuWithIcon
 CMenuWithIcon::CMenuWithIcon(ICONTYPE hOpen,ICONTYPE hClose,ICONTYPE hUnknownFile,const TCHAR *szEmpty)
-:COwnerDrawMenu(),
+:COwnerDrawMenu(0,0),
 m_hIconOpen(hOpen),m_hIconClose(hClose),m_hIconUnknowFile(hUnknownFile),
 m_startID(0),m_ID(0),m_strEmpty (_T("Empty")),m_dynamicStartID(0),
-m_bShowHidden(false),m_bFilterEmptySubMenus(true),m_menuData ( new CMenuData(_T("root")) ), 
+m_bShowHidden(false),m_bFilterEmptySubMenus(true),m_menuData ( new CMenuData(_T("root")) ),
 m_bOpenDynamicDir(true)
 {
 	if (szEmpty && *szEmpty)
@@ -108,8 +108,7 @@ bool CMenuWithIcon::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 	MENUTYPE hMaybeMenu = MatchRect(pDI);
 	assert(!hMaybeMenu || hMaybeMenu == (HMENU)iMaybeID);
 	if (!hMaybeMenu && (iMaybeID < m_startID || iMaybeID >= m_ID) ) {
-		hMaybeMenu = MatchRect(pDI);
-	//	hMaybeMenu = (HMENU)iMaybeID;
+		hMaybeMenu = (HMENU)iMaybeID;
 	}
 	// 主菜单 和 子菜单
 
@@ -522,11 +521,11 @@ int CMenuWithIcon::LoadMenuFromFile(const tString & strFileName, UINT uStartID)
 
 	m_startID = uStartID;
 	m_ID = m_startID;
-	
+
 	UINT uPreErrMode = SetErrorMode(SEM_FAILCRITICALERRORS);
 	const int nStaticMenus = BuildMenuFromMenuData(m_menuData.Get(), Menu());
 	SetErrorMode(uPreErrMode);
-	
+
 	m_dynamicStartID = m_ID;
 
 	//构造 <名称,ID> 映射
@@ -562,10 +561,10 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 	for (unsigned int index = 0; index < pMenu->Count(); ++index) {
 		if (pMenu->IsMenu(index)) {
 			MENUTYPE hSubMenu = CreateMenu();
-			if (!hSubMenu) 
-				continue;			
+			if (!hSubMenu)
+				continue;
 			nItems += BuildMenuFromMenuData(pMenu->Menu(index), hSubMenu);
-			
+
 			if ( GetMenuItemCount(hSubMenu) <= 0 && m_bFilterEmptySubMenus ) {
 				DestroyMenu(hSubMenu);
 			}
@@ -586,12 +585,12 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 			// 特殊模式: \\** , 表示我的电脑
 			if (pMenu->Item(index)->Path()[0] == '\\' && pMenu->Item(index)->Path() != _T("\\\\**"))
 				continue;// filter begin with '\\' but not "\\**"
-		
+
 			// 常规菜单项
 			const tString & strPath = pMenu->Item(index)->Path();
 			const tString strSep(_T("|||"));
-			
-			if (!strPath.empty() && 
+
+			if (!strPath.empty() &&
 				*(strPath.rbegin())=='*') {// 匹配通配符
 				nItems += MultiAddMenuItem(hMenu,strPath,pMenu->Item(index)->Name());
 			}
@@ -606,11 +605,11 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 					}
 				}
 				nItems += AddMenuItem( hMenu,
-					pMenu->Item(index)->Name().empty() ? _T("< ??? >") : pMenu->Item(index)->Name() , 
-					sepPos == tString::npos ? strPath : CFileStrFnc::StripSpaces( strPath.substr(0,sepPos ) ), 
+					pMenu->Item(index)->Name().empty() ? _T("< ??? >") : pMenu->Item(index)->Name() ,
+					sepPos == tString::npos ? strPath : CFileStrFnc::StripSpaces( strPath.substr(0,sepPos ) ),
 					FILEFOLDERICON,
 					strIcon
-					);//统计菜单项总数			
+					);//统计菜单项总数
 			}
 		}
 		else if ( ! (pMenu->Item(index)->Name().empty()) ) {
@@ -618,7 +617,7 @@ int CMenuWithIcon::BuildMenuFromMenuData(CMenuData * pMenu, MENUTYPE hMenu)
 			nItems += AddMenuItem(hMenu,pMenu->Item(index)->Name(),_T(""));
 		}
 		else {
-			// empty, saperator
+			// empty, separator
 			InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
 		}
 
@@ -701,7 +700,7 @@ void CMenuWithIcon::Destroy(void)
 //! 根据路径获取 16×16 或 32×32 图标
 ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, int iconIndex, bool bIcon32)
 {
-	const TCHAR *pPath = strPath.c_str();// 
+	const TCHAR *pPath = strPath.c_str();//
 	if(!*pPath || NOICON == needIcon)
 		return NULL;
 	ICONTYPE hIcon = NULL;
@@ -779,7 +778,7 @@ ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, 
 			else
 				ExtractIconEx(path,0, NULL,&hIcon,1);
 
-		}		
+		}
 		// 现在还没有图标，可能：文件根本不存在
 	}
 // */
@@ -866,14 +865,14 @@ int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathF
 }
 
 int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
-{	
+{
 	int n = 0;
 	unsigned long uDriveMask = GetLogicalDrives();
 	assert(GetLogicalDrives() == _getdrives());
-	
+
 	if (uDriveMask) {
 		tString strDrive(_T("A:\\"));
-		
+
 		// disable a: and b:
 		uDriveMask >>= 2;
 		strDrive[0] += 2;
@@ -910,7 +909,7 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 
 			++strDrive[0];
 			uDriveMask >>= 1;
-      }
+	  }
 
 	}
 	return n;
@@ -993,7 +992,7 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 					if (OpenDynamicDir()) {
 						AddMenuItem(hMenu, szHiddenMenuItem, inStrPathForSearch.substr(0, inStrPathForSearch.length()-1), NOICON);
 						SetMenuDefaultItem(hMenu, 0, TRUE);
-						// empty, saperator
+						// empty, separator
 						//InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
 					}
 					for (itName = nameName.begin(); itName != nameName.end(); ++itName) {
@@ -1105,20 +1104,30 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 	}
 
 
-	// 构造排序后的菜单项目
-	EICONGETTYPE iconGetType = FILEFOLDERICON;
-	if (bNoFileIcon || EDYNAMIC == mode)
-		iconGetType = NOICON;//不要存储a图标
-	StrStrMap::iterator itName;
-	for (itName = nameName.begin(); itName != nameName.end(); ++itName)
-		result += AddMenuItem(hMenu,itName->second,namePath[itName->second],iconGetType);
+	if ( ! nameName.empty()) {
 
-	namePath.clear();
-	nameName.clear();
+		// 对动态菜单加入分隔符
+		if( EDYNAMIC == mode && nDynamicSubMenus > 0) {
+			InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
+		}
+
+		// 构造排序后的菜单项目
+		EICONGETTYPE iconGetType = FILEFOLDERICON;
+		if (bNoFileIcon || EDYNAMIC == mode)
+			iconGetType = NOICON;//不要存储a图标
+		StrStrMap::iterator itName;
+		for (itName = nameName.begin(); itName != nameName.end(); ++itName) {
+			result += AddMenuItem(hMenu,itName->second,namePath[itName->second],iconGetType);
+		}
+
+		namePath.clear();
+		nameName.clear();
+	}
 
 	if (EDYNAMIC == mode && 0 == nDynamicSubMenus && 0 == result) {
 		AddMenuItem(hMenu,m_strEmpty, _T(""));//动态菜单，添加标题“空”
 	}
+
 	return result;
 }
 

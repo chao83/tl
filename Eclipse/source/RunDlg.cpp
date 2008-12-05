@@ -519,44 +519,44 @@ bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, HWND 
 //! 创建tooltip
 HWND WINAPI CreateTT(HWND hwndOwner, HWND hwndTool)
 {
-    //INITCOMMONCONTROLSEX icex;
-    HWND        hwndTT;
-    TOOLINFO    ti;
-    // Load the ToolTip class from the DLL.
-    //icex.dwSize = sizeof(icex);
-    //icex.dwICC  = ICC_BAR_CLASSES;
+	//INITCOMMONCONTROLSEX icex;
+	HWND		hwndTT;
+	TOOLINFO	ti;
+	// Load the ToolTip class from the DLL.
+	//icex.dwSize = sizeof(icex);
+	//icex.dwICC  = ICC_BAR_CLASSES;
 
-    //if(!InitCommonControlsEx(&icex))
-    //   return NULL;
+	//if(!InitCommonControlsEx(&icex))
+	//   return NULL;
 
-    // Create the ToolTip control.
-    hwndTT = CreateWindow(TOOLTIPS_CLASS, TEXT(""),
-                          WS_POPUP,
-                          CW_USEDEFAULT, CW_USEDEFAULT,
-                          CW_USEDEFAULT, CW_USEDEFAULT,
+	// Create the ToolTip control.
+	hwndTT = CreateWindow(TOOLTIPS_CLASS, TEXT(""),
+						  WS_POPUP,
+						  CW_USEDEFAULT, CW_USEDEFAULT,
+						  CW_USEDEFAULT, CW_USEDEFAULT,
 						  NULL, (HMENU)NULL, ThisHinstGet(),
-                          NULL);
+						  NULL);
 
 	RECT rect = {0};
 	//GetWindowRect (hwndTool, &rect);
-    // Prepare TOOLINFO structure for use as tracking ToolTip.
-    ti.cbSize = sizeof(TOOLINFO) - sizeof(void*);
-    ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_CENTERTIP;// | TTF_TRACK | TTF_ABSOLUTE;
-    ti.hwnd   = hwndOwner;
-    ti.uId    = (UINT)hwndTool;
-    ti.hinst  = NULL;
-    ti.lpszText  = LPSTR_TEXTCALLBACK;
+	// Prepare TOOLINFO structure for use as tracking ToolTip.
+	ti.cbSize = sizeof(TOOLINFO) - sizeof(void*);
+	ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_CENTERTIP;// | TTF_TRACK | TTF_ABSOLUTE;
+	ti.hwnd   = hwndOwner;
+	ti.uId	= (UINT)hwndTool;
+	ti.hinst  = NULL;
+	ti.lpszText  = LPSTR_TEXTCALLBACK;
 	ti.rect.left = rect.left;
 	ti.rect.top = rect.top;
 	ti.rect.bottom = rect.bottom;
 	ti.rect.right = rect.right;
 
-    // Add the tool to the control, displaying an error if needed.
-    if(!SendMessage(hwndTT,TTM_ADDTOOL,0,(LPARAM)&ti)){
-        return NULL;
-    }
+	// Add the tool to the control, displaying an error if needed.
+	if(!SendMessage(hwndTT,TTM_ADDTOOL,0,(LPARAM)&ti)){
+		return NULL;
+	}
 	SendMessage(hwndTT,TTM_ACTIVATE, TRUE,0);
-    return hwndTT;
+	return hwndTT;
 }
 
 const unsigned int FINDFILE = 1, FINDDIR = 2, FINDHIDE = 4, FINDALL = FINDFILE | FINDDIR | FINDHIDE;
@@ -612,7 +612,7 @@ int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr, bool 
 	int iFound = 0;
 	//允许第一个字母是 '\"'
 	bool bQuote( !strSrc.empty() && '\"' == strSrc[0]);
-	
+
 	tString::size_type pos = strSrc.find_last_of(_T("\\"));
 	// 如果发现 *, ?, 非起始位置的 '\"' , 就禁止搜索
 	if (pos != tString::npos && tString::npos == strSrc.find_first_of(_T("*?")) && strSrc.find('\"',1) == tString::npos) {
@@ -646,7 +646,7 @@ int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr, bool 
 	return iFound;
 }
 
-// 不区分大小写，比较字符串相等 
+// 不区分大小写，比较字符串相等
 bool EqualNoCase(const tString & s1, const tString & s2) {
 	return (s1.length() == s2.length() && StrEndWith(s1,s2, false) );
 }
@@ -689,7 +689,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static TSTRING strUserInput(g_strEmpty);//用于建议命令
 
 	static int iFoundLast = -1;//上一次所搜索到的匹配命令个数； -1 表示重新搜索。.
-	
+
 	switch (message) {
 		case WM_INITDIALOG:
 			strUserInput = g_strEmpty;
@@ -836,7 +836,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						case CBN_EDITUPDATE:	//编辑框的内容更改了,搜索 //? 似乎只是用户的输入
 							MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize);
 							strUserInput = szCommand;
-							if ( ! strUserInput.empty()) {								
+							if ( ! strUserInput.empty()) {
 								const TSTRING & strEdit(strUserInput);//用户输入的编辑框的內容。
 								int iEditSize = static_cast<int>(strEdit.size());
 
@@ -884,9 +884,9 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 										iFound += SearchToBuildList(strEdit, vStrNameFound);
 
 										for (unsigned int i = 0; i < StrHis().size(); ++i) {
-											if (EqualNoCase(StrHis()[i].substr(0,iEditSize),strEdit) && 
-												std::find(vStrNameFound.begin(),vStrNameFound.end(),StrHis()[i]) == vStrNameFound.end()	) 
-											{												
+											if (EqualNoCase(StrHis()[i].substr(0,iEditSize),strEdit) &&
+												std::find(vStrNameFound.begin(),vStrNameFound.end(),StrHis()[i]) == vStrNameFound.end()	)
+											{
 												vStrNameFound.push_back(StrHis()[i]);
 												++iFound;
 											}
@@ -916,14 +916,18 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 									}
 
 									//找到２个以上时，显示下拉框
-									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN ,static_cast<WPARAM>(iFound > 1),0);
+									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN ,(iFound > 1)?1:0, 0);
 									// enable redraw
 									SendMessage(GetDlgItem(hDlg, IDC_CBORUN), WM_SETREDRAW, TRUE, 0);
 
-									if (iFound)
+									if (iFound) {
 										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETCURSEL ,0,0);
-									else
+										//保持用户输入（主要是大小写）
+										//TSTRING strEditNew(strEdit + vStrNameFound[0].substr(strEdit.size()));
+										//SetDlgItemText(hDlg, IDC_CBORUN, strEditNew.c_str());
+									} else {
 										SetDlgItemText(hDlg, IDC_CBORUN, strEdit.c_str());
+									}
 									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(iEditSize,-1));
 									iFoundLast = iFound;
 								}
@@ -959,7 +963,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					case STN_DBLCLK: //双击
 						//复制命令 -> 剪切板
 						if (OpenClipboard(hDlg)) {
-							
+
 							EmptyClipboard();
 
 							TCHAR pathFound[MAX_PATH] = {0};
@@ -967,16 +971,16 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							if (cch) {
 								HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR));
 								if(hglbCopy) {
-										// Lock the handle and copy the text to the buffer. 						 
-										void * lptstrCopy = GlobalLock(hglbCopy); 
-										memcpy(lptstrCopy, pathFound, 
-											(cch+1) * sizeof(TCHAR)); 
-										GlobalUnlock(hglbCopy); 
+										// Lock the handle and copy the text to the buffer.
+										void * lptstrCopy = GlobalLock(hglbCopy);
+										memcpy(lptstrCopy, pathFound,
+											(cch+1) * sizeof(TCHAR));
+										GlobalUnlock(hglbCopy);
 
 									#ifdef UNICODE
-										SetClipboardData(CF_UNICODETEXT, hglbCopy); 
+										SetClipboardData(CF_UNICODETEXT, hglbCopy);
 									#else
-										SetClipboardData(CF_TEXT, hglbCopy); 
+										SetClipboardData(CF_TEXT, hglbCopy);
 									#endif
 								}
 							}

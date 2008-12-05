@@ -25,7 +25,7 @@ class COwnerDrawMenu
 
 public:
 
-	COwnerDrawMenu(ICONTYPE hIconCheck = NULL);
+	COwnerDrawMenu(ICONTYPE hIconCheck = NULL, const unsigned int iLeftSide = MENUSIDE);
 	virtual ~COwnerDrawMenu(void);
 	virtual int Display(int x, int y, WINDOWTYPE hWnd = NULL, UINT uFlag = TPM_LEFTALIGN);
 	//const UINT_PTR GetCurrentItem() {return SelID();}
@@ -41,9 +41,10 @@ public:
 	const TCHAR * MenuName(const MENUTYPE indexKey)	const {return GetStr(m_MenuName,indexKey);};
 	bool SetName(IDTYPE ID, const TSTRING & strNewName);
 	bool SetName(MENUTYPE hSubMenu, const TSTRING & strNewName);
-	bool SetNameByPos(int i, const TSTRING & strNewName);
+	bool SetNameByPos(const int i, const TSTRING & strNewName);
 	BOOL Insert(IDTYPE ID,const TCHAR * strName, UINT pos = static_cast<UINT>(-1), ICONTYPE hIcon = NULL);
 	BOOL Insert(MENUTYPE hSubMenu,const TCHAR * strName, UINT pos = static_cast<UINT>(-1), ICONTYPE hIcon = NULL);
+	BOOL InsertSep(UINT pos = static_cast<UINT>(-1), MENUTYPE hMenu = 0);
 	//void AddStaticIcon(IDTYPE ID,ICONTYPE hIcon);
 	//void AddStaticIcon(MENUTYPE hSub, ICONTYPE hIcon);
 	int Reset();
@@ -53,30 +54,11 @@ public:
 	//! ÅÐ¶Ï×Ö·û´®ÊÇ·ñÒÔ ¸ø¶¨µÄ×Ö·û´®½áÎ²¡£
 	static bool IsStrEndWith(const TSTRING & strSrc, const TSTRING & strMatchThis, bool bMatchCase = true);
 
-	const ICONTYPE ItemIcon(const int nID)
-	{
-		return m_MenuItemIcons[nID];
-	}
-	bool ItemIcon(const int nID, const ICONTYPE hIcon)
-	{
-		return m_MenuItemIcons.Add(nID, hIcon);
-	}
-	//const ICONTYPE ItemCheckIcon(const int nID)
-	//{
-	//	return m_MenuItemCheckIcons[nID];
-	//}
-	//bool ItemCheckIcon(const int nID, const ICONTYPE hIcon)
-	//{
-	//	return m_MenuItemCheckIcons.Add(nID, hIcon);
-	//}
-	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu)
-	{
-		return m_SubMenuIcons[hSubMenu];
-	}
-	bool MenuIcon(const MENUTYPE hSubMenu, const ICONTYPE hIcon)
-	{
-		return m_SubMenuIcons.Add(hSubMenu, hIcon);
-	}
+	const ICONTYPE ItemIcon(const int nID);
+	bool ItemIcon(const int nID, const ICONTYPE hIcon);
+
+	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu);
+	bool MenuIcon(const MENUTYPE hSubMenu, const ICONTYPE hIcon);
 
 	bool IconByPos(const int iPos, const ICONTYPE hIcon);
 
@@ -96,7 +78,7 @@ protected:
 	typedef std::map<MENUTYPE,ICONTYPE> MenuIconMap;
 	typedef MenuIconMap::const_iterator MenuIconIter;
 
-	enum {MENUSIDE = 0, MENUHEIGHT = 22, MENUICON = 16, MENUBLANK = MENUHEIGHT - MENUICON, MENUSEP = 5,MAXMENUWIDTH = 384,NBUF = 1024, SHELL_MAX_ERROR_VALUE = 32};
+	enum {MENUSIDE = 6, MENUHEIGHT = 22, MENUICON = 16, MENUBLANK = MENUHEIGHT - MENUICON, MENUSEP = 5,MAXMENUWIDTH = 384,NBUF = 1024, SHELL_MAX_ERROR_VALUE = 32};
 	IdStrMap & ItemNameMap() {return m_ItemName;};
 	MenuStrMap & MenuNameMap() {return m_MenuName;};
 
@@ -244,11 +226,11 @@ public:
 	typedef HBITMAP BITMAPTYPE;
 	void SetSkin(BITMAPTYPE hSide, const BITMAPTYPE (&hBk)[3], const BITMAPTYPE (&hSelBk)[3], const BITMAPTYPE (&hSep)[3], BITMAPTYPE hTitalPic);
 
-    // Set UseActualIconSize
-    void UseActualIconSize (const bool newValue) { bUseActualIconSize = newValue; }
+	// Set UseActualIconSize
+	void UseActualIconSize (const bool newValue) { bUseActualIconSize = newValue; }
 
-    // Get UseActualIconSize
-    const bool UseActualIconSize() const { return bUseActualIconSize; }
+	// Get UseActualIconSize
+	const bool UseActualIconSize() const { return bUseActualIconSize; }
 
 
 private:
@@ -297,6 +279,10 @@ private:
 	bool bUseActualIconSize;
 protected:
 	static const TSTRING szHiddenMenuItem;// = _T("< . >");// normal items should not contain "<"
+private:
+
+// @note (lichao#1#): ÊµÏÖ×ó²à±ßÔµ¿Éµ÷£¬Ìæ´úMENUSIDE
+	int m_iExtraLeftSideWidth;// ×ó²à±ßÔµÍ¼Ïñ¿í¶È
 };
 
 #endif // OWNER_DRAW_MENU_H
