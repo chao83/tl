@@ -211,7 +211,7 @@ private:
 	void RemoveThis() { s_Menus.erase(this); }
 
 protected:
-	MENUTYPE MatchRect(const DRAWITEMSTRUCT * pDI);
+	MENUTYPE TryGetSubMenu(const DRAWITEMSTRUCT * pDI);
 	bool DrawItem(DRAWITEMSTRUCT * pDI);
 	int MeasureItem(MEASUREITEMSTRUCT *pMI);
 	LRESULT MenuChar(MENUTYPE hMenu,TCHAR ch);

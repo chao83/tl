@@ -647,33 +647,14 @@ bool COwnerDrawMenu::AccordingToState(DRAWITEMSTRUCT * pDI)
 }
 
 
-MENUTYPE COwnerDrawMenu::MatchRect(const DRAWITEMSTRUCT * pDI)
+MENUTYPE COwnerDrawMenu::TryGetSubMenu(const DRAWITEMSTRUCT * pDI)
 {
 	HMENU hResult = 0;
 	if (ODT_MENU == pDI->CtlType) {
-		POINT pt = {pDI->rcItem.left, pDI->rcItem.top};
-		POINT pt2 = {pDI->rcItem.right, pDI->rcItem.bottom};
-		HWND hMenuWnd = WindowFromDC(pDI->hDC);
-		HMENU hMenu = (HMENU)(pDI->hwndItem);
-		if (hMenuWnd) {
-			ClientToScreen(hMenuWnd, &pt);
-			ClientToScreen(hMenuWnd, &pt2);
-			const int n = GetMenuItemCount(hMenu);
-			//二分查找
-			RECT rcItem;
-			int left = 0;
-			int right = n;
-			while (left < right) {
-				const int mid = left + (right-left)/2;
-				GetMenuItemRect(hMenuWnd, hMenu, mid, &rcItem);
-				if (rcItem.top == pt.y && rcItem.bottom == pt2.y) {
-					hResult = GetSubMenu(hMenu, mid);
-					break;
-				} else if (((rcItem.top << 16) | rcItem.bottom) < (( pt.y <<  16 )|  pt2.y)) {
-					left = mid+1;
-				} else {
-					right = mid;
-				}
+		if (const int id = pDI->itemID) {
+			MenuStrMap::const_iterator it = m_MenuName.find(reinterpret_cast<MENUTYPE>(id));
+			if (it != m_MenuName.end()) {
+				hResult = it->first;
 			}
 		}
 	}
@@ -688,7 +669,7 @@ bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
 
 	//两个可能的类型，菜单与项
 	IDTYPE iMaybeID = pDI->itemID;
-	MENUTYPE hMaybeMenu = MatchRect(pDI);
+	MENUTYPE hMaybeMenu = TryGetSubMenu(pDI);
 	HICON hIcon = 0;
 	if ( hMaybeMenu ) {
 		assert( IsMenu(hMaybeMenu) );
@@ -746,7 +727,7 @@ bool COwnerDrawMenu::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 	AccordingToState(pDI);
 
 	IDTYPE iMaybeID = pDI->itemID;
-	MENUTYPE hMaybeMenu = MatchRect(pDI);
+	MENUTYPE hMaybeMenu = TryGetSubMenu(pDI);
 	assert(!hMaybeMenu || hMaybeMenu == (HMENU)iMaybeID);
 
 	const bool bDrawedIcon = DrawMenuIcon(pDI);

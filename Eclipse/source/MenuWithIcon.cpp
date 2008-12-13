@@ -105,7 +105,7 @@ bool CMenuWithIcon::DrawItem_impl(DRAWITEMSTRUCT * pDI)
 
 	//两个可能的类型，菜单与项
 	IDTYPE iMaybeID = pDI->itemID;
-	MENUTYPE hMaybeMenu = MatchRect(pDI);
+	MENUTYPE hMaybeMenu = TryGetSubMenu(pDI);
 	assert(!hMaybeMenu || hMaybeMenu == (HMENU)iMaybeID);
 	if (!hMaybeMenu && (iMaybeID < m_startID || iMaybeID >= m_ID) ) {
 		hMaybeMenu = (HMENU)iMaybeID;
