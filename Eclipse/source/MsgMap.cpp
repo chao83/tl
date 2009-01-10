@@ -2,11 +2,13 @@
 #include "stdafx.h"
 #include <shellapi.h>
 #include <shlwapi.h>
+#include <dbt.h>
 #include "resource.h"
 #include "language.h"
 #include "MenuWithIcon.h"
 #include "GDIWavePic.h"
 #include "RunDlg.h"
+#include "Hotkey.h"
 #include "MsgMap.h"
 //#include <gdiplus.h>
 #include "SettingFile.h"
@@ -17,6 +19,7 @@ CSettingFile & Settings()
 	return s_setting;
 }
 
+HWND g_hWnd;
 class CBLocker
 {
 	bool & m_value;
@@ -27,6 +30,7 @@ public:
 };
 
 const int UM_MIDCLICK = WM_USER + 4;
+const int UM_REFRESH = WM_USER + 5;
 const int SKIN_MENU_POS = 2;
 const int LNG_MENU_POS = 3;
 class CHook
@@ -137,6 +141,7 @@ enum EHOTKEYS {
 
 Ptr<COwnerDrawMenu> g_pSysTray;
 Ptr<CMenuWithIcon> g_pTray;
+Ptr<CHotkey> g_pHotkey;
 
 bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, HWND = NULL);
 
@@ -163,6 +168,8 @@ LRESULT  MsgClose(HWND, UINT, WPARAM, LPARAM);
 LRESULT  MsgNewInstance(HWND, UINT, WPARAM, LPARAM);
 LRESULT  MsgMidClick(HWND, UINT, WPARAM, LPARAM);
 LRESULT  MsgEndSession(HWND, UINT, WPARAM, LPARAM);
+LRESULT  MsgDeviceChange(HWND, UINT, WPARAM, LPARAM);
+LRESULT  MsgRefresh(HWND, UINT, WPARAM, LPARAM);
 
 
 BOOL  CALLBACK About(HWND, UINT, WPARAM, LPARAM);
@@ -174,10 +181,36 @@ enum AUTORUN{AR_ADD,AR_REMOVE,AR_CHECK};
 int AutoStart(AUTORUN);
 
 
-int SetHotKeys(bool bReset = false)
+int SetHotkeys()
 {
-	if (bReset)	{
-
+	if (g_pHotkey.Get())	{
+		Settings().AddSection(sectionHotkey);
+		TSTRING str;
+		if (Settings().Get(sectionHotkey, keyHKMenu, str)) {
+			g_pHotkey->Add(HOTKEYPOPMENU,str);
+		} else {
+			Settings().Set(sectionHotkey, keyHKMenu, _T("Alt + LWin"), true);
+		}
+		if (Settings().Get(sectionHotkey, keyHKContextMenu, str)) {
+			g_pHotkey->Add(HOTKEYPOPSYSMENU,str);
+		} else {
+			Settings().Set(sectionHotkey, keyHKContextMenu, _T("Alt + RWin"), true);
+		}
+		if (Settings().Get(sectionHotkey, keyHKMenuAtMouse, str)) {
+			g_pHotkey->Add(HOTKEYMIDCLICK,str);
+		} else {
+			Settings().Set(sectionHotkey, keyHKMenuAtMouse, _T("Shift + LWin"), true);
+		}
+		if (Settings().Get(sectionHotkey, keyHKRunDialog, str)) {
+			g_pHotkey->Add(HOTKEYPOPEXECUTE,str);
+		} else {
+			Settings().Set(sectionHotkey, keyHKRunDialog, _T("Ctrl + LWin"), true);
+		}
+		if (Settings().Get(sectionHotkey, keyHKContextMenu_alt, str)) {
+			g_pHotkey->Add(HOTKEYPOPSYSMENU_ALTER,str);
+		} else {
+			Settings().Set(sectionHotkey, keyHKContextMenu_alt, _T("Ctrl + Alt + LWin"), true);
+		}
 	}
 	return 0;
 }
@@ -392,19 +425,21 @@ void SetMenuSkin(const TSTRING & skinSubDir)
 
 
 // 操作托盘图标,添加,更新或删除
-void Systray(const HWND hWnd, const DWORD dwMessage, ICONTYPE hIcon = NULL)
+void Systray(const HWND hWnd, const DWORD dwMessage, ICONTYPE hIcon = NULL, const TSTRING &strInfo = _T(""))
 {
-	NOTIFYICONDATA nid;
+	NOTIFYICONDATA nid = {0};
 	nid.cbSize = sizeof(NOTIFYICONDATA);
 	nid.hWnd = hWnd;
 	nid.uID = ID_TASKBARICON;
-	nid.uFlags = NIF_ICON|NIF_MESSAGE|NIF_TIP;
+	nid.uFlags = NIF_ICON|NIF_MESSAGE|NIF_TIP|NIF_INFO|NIIF_INFO;
 	nid.uCallbackMessage = UM_ICONNOTIFY;
 	nid.hIcon = hIcon ? hIcon : LoadIcon(ThisHinstGet(), MAKEINTRESOURCE(IDI_TRAYSTART));
-	TCHAR str[] = _T("Tray Launcher");
-	int nCount = sizeof(str)/sizeof(TCHAR);
-	for (int i = 0; i < nCount; ++i) {
-		nid.szTip[i] = str[i];
+	const TCHAR strTip[] = _T("Tray Launcher");
+	memcpy(nid.szTip, strTip, sizeof(strTip) );
+	if (strInfo.length()) {
+		memcpy(nid.szInfoTitle, strTip, sizeof(strTip) );
+		memcpy(nid.szInfo, strInfo.c_str(), sizeof(TCHAR) * strInfo.length());
+		nid.uTimeout = 5000;
 	}
 	Shell_NotifyIcon(dwMessage, &nid);
 }
@@ -424,7 +459,9 @@ void UpdateMenu(const bool bForce = false) {
 	}
 
 	if (bBuild) {
+			Systray(g_hWnd, NIM_MODIFY, GTrayIcon().Get(), GetLang(_T("Refreshing...")));
 			BuildMenuFromFile(g_fileName.c_str());
+			Systray(g_hWnd, NIM_MODIFY, GTrayIcon().Get());
 	}
 }
 
@@ -523,8 +560,8 @@ int MyProcessCommand(HWND hWnd, int id)
 			}
 			break;
 		case RELOAD:
-			if (Settings().Read())
-				ShowHiddenJudge(g_pTray.Get());
+			//if (Settings().Read())
+			//	ShowHiddenJudge(g_pTray.Get());
 			UpdateMenu(true);
 			ShowMenu(0,true);
 			break;
@@ -593,7 +630,9 @@ void InitMsgMap()
 	TheMsgMap().Add(WM_CLOSE,		&MsgClose);
 	TheMsgMap().Add(UM_NEWINSTANCE, &MsgNewInstance);
 	TheMsgMap().Add(UM_MIDCLICK,	&MsgMidClick);
+	TheMsgMap().Add(UM_REFRESH,	&MsgRefresh);
 	TheMsgMap().Add(WM_ENDSESSION,	&MsgEndSession);
+	TheMsgMap().Add(WM_DEVICECHANGE, &MsgDeviceChange);
 }
 
 
@@ -606,7 +645,16 @@ LRESULT  MsgNewInstance(HWND hWnd, UINT, WPARAM, LPARAM)
 	return 0;
 }
 
-//! 处理来自另一个进程的通知
+
+//! 处理刷新通知
+LRESULT  MsgRefresh(HWND, UINT, WPARAM, LPARAM)
+{
+	if (g_pTray.Get() && g_pTray->HasMyComputer()) {
+		UpdateMenu(true);
+	}
+	return 0;
+}
+//! 处理鼠标中键点击的通知
 LRESULT  MsgMidClick(HWND hWnd, UINT, WPARAM bDown, LPARAM)
 {
 	if(bDown || (GetKeyState(VK_LBUTTON)&0x8000) ) {
@@ -635,6 +683,33 @@ LRESULT  MsgEndSession(HWND, UINT, WPARAM wParam, LPARAM) // WM_ENDSESSION
 	return 0;
 }
 
+//! 处理关机，注销等 通知
+LRESULT  MsgDeviceChange(HWND hWnd, UINT, WPARAM wParam, LPARAM lParam) // WM_DEVICECHANGE
+{
+	PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)lParam;
+	switch (wParam) 
+	{
+	case DBT_DEVICEARRIVAL:
+	case DBT_DEVICEREMOVECOMPLETE :
+         // Check whether a CD or DVD or USB stick was inserted or removed.
+         if (lpdb -> dbch_devicetype == DBT_DEVTYP_VOLUME)
+         {
+            PDEV_BROADCAST_VOLUME lpdbv = (PDEV_BROADCAST_VOLUME)lpdb;
+
+            if (lpdbv -> dbcv_flags & DBTF_MEDIA)
+            {
+				// refresh my computer
+				PostMessage(hWnd, UM_REFRESH,0,0);
+            }
+         }
+         break;
+
+	default:
+		break;
+
+	}
+	return 0;
+}
 //
 //  函数: ProcMessage(HWND, UINT, WPARAM, LPARAM)
 //
@@ -653,11 +728,13 @@ LRESULT CALLBACK ProcMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 bool AddHotkey(HWND hWnd, int id, UINT fsModifiers, UINT vk)
 {
-	if (!RegisterHotKey(hWnd, id, fsModifiers, vk)) {
-		MessageBox(NULL,_T("Register Hot Key Failed!"),NULL,MB_OK);
-		return false;
-	}
-	return true;
+	return ( 0 != RegisterHotKey(hWnd, id, fsModifiers, vk) );
+
+	//if (!RegisterHotKey(hWnd, id, fsModifiers, vk)) {
+	//	MessageBox(NULL,_T("Register Hot Key Failed!"),NULL,MB_OK);
+	//	return false;
+	//}
+	//return true;
 }
 
 
@@ -677,6 +754,7 @@ void _DbgTest()
 // WM_CREATE
 LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* lParam */)
 {
+	g_hWnd = hWnd;
 	//*
 #ifdef _DEBUG
 	_DbgTest();
@@ -857,12 +935,17 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 	else
 		CheckMenuItem(g_pSysTray->Menu(), AUTOSTART,MF_BYCOMMAND | MF_UNCHECKED);
 
+//*
+	g_pHotkey.Reset(new CHotkey(hWnd));
+	SetHotkeys();
+
+	/*/
 	AddHotkey(hWnd,HOTKEYPOPMENU,MOD_ALT | MOD_WIN,VK_LWIN);
 	AddHotkey(hWnd,HOTKEYPOPSYSMENU,MOD_ALT | MOD_WIN,VK_RWIN);
 	AddHotkey(hWnd,HOTKEYPOPEXECUTE,MOD_WIN | MOD_CONTROL, VK_LWIN);
 	AddHotkey(hWnd,HOTKEYMIDCLICK,MOD_SHIFT | MOD_WIN, VK_LWIN);
 	AddHotkey(hWnd,HOTKEYPOPSYSMENU_ALTER,MOD_ALT | MOD_CONTROL | MOD_WIN, VK_LWIN);
-
+//*/
 
 	//尝试读取用户自定义图标
 	TSTRING strIcon;

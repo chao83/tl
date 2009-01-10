@@ -197,6 +197,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Eclipse\source\Hotkey.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Eclipse\source\language.cpp"
 				>
 			</File>
@@ -247,6 +251,10 @@
 			</File>
 			<File
 				RelativePath="..\Eclipse\source\GDIWavePic.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Eclipse\source\Hotkey.h"
 				>
 			</File>
 			<File

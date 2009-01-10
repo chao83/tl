@@ -148,11 +148,12 @@ private :
 
 public:
 	bool OpenDynamicDir() { return m_bOpenDynamicDir; }
-	void OpenDynamicDir(const bool newValue) {
-		m_bOpenDynamicDir = newValue;
-	}
+	void OpenDynamicDir(const bool newValue) { m_bOpenDynamicDir = newValue; }
+	bool HasMyComputer() const { return m_bHasMyComputer; }
 private:
-	bool m_bOpenDynamicDir;
+	void HasMyComputer(const bool newValue)  { m_bHasMyComputer = newValue; }
+	bool m_bOpenDynamicDir;//option to open dir on double click
+	bool m_bHasMyComputer;// contain \\** mode
 
 };
 

@@ -651,11 +651,21 @@ MENUTYPE COwnerDrawMenu::TryGetSubMenu(const DRAWITEMSTRUCT * pDI)
 {
 	HMENU hResult = 0;
 	if (ODT_MENU == pDI->CtlType) {
-		if (const int id = pDI->itemID) {
-			MenuStrMap::const_iterator it = m_MenuName.find(reinterpret_cast<MENUTYPE>(id));
-			if (it != m_MenuName.end()) {
-				hResult = it->first;
+		if (const unsigned int id = pDI->itemID) {
+			IdStrIter last = m_ItemName.end();
+			if (m_ItemName.empty() || (--last)->first < id) {
+				MenuStrMap::const_iterator it = m_MenuName.find(reinterpret_cast<MENUTYPE>(id));
+				if (it != m_MenuName.end()) {
+					assert (id>65535);
+					hResult = it->first;
+				}
 			}
+#ifdef _DEBUG
+			else {
+				int a = 0;
+				++a;
+			}
+#endif
 		}
 	}
 	return hResult;

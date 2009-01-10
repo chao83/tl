@@ -30,6 +30,13 @@ CSTR keyShowOpenHere = _T("ShowOpenHere");
 CSTR sectionHistory = _T("history");
 CSTR sectionColor = _T("color");
 
+CSTR sectionHotkey = _T("hotkey");
+CSTR keyHKMenu = _T("ShowMenu");
+CSTR keyHKMenuAtMouse = _T("ShowMenuAtMouse");
+CSTR keyHKContextMenu = _T("ShowContextMenu");
+CSTR keyHKContextMenu_alt = _T("ShowContextMenu_alt");
+CSTR keyHKRunDialog = _T("RunDialog");
+
 // ∂‡π˙”Ô—‘”≥…‰£¨
 class CLng
 {

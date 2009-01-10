@@ -48,7 +48,7 @@ CMenuWithIcon::CMenuWithIcon(ICONTYPE hOpen,ICONTYPE hClose,ICONTYPE hUnknownFil
 m_hIconOpen(hOpen),m_hIconClose(hClose),m_hIconUnknowFile(hUnknownFile),
 m_startID(0),m_ID(0),m_strEmpty (_T("Empty")),m_dynamicStartID(0),
 m_bShowHidden(false),m_bFilterEmptySubMenus(true),m_menuData ( new CMenuData(_T("root")) ),
-m_bOpenDynamicDir(true)
+m_bOpenDynamicDir(true), m_bHasMyComputer(false)
 {
 	if (szEmpty && *szEmpty)
 		m_strEmpty = szEmpty;
@@ -803,6 +803,7 @@ int CMenuWithIcon::Reset()
 	Destroy();
 	COwnerDrawMenu::Reset(); // 0
 	(*m_menuData).Clear();
+	HasMyComputer(false);
 	return 0;
 }
 
@@ -909,8 +910,8 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 
 			++strDrive[0];
 			uDriveMask >>= 1;
-	  }
-
+		}
+		HasMyComputer(true);
 	}
 	return n;
 }
