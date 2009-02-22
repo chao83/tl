@@ -80,6 +80,8 @@
 		<Unit filename="..\Eclipse\source\FileStrFnc.h" />
 		<Unit filename="..\Eclipse\source\GDIWavePic.cpp" />
 		<Unit filename="..\Eclipse\source\GDIWavePic.h" />
+		<Unit filename="..\Eclipse\source\Hotkey.cpp" />
+		<Unit filename="..\Eclipse\source\Hotkey.h" />
 		<Unit filename="..\Eclipse\source\MenuData.cpp" />
 		<Unit filename="..\Eclipse\source\MenuData.h" />
 		<Unit filename="..\Eclipse\source\MenuWithIcon.cpp">
