@@ -78,15 +78,18 @@ bool Language::SetLngFile(const TString & strFileName, const TString & strSepara
 		return false;
 	}
 	file_ptr file(_wfopen(strFileName.c_str(), L"rb"));
-	// check file and unicode le file
+
+	// check unicode le file
 	if (!file || fgetwc(file) != 0xfeff) {
 		return false;
 	}
 	Reset();
-	bool bRet = false;
 	const TString strSpaceChars(L" \t\r\n");
 	TString strLine;
 	while (ReadLine(file, strLine)) {
+		if (strLine.substr(0, strLineComment.length()) == strLineComment) {
+			continue;
+		}
 		// analyze this line
 		TString::size_type pos = strLine.find(strSeparator);
 		if (pos != TString::npos) {
@@ -101,7 +104,7 @@ bool Language::SetLngFile(const TString & strFileName, const TString & strSepara
 			}
 		}
 	}
-	return bRet;
+	return true;
 }
 
 bool Language::ReadLine(FILE *file, TString & strLine) {
