@@ -7,15 +7,13 @@
 
 #include <stdheaders.h>
 
-const int LNG__BEGIN = 1000;
 
 //全局作用域的函数调用唯一的语言类对象。
-
 const TCHAR * const g_strEmpty = _T("");
 void InitLanguage();
 const TCHAR * GetLang(const wchar_t * strSrc) ;
-const TCHAR * GetLang(const char * strSrc) ;
 bool SetLanguageFile(const TCHAR * );
+
 // SettingFile　关键字
 typedef const TCHAR *const CSTR;
 CSTR sectionGeneral = _T("general");
@@ -37,43 +35,93 @@ CSTR keyHKContextMenu = _T("ShowContextMenu");
 CSTR keyHKContextMenu_alt = _T("ShowContextMenu_alt");
 CSTR keyHKRunDialog = _T("RunDialog");
 
-// 多国语言映射，
-class CLng
+
+
+//! String to String map, used for multilingual programs
+template <class TString>
+class StringMap
 {
+	typedef TString string_type;
+	typedef typename TString::value_type char_type;
+	typedef std::map<TString, TString> SSMap; // storage type
 public:
-	typedef unsigned int Id;
-private:
-	typedef std::map<Id, tString> IdLngMap;
-	typedef std::map<tString, Id> LngIdMap;
-	
-	//初始化
-	void Init(unsigned int size, const TCHAR ** szDefault);
-	//禁用的功能
-	CLng(const CLng &);
-	CLng & operator = (const CLng &) ;
+	StringMap(void) {}
+	~StringMap(void) {}
 
-public:
-	//构造函数
-	template <unsigned int n>
-	CLng(const TCHAR * (&szDefault)[n], Id startId = 10000);
-	~CLng(){}
-	const TCHAR * const GetLang(const TCHAR * const szSrc) const;
-	const TCHAR * const GetLang(const Id id) const;
-	bool SetLngFile(const TCHAR * szLngFile, const bool bUseDefaultOnFailure = true);
-	const Id Begin() const { return LNG_BEGIN; }
-	const Id End() const { return LNG_END; }
-private:
-	const Id LNG_BEGIN;
-	const Id LNG_END;
-	IdLngMap _default;		//default language
-	LngIdMap _index;		//default index
-	//static const IdLngMap MapFromArray(unsigned int size, const TCHAR * szArr[], Id idStart);
-	//static const LngIdMap IndexMap(const IdLngMap & idLngMap);
-	const IdLngMap & m_default;		//default language
-	const LngIdMap & m_index;		//default index
-	IdLngMap m_lng;
+	unsigned int Size() const { return m_strMap.size(); }
 
-	int LanguageFromFile(FILE *pFile);
+	void Clear() { m_strMap.clear(); }
+
+	void ClearValues() {
+		for (SSMap::iterator it = m_strMap.begin(); it != m_strMap.end(); ++it) {
+			it->second.clear();
+		}
+	}
+
+	bool Find(const TString & strSrc) const {
+		return m_strMap.find(strSrc) != m_strMap.end();
+	}
+
+	const TString & Get(const TString & strSrc, const bool bIgnoreEmptyResult = true) const {
+		SSMap::const_iterator it(m_strMap.find(strSrc));
+		return (it == m_strMap.end() || (bIgnoreEmptyResult && it->second.empty())) ? strSrc : it->second;
+	}
+
+	const char_type * Get(const char_type * const strSrc, const bool bIgnoreEmptyResult = true) const {
+		SSMap::const_iterator it(m_strMap.find(strSrc));
+		return (it == m_strMap.end() || (bIgnoreEmptyResult && it->second.empty())) ? strSrc : it->second.c_str();
+	}
+
+	void Set(const TString &strSrc, const TString &strDst) {
+		m_strMap[strSrc] = strDst;
+	}
+private:
+	SSMap m_strMap; //!< store string-string map
 };
+
+// 多国语言映射，
+
+class Language : private StringMap<std::wstring>
+{
+	typedef std::wstring TString;
+	static bool ReadLine(FILE *file, TString & strLine);
+	static bool StripCharsAtEnds(TString & str, const TString & chars);
+
+public:
+	Language(void):m_bApplyFilter(false) {}
+	template <unsigned int N>
+	Language(const wchar_t * (&szArr)[N]):m_bApplyFilter(true)	{ LoadDefault(szArr, N); }
+
+	void Reset() { 
+		if (m_bApplyFilter){
+			ClearValues();
+		} else {
+			Clear();
+		}
+	}
+	bool SetLngFile(const TString & strFileName, const TString & strSeparator = _T("==>"), const TString & strLineComment = _T(";"));
+	const TString &GetStr(const TString & strIndex) {
+		return Get(strIndex);
+	}
+	const wchar_t * GetCStr(const wchar_t * const szIndex) {
+		return Get(szIndex);
+	}
+
+private:
+	unsigned int LoadDefault(const wchar_t **strArray, const unsigned int N) {
+		Reset();
+		for (unsigned int i = 0; i < N; ++i) {
+			Set(strArray[i], strArray[i]);
+		}
+		return Size();
+	}
+	const bool m_bApplyFilter;
+
+	// non-copyable
+	Language(const Language &);
+	Language & operator = (const Language &);
+
+};
+
 
 #endif //TRAYSTARTLANGUAGEHEADER

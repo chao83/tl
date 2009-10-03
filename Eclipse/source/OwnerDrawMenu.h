@@ -1,7 +1,6 @@
 #ifndef OWNER_DRAW_MENU_H
 #define OWNER_DRAW_MENU_H
 
-#pragma once
 #include <stdheaders.h>
 
 #include <auto_pointers.h>

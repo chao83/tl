@@ -41,8 +41,8 @@ int CWavePic::Drop(int x, int y, TDepth depth, int size/* = 0 */)
 
 void CWavePic::Flatten(void)
 {
-	memset(m_pSrfcPri.Get(),0,(m_cx+2)*(m_cy+2)*sizeof(TDepth));
-	memset(m_pSrfcSec.Get(),0,(m_cx+2)*(m_cy+2)*sizeof(TDepth));
+	memset(m_pSrfcPri.Get(), 0, (m_cx+2)*(m_cy+2)*sizeof(TDepth));
+	memset(m_pSrfcSec.Get(), 0, (m_cx+2)*(m_cy+2)*sizeof(TDepth));
 	m_bFlat = true;
 }
 

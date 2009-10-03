@@ -1,8 +1,6 @@
 #ifndef LCH_MENU_DATA_H
 #define LCH_MENU_DATA_H
 
-#include <string>
-#include <vector>
 #include <auto_handle.h>
 
 #include "FileStrFnc.h"
@@ -64,7 +62,7 @@ public:
 	~CMenuData();
 	Ui Count() const { return m_sub.size(); }
 
-	const CMenuData * Menu(Ui pos) const { return dynamic_cast<const CMenuData*>(GetByPos(pos)); }	
+	const CMenuData * Menu(Ui pos) const { return dynamic_cast<const CMenuData*>(GetByPos(pos)); }
 	CMenuData * Menu(Ui pos) { return dynamic_cast<CMenuData*>(GetByPos(pos)); }
 	const CItem * Item(Ui pos) const { return GetByPos(pos); }
 	CItem * Item(Ui pos) { return GetByPos(pos); }
@@ -73,7 +71,7 @@ public:
 	//}
 	bool IsMenu(Ui pos) const { return Menu(pos) != 0; }
 
-	void Clear(); 
+	void Clear();
 
 	bool AddItem (Ui pos, Prm strName, Prm strPath, Prm strEx = Empty()) ;
 
@@ -89,7 +87,7 @@ private:
 	bool OutPut(FILE * pFile, TCHAR pad = '\t', int nPad = 0, int step = 1) const;
 	int LoadFile(FILE *pFile) ;
 	int LoadFileAlter(FILE *pFile) ;
-	
+
 };
 
 #endif

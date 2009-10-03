@@ -881,7 +881,7 @@ LRESULT COwnerDrawMenu::MenuChar_impl(MENUTYPE hMenu,TCHAR ch)
 		return MAKELRESULT(vFound.front(),MNC_EXECUTE);
 	else if (SelID() != (UINT_PTR)-1)//有选中项目
 		for (UINT j = 0; j + 1 < vFound.size(); ++j) {
-			if (GetSubMenu(hMenu,vFound[j]) && GetSubMenu(hMenu,vFound[j]) == (MENUTYPE)SelID() ||
+			if ( ( GetSubMenu(hMenu,vFound[j]) && GetSubMenu(hMenu,vFound[j]) == (MENUTYPE)SelID() ) ||
 				GetMenuItemID(hMenu,vFound[j]) == SelID())
 				return MAKELRESULT(vFound[j+1],MNC_SELECT);//当前选中项目符合，选中下一个符合的
 		}

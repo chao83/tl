@@ -34,39 +34,12 @@ const TCHAR * g_strEnglishLngArray[] = {
 
 };
 
-static CLng g_lng(g_strEnglishLngArray, 1000);
+static Language g_lng(g_strEnglishLngArray);
 
-
-
-#ifdef _DEBUG
-void SaveLngFile(const CLng & lng, const TCHAR *szSaveName = _T("TL_Language.txt"))
-{
-	file_ptr fileLng(szSaveName,TEXT("wb"));
-
-	if(fileLng) {
-		_fputtc(0xfeff,fileLng);
-
-		TSTRING strLine;
-		TCHAR szID[8];
-
-		for (unsigned int id = lng.Begin(); id != lng.End(); ++id) {
-			memset(szID,0,sizeof(szID));
-			_itot(id, szID,10);
-			strLine = szID;
-			strLine = strLine + _T(" = ") + lng.GetLang(id) + _T("\r\n");
-			fwrite(strLine.c_str(), sizeof(strLine[0]),strLine.length(),fileLng);
-
-		}
-	}
-}
-#endif
 
 
 void InitLanguage()
 {
-#ifdef _DEBUG
-	SaveLngFile(g_lng);
-#endif
 	Settings().AddSection(sectionGeneral);
 	TSTRING strLanguage;
 	if (! Settings().Get(sectionGeneral, keyLanguage, strLanguage)) {
@@ -78,23 +51,15 @@ void InitLanguage()
 
 const TCHAR * GetLang(const TCHAR * strSrc)
 {
-	return g_lng.GetLang(strSrc);
+	return g_lng.GetCStr(strSrc);
 }
-
-
-#ifdef _UNICODE
-const TCHAR * GetLang(const char * strSrc)
-{
-	const int n = strlen(strSrc)+1;
-	wukong::Arr<wchar_t> str(new TCHAR[n]);
-	memset(str.Get(), 0, sizeof(TCHAR)*n);
-	MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,strSrc,-1,str.Get(), n);
-	return g_lng.GetLang(str.Get());
-}
-#endif
 
 bool SetLanguageFile(const TCHAR * szFileName)
 {
+	if (!szFileName || !*szFileName) {
+		g_lng.Reset();
+		return true;
+	}
 	TSTRING strFile(szFileName);
 	if(!file_ptr(strFile.c_str(), TEXT("rb")) && strFile.find('\\') == strFile.npos) {
 		strFile = _T(".\\Lng\\") + strFile;
@@ -103,180 +68,78 @@ bool SetLanguageFile(const TCHAR * szFileName)
 }
 
 
-
-
 ///////////////////////////////////////////////////////////////////
 //////////////
 //////////////		CLng 类实现
 //////////////
 ///////////////////////////////////////////////////////////////////
-template <unsigned int size>
-CLng::CLng(const TCHAR * (&szDefault)[size], Id startId)
-:LNG_BEGIN(startId),
-LNG_END(startId + size),
-m_default(_default),
-m_index(_index)
-{
-	Init(size, szDefault);
-}
 
-//private init function, called by ctr
-void CLng::Init(unsigned int size, const TCHAR **szDefault)
-{
-	for(unsigned int i = 0; i < size; ++i) {
-		_default[LNG_BEGIN + i] = szDefault[i];
-		assert(_index.find(szDefault[i]) == _index.end());
-		_index[szDefault[i]] = LNG_BEGIN + i;
+bool Language::SetLngFile(const TString & strFileName, const TString & strSeparator, const TString & strLineComment) {
+	if (strSeparator.empty() ||  (!strLineComment.empty() && _istspace(strLineComment[0])) ) {
+		return false;
 	}
+	file_ptr file(_wfopen(strFileName.c_str(), L"rb"));
+	// check file and unicode le file
+	if (!file || fgetwc(file) != 0xfeff) {
+		return false;
+	}
+	Reset();
+	bool bRet = false;
+	const TString strSpaceChars(L" \t\r\n");
+	TString strLine;
+	while (ReadLine(file, strLine)) {
+		// analyze this line
+		TString::size_type pos = strLine.find(strSeparator);
+		if (pos != TString::npos) {
+			// found
+			TString strSrc(strLine.substr(0, pos));
+			StripCharsAtEnds(strSrc, strSpaceChars);
+			if (!m_bApplyFilter || Find(strSrc)) {
+				// valid source string
+				TString strDst(strLine.substr(pos + strSeparator.length()));
+				StripCharsAtEnds(strDst, strSpaceChars);
+				Set(strSrc, strDst);
+			}
+		}
+	}
+	return bRet;
 }
-//! 获取当前语言中指定的 ID 对应的字符串
-const TCHAR * const CLng::GetLang(const Id langId) const
-{
-	if(langId < LNG_BEGIN || langId >= LNG_END)
-		return g_strEmpty;
 
-	IdLngMap::const_iterator lngIter(m_lng.find(langId));
-	if(lngIter != m_lng.end())
-		return lngIter->second.c_str();
+bool Language::ReadLine(FILE *file, TString & strLine) {
+	strLine.clear();
+	wchar_t ch = fgetwc(file);
+	while (ch != WEOF) {
+		strLine += ch;
+
+		if ('\r' == ch) {
+			ch = fgetwc(file);
+			if ('\n' == ch) {
+				strLine += static_cast<TString::value_type>('\n');
+			}
+			else {
+				ungetwc(ch, file);
+			}
+			break;
+		}
+		else if ('\n' == ch) {
+			break;
+		}
+		ch = fgetwc(file);
+	}
+	return !strLine.empty();
+};
+
+bool Language::StripCharsAtEnds(TString & str, const TString & chars)
+{
+	const TString::size_type begin = str.find_first_not_of(chars);
+	if (begin == TString::npos) {
+		str.clear();
+	}
 	else {
-		return m_default.find(langId)->second.c_str();
+		str.erase(0, begin);
+		const TString::size_type end = str.find_last_not_of(chars);
+		assert (end != TString::npos);
+		str.erase(end + 1);
 	}
-}
-
-//主要用这个，GetLang()替换_T(), 就是动态多语言
-const TCHAR * const CLng::GetLang(const TCHAR * const strSrc) const
-{
-	LngIdMap::const_iterator iter = m_index.find(strSrc);
-	if(iter != m_index.end()) {
-		return GetLang(iter->second);
-	}
-	else
-		return strSrc;
-
-}
-
-
-//! 更新界面语言
-bool CLng::SetLngFile(const TCHAR * szFileName, bool bUseDefaultOnFailure)
-{
-	file_ptr fileLng(szFileName, _T("rb"));
-	if(fileLng) {
-		if (_fgettc(fileLng) == 0xfeff) {
-			m_lng = m_default;
-			LanguageFromFile(fileLng);
-			return true;
-		}
-	}
-	if (bUseDefaultOnFailure) {
-		m_lng = m_default;
-	}
-	return false;
-}
-
-
-//!从文件读入界面语言。
-int CLng::LanguageFromFile(FILE *pFile)
-{
-	IdLngMap & lngMap = m_lng;
-	assert(pFile);
-	int nItems = 0;
-	const int nBuf = 1024;//行最大长度
-	TCHAR buf[nBuf] = {0};
-	int i = 0;//偏移，读入的字符个数
-	int iStartOfPath = 0; // 菜单目标路径
-#ifdef UNICODE
-	wint_t ch;
-#else
-	int ch;
-#endif
-
-	while(i < nBuf && (ch = _fgettc(pFile)) != _TEOF)
-	{
-		// 去掉行首的空白
-		if (0 == i)
-			while(_istspace(ch) && ch != '\r' && ch != '\n')
-				ch = _fgettc(pFile);
-
-		buf[i] = (TCHAR)ch;
-		switch (buf[i])
-		{
-		case '=':
-			if (0 == iStartOfPath) {
-				// 去掉 命令行开头的空白符号
-				while((ch = _fgettc(pFile))!=_TEOF && _istspace(ch) && ch != '\r' && ch != '\n') ;
-				_ungettc(ch,pFile);
-
-				buf[i] = '\0';
-				// 去掉 名称后面的空白
-				while(i > 0 && _istspace(buf[--i])) buf[i] = '\0';
-				if (i < 0) {
-					// 本行格式错误跳过
-					while((ch = _fgettc(pFile)) !='\r' && ch != '\n');// 处理换行符类别
-					if ((ch = _fgettc(pFile)) != '\n' && '\r' != ch)
-						_ungettc(ch, pFile);
-					i = 0;
-					break;
-				}
-				else {
-					i += 2;
-					iStartOfPath = i;
-				}
-				break;
-			}
-			// else 当成 行注释 处理，向下
-		case ';':
-			// 分号表示 行注释
-			while((ch = _fgettc(pFile)) !='\r' && ch != '\n'&& ch != (int)_TEOF) ;
-				// 处理换行符类别
-			if ((ch = _fgettc(pFile)) != '\n' && '\r' != ch)
-				_ungettc(ch, pFile);
-			if (i == 0) {
-				iStartOfPath = 0;
-				continue;
-			}
-		case '\n':
-		case '\r':
-			if (('\r' == ch || ch == '\n') && i == 0) {
-				// 空行 跳过
-				if ((ch = _fgettc(pFile)) != '\n' && '\r' != ch)
-					_ungettc(ch, pFile);
-				iStartOfPath = 0;
-				continue;
-			}
-
-			// 处理换行符类别
-			if ((ch = _fgettc(pFile)) != '\n' && '\r' != ch)
-				_ungettc(ch, pFile);
-
-			// 本字符串结束，
-			buf[i] = '\0';
-			while(_istspace(buf[--i]) && buf[i] != '\0')//去掉行末尾空白
-				buf[i] = '\0';
-
-			const TCHAR * pName;
-
-			if(0 < iStartOfPath && *(buf + iStartOfPath)) {
-				//正常
-				pName = buf;
-				while(*pName && _istspace(*pName)) ++pName;
-
-				if(*pName) {
-					Id id = _ttoi(pName);
-					if (id >= LNG_BEGIN && id < LNG_END) {
-						lngMap[id] = buf + iStartOfPath;
-						++nItems;
-					}
-				}
-			}
-			memset(buf, 0, sizeof(buf));
-			i = 0;
-			iStartOfPath = 0;
-			break;
-		default:
-			//普通字符
-			++i; //读入字符到 buf 中
-			break;
-		}
-	}
-	return nItems;
+	return true;
 }

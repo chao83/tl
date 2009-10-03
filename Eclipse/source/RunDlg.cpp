@@ -250,8 +250,8 @@ bool ExpandRelativePaths(tString & src) {
 		bQuote = true;
 	}
 
-	if (strCmd.length() > 1 && strCmd.substr(0,2) == _T(".\\") ||
-		strCmd.length() > 2 && strCmd.substr(0,3) == _T("..\\") )
+	if ( ( strCmd.length() > 1 && strCmd.substr(0,2) == _T(".\\") ) ||
+		( strCmd.length() > 2 && strCmd.substr(0,3) == _T("..\\") ) )
 	{
 		int nBuf = GetFullPathName(strCmd.c_str(),0,0,0);
 		Arr<TCHAR> buf ( new TCHAR[nBuf + 1] );
@@ -386,21 +386,21 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 				TCHAR *path = szInput;
 				memset(path,0,sizeof(TCHAR)*iCmdSize);
 				DWORD dwSize = iCmdSize;
-			#ifdef VCPPCOMPILING
+//			#ifdef VCPPCOMPILING
 				HRESULT hres = AssocQueryString(ASSOCF_OPEN_BYEXENAME,
 								 ASSOCSTR_EXECUTABLE,
 								 strCmd.c_str(),
 								 NULL,
 								 path,
 								 &dwSize);
-			#else
-				HRESULT hres = AssocQueryString(0x00000002,//ASSOCF_OPEN_BYEXENAME,// Windows api and gcc .h file do not match
-								 static_cast<ASSOCSTR>(2),	//static_cast<ASSOCSTR>(2), // Windows api and gcc .h file do not match
-								 strCmd.c_str(),
-								 NULL,
-								 path,
-								 &dwSize);
-			#endif
+//			#else
+//				HRESULT hres = AssocQueryString(0x00000002,//ASSOCF_OPEN_BYEXENAME,// Windows api and gcc .h file do not match
+//								 static_cast<ASSOCSTR>(2),	//static_cast<ASSOCSTR>(2), // Windows api and gcc .h file do not match
+//								 strCmd.c_str(),
+//								 NULL,
+//								 path,
+//								 &dwSize);
+//			#endif
 				if ( (S_OK == hres) || (ShellSuccess(FindExecutable(strCmd.c_str(),NULL,path)) && *path) ) {
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
 					if (!s_hIcon.Get() && dwSize)
@@ -574,7 +574,7 @@ int FindFiles(const tString & strSearch, std::vector<tString> & vStr, unsigned i
 	if (handle != INVALID_HANDLE_VALUE) {
 		std::map<tString, tString> nameName;
 		do {
-			if(f[0] == '.' && f[1] == '\0' || f[0] == '.' && f[1] == '.' && f[2] == '\0')
+			if( ( f[0] == '.' && f[1] == '\0' )|| ( f[0] == '.' && f[1] == '.' && f[2] == '\0') )
 				continue;
 			if((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !(mode & FINDDIR))
 				continue;
