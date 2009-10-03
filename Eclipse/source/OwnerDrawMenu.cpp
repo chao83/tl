@@ -1,5 +1,4 @@
 
-#include "stdafx.h"
 #include "OwnerDrawMenu.h"
 
 //typedef WINGDIAPI BOOL (WINAPI *DCDeteler)(HDC);

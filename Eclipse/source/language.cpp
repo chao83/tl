@@ -1,5 +1,4 @@
 
-#include "stdafx.h"
 #include <auto_pointers.h>
 #include "resource.h"
 #include "SettingFile.h"

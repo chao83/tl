@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "GDIWavePic.h"
 
 CGDIWavePic::CGDIWavePic(HDC hdc, HBITMAP hBitmap, RECT *rc)

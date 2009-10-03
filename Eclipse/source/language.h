@@ -53,7 +53,7 @@ public:
 	void Clear() { m_strMap.clear(); }
 
 	void ClearValues() {
-		for (SSMap::iterator it = m_strMap.begin(); it != m_strMap.end(); ++it) {
+		for (typename SSMap::iterator it = m_strMap.begin(); it != m_strMap.end(); ++it) {
 			it->second.clear();
 		}
 	}
@@ -63,12 +63,12 @@ public:
 	}
 
 	const TString & Get(const TString & strSrc, const bool bIgnoreEmptyResult = true) const {
-		SSMap::const_iterator it(m_strMap.find(strSrc));
+		typename SSMap::const_iterator it(m_strMap.find(strSrc));
 		return (it == m_strMap.end() || (bIgnoreEmptyResult && it->second.empty())) ? strSrc : it->second;
 	}
 
 	const char_type * Get(const char_type * const strSrc, const bool bIgnoreEmptyResult = true) const {
-		SSMap::const_iterator it(m_strMap.find(strSrc));
+		typename SSMap::const_iterator it(m_strMap.find(strSrc));
 		return (it == m_strMap.end() || (bIgnoreEmptyResult && it->second.empty())) ? strSrc : it->second.c_str();
 	}
 
@@ -92,7 +92,7 @@ public:
 	template <unsigned int N>
 	Language(const wchar_t * (&szArr)[N]):m_bApplyFilter(true)	{ LoadDefault(szArr, N); }
 
-	void Reset() { 
+	void Reset() {
 		if (m_bApplyFilter){
 			ClearValues();
 		} else {

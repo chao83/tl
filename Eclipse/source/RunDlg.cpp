@@ -5,7 +5,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 
-#include "stdafx.h"
 #include <commctrl.h>
 #include <shellapi.h>
 #include <shlobj.h>
@@ -386,21 +385,13 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 				TCHAR *path = szInput;
 				memset(path,0,sizeof(TCHAR)*iCmdSize);
 				DWORD dwSize = iCmdSize;
-//			#ifdef VCPPCOMPILING
 				HRESULT hres = AssocQueryString(ASSOCF_OPEN_BYEXENAME,
 								 ASSOCSTR_EXECUTABLE,
 								 strCmd.c_str(),
 								 NULL,
 								 path,
 								 &dwSize);
-//			#else
-//				HRESULT hres = AssocQueryString(0x00000002,//ASSOCF_OPEN_BYEXENAME,// Windows api and gcc .h file do not match
-//								 static_cast<ASSOCSTR>(2),	//static_cast<ASSOCSTR>(2), // Windows api and gcc .h file do not match
-//								 strCmd.c_str(),
-//								 NULL,
-//								 path,
-//								 &dwSize);
-//			#endif
+
 				if ( (S_OK == hres) || (ShellSuccess(FindExecutable(strCmd.c_str(),NULL,path)) && *path) ) {
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
 					if (!s_hIcon.Get() && dwSize)

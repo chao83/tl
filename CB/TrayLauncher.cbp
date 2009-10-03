@@ -64,7 +64,9 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-Winvalid-pch" />
+			<Add option="-include stdafx.h" />
 			<Add directory="..\dll" />
+			<Add directory="..\Eclipse\source" />
 		</Compiler>
 		<ResourceCompiler>
 			<Add directory="..\Eclipse\source\rc" />

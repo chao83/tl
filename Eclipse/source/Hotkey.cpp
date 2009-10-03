@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+
 #include "Hotkey.h"
 #include "FileStrFnc.h"
 

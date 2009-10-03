@@ -1,5 +1,4 @@
 
-#include "stdafx.h"
 #include "WavePic.h"
 
 CWavePic::CWavePic(int w, int h):m_cx(w), m_cy(h), m_x(0), m_y(0),

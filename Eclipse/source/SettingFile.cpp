@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+
 #include <assert.h>
 #include <auto_pointers.h>
 #include "SettingFile.h"
