@@ -751,7 +751,7 @@ ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, 
 		);//
 	hIcon = sfi.hIcon;
 
-	if (!hIcon) {
+	if (!hIcon && strPath.find_first_of(_T(":\\")) == tString::npos) {
 		// 文件路径用的是缩写，如 "notepad"
 		TCHAR path[MAX_PATH] ={0};
 		DWORD dwSize = MAX_PATH;
