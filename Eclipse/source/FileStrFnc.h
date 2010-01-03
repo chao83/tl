@@ -6,12 +6,17 @@
 class CFileStrFnc
 {
 public:
+	//! read a line, \r\n not included
 	static bool GetLine(FILE * file, TSTRING &strLine);
+	//! read a line, \r\n included
+	static bool ReadLine(FILE *file, TSTRING & strLine);
+
 	static inline void WriteStringToFile(const TSTRING & str, FILE * file)
 	{
 		fwrite(str.c_str(), sizeof(TSTRING::value_type), str.length(), file);
 	}
 	static const TSTRING StripSpaces(const TSTRING & str);
+	static bool StripCharsAtEnds(TSTRING & str, const TSTRING & chars);
 
 	//! ×ª»»µ½Ð¡Ð´×ÖÄ¸¡£
 	static TSTRING & ToLowerCase(TSTRING &str);

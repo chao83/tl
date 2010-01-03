@@ -224,7 +224,7 @@ int BuildMenuFromFile(const TCHAR * strFile)
 		nItems = -1; // 打开文件错误
 	}
 	else if (_fgettc(file) != 0xfeff) {
-		MessageBox(NULL, GetLang(_T("The command file is not saved in UNICODE(LE)! Please save it in UNICODE.")),NULL,MB_OK);
+		MessageBox(NULL, _LNG("The command file is not saved in UNICODE(LE)! Please save it in UNICODE."),NULL,MB_OK);
 	}
 	else {
 		file.Reset();
@@ -234,29 +234,29 @@ int BuildMenuFromFile(const TCHAR * strFile)
 	return nItems;
 }
 
-void SetLanguage(const TSTRING & lngFile)
+void SetLanguage(const TSTRING & strFNLng)
 {
 	bool bDefault = true;
-	if (!SetLanguageFile(lngFile.c_str())) {
+	if (!SetLanguageFile(strFNLng.c_str())) {
 		Settings().Set(sectionGeneral, keyLanguage, _T(""),true);
 	}
 	else {
-		Settings().Set(sectionGeneral, keyLanguage, lngFile,true);
-		bDefault = false;
+		Settings().Set(sectionGeneral, keyLanguage, strFNLng, true);
+		bDefault = strFNLng.empty();
 	}
 
-	g_pSysTray->SetNameByPos(SKIN_MENU_POS,GetLang(_T("Select &Skin")));
-	g_pSysTray->SetNameByPos(LNG_MENU_POS,GetLang(_T("&Language")));
+	g_pSysTray->SetNameByPos(SKIN_MENU_POS,_LNG("Select &Skin"));
+	g_pSysTray->SetNameByPos(LNG_MENU_POS,_LNG("&Language"));
 
-	g_pSysTray->SetName(EDITCMDS,GetLang(_T("&Edit Command")));
-	g_pSysTray->SetName(RUNDLG,TSTRING(GetLang(_T("Run"))) + ( bDefault ? _T(" ...  Ctrl+LWin") : _T(" ...") ) );
-	g_pSysTray->SetName(MCLICK,GetLang(_T("Use Mid Click")));
-	g_pSysTray->SetName(AUTOSTART,GetLang(_T("Start With &Windows")));
-	g_pSysTray->SetName(RELOAD,GetLang(_T("&Refresh")));
-	g_pSysTray->SetName(ABOUT,GetLang(_T("&About")));
-	g_pSysTray->SetName(EXIT,GetLang(_T("E&xit")));
-	g_pSysTray->SetName(LNGIDSTART, GetLang(_T("Internal")));
-	g_pSysTray->SetName(SKINIDSTART, GetLang(_T("Internal")));
+	g_pSysTray->SetName(EDITCMDS,_LNG("&Edit Command"));
+	g_pSysTray->SetName(RUNDLG,TSTRING(_LNG("Run")) + ( bDefault ? _T(" ...  Ctrl+LWin") : _T(" ...") ) );
+	g_pSysTray->SetName(MCLICK,_LNG("Use Mid Click"));
+	g_pSysTray->SetName(AUTOSTART,_LNG("Start With &Windows"));
+	g_pSysTray->SetName(RELOAD,_LNG("&Refresh"));
+	g_pSysTray->SetName(ABOUT,_LNG("&About"));
+	g_pSysTray->SetName(EXIT,_LNG("E&xit"));
+	g_pSysTray->SetName(LNGIDSTART, _LNG("Internal"));
+	g_pSysTray->SetName(SKINIDSTART, _LNG("Internal"));
 	g_pSysTray->UpdateRoot();
 
 	HMENU hLngMenu = GetSubMenu(g_pSysTray->Menu(), LNG_MENU_POS);
@@ -265,9 +265,9 @@ void SetLanguage(const TSTRING & lngFile)
 		for (unsigned int i = 0; i < count; ++i) {
 			CheckMenuItem( hLngMenu, i, MF_BYPOSITION | MF_UNCHECKED);
 		}
-		if ( ! lngFile.empty()) {
+		if ( ! strFNLng.empty()) {
 			for (unsigned int i = 1; i < count; ++i) {
-				if (lngFile == g_pSysTray->Name(GetMenuItemID(hLngMenu, i))) {
+				if (strFNLng == g_pSysTray->Name(GetMenuItemID(hLngMenu, i))) {
 					CheckMenuItem( hLngMenu, i, MF_BYPOSITION | MF_CHECKED);
 					return;
 				}
@@ -458,7 +458,7 @@ void UpdateMenu(const bool bForce = false) {
 	}
 
 	if (bBuild) {
-			Systray(g_hWnd, NIM_MODIFY, GTrayIcon().Get(), GetLang(_T("Refreshing...")));
+			Systray(g_hWnd, NIM_MODIFY, GTrayIcon().Get(), _LNG("Refreshing..."));
 			BuildMenuFromFile(g_fileName.c_str());
 			Systray(g_hWnd, NIM_MODIFY, GTrayIcon().Get());
 	}
@@ -540,7 +540,7 @@ int MyProcessCommand(HWND hWnd, int id)
 
 			break;
 		case EXIT:
-			IgnoreUser() = (IDYES == MessageBox(NULL, GetLang(_T("Exit Tray Launcher ?")),GetLang(_T("Confirm:")),MB_YESNO | MB_TOPMOST));//true;
+			IgnoreUser() = (IDYES == MessageBox(NULL, _LNG("Exit Tray Launcher ?"), _LNG("Confirm:"),MB_YESNO | MB_TOPMOST));//true;
 			if (IgnoreUser()) {
 				if (GHdlgRun()) {
 					DestroyWindow(GHdlgRun());
@@ -555,7 +555,7 @@ int MyProcessCommand(HWND hWnd, int id)
 				//执行命令失败
 				if(ShellSuccess(ShellExecute(NULL,_T("open"),_T("notepad.exe"),g_fileName.c_str(),NULL,SW_SHOW)))
 					 break;
-				 MessageBox(NULL,GetLang(_T("Can not open or create the command file!")),NULL,MB_ICONERROR);
+				 MessageBox(NULL,_LNG("Can not open or create the command file!"),NULL,MB_ICONERROR);
 			}
 			break;
 		case RELOAD:
@@ -588,11 +588,11 @@ int MyProcessCommand(HWND hWnd, int id)
 			//
 			if ( SwitchHook(true, !SwitchHook() ) ) {
 				CheckMenuItem(g_pSysTray->Menu(),MCLICK,MF_BYCOMMAND | MF_CHECKED);
-				Settings().Set(sectionGeneral, keyMClick, _T("1"));
+				Settings().Set(sectionGeneral, keyMClick, _T("1"), true);
 			}
 			else {
 				CheckMenuItem(g_pSysTray->Menu(),MCLICK,MF_BYCOMMAND | MF_UNCHECKED);
-				Settings().Set(sectionGeneral, keyMClick, _T("0"));
+				Settings().Set(sectionGeneral, keyMClick, _T("0"), true);
 			}
 			break;
 		case SKINIDSTART:
@@ -686,7 +686,7 @@ LRESULT  MsgEndSession(HWND, UINT, WPARAM wParam, LPARAM) // WM_ENDSESSION
 LRESULT  MsgDeviceChange(HWND hWnd, UINT, WPARAM wParam, LPARAM lParam) // WM_DEVICECHANGE
 {
 	PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR)lParam;
-	switch (wParam) 
+	switch (wParam)
 	{
 	case DBT_DEVICEARRIVAL:
 	case DBT_DEVICEREMOVECOMPLETE :
@@ -775,20 +775,20 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 
 	g_pSysTray = new COwnerDrawMenu(hIconCheck);
 	g_pSysTray->UseActualIconSize(true);
-	g_pSysTray->Insert(EDITCMDS,GetLang(_T("&Edit Command")));
-	g_pSysTray->Insert(RELOAD,GetLang(_T("&Refresh")));
-	g_pSysTray->Insert(MCLICK,GetLang(_T("Use Mid Click")));
-	g_pSysTray->Insert(AUTOSTART,GetLang(_T("Start With &Windows")));
+	g_pSysTray->Insert(EDITCMDS,_LNG("&Edit Command"));
+	g_pSysTray->Insert(RELOAD,_LNG("&Refresh"));
+	g_pSysTray->Insert(MCLICK,_LNG("Use Mid Click"));
+	g_pSysTray->Insert(AUTOSTART,_LNG("Start With &Windows"));
 	g_pSysTray->InsertSep();
-	g_pSysTray->Insert(RUNDLG,(TSTRING(GetLang(_T("Run"))) + _T("\t  Ctrl+Win")).c_str());
-	g_pSysTray->Insert(ABOUT,GetLang(_T("&About")));
-	g_pSysTray->Insert(EXIT,GetLang(_T("E&xit")));
+	g_pSysTray->Insert(RUNDLG,(TSTRING(_LNG("Run")) + _T("\t  Ctrl+Win")).c_str());
+	g_pSysTray->Insert(ABOUT,_LNG("&About"));
+	g_pSysTray->Insert(EXIT,_LNG("E&xit"));
 	//*
 
 	//构造skin选项
 	HMENU hSkinMenu = CreatePopupMenu();
 	if (IsMenu(hSkinMenu) ) {
-		InsertMenu(hSkinMenu, static_cast<UINT>(-1), MF_BYPOSITION | MF_STRING, SKINIDSTART, GetLang(_T("Internal")));
+		InsertMenu(hSkinMenu, static_cast<UINT>(-1), MF_BYPOSITION | MF_STRING, SKINIDSTART, _LNG("Internal"));
 
 		WIN32_FIND_DATA fd = {0};
 		HANDLE handle = INVALID_HANDLE_VALUE;
@@ -831,14 +831,14 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 				InsertMenu(hSkinMenu,static_cast<UINT>(-1), MF_BYPOSITION | MF_STRING, id, itName->second.c_str());
 			}
 		}
-		g_pSysTray->Insert(hSkinMenu, GetLang(_T("Select &Skin")), SKIN_MENU_POS,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_SKIN),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
+		g_pSysTray->Insert(hSkinMenu, _LNG("Select &Skin"), SKIN_MENU_POS,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_SKIN),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
 	}
 
 
 	//构造language
 	HMENU hLngMenu = CreatePopupMenu();
 	if (IsMenu(hLngMenu) ) {
-		InsertMenu(hLngMenu, static_cast<UINT>(-1), MF_BYPOSITION | MF_STRING, LNGIDSTART, GetLang(_T("Internal")));
+		InsertMenu(hLngMenu, static_cast<UINT>(-1), MF_BYPOSITION | MF_STRING, LNGIDSTART, _LNG("Internal"));
 
 		WIN32_FIND_DATA fd = {0};
 		HANDLE handle = INVALID_HANDLE_VALUE;
@@ -878,16 +878,16 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 			for (itName = nameName.begin(); itName != nameName.end() && ++id < LNGIDEND; ++itName) {
 				InsertMenu(hLngMenu,static_cast<UINT>(-1), MF_BYPOSITION | MF_STRING, id, itName->second.c_str());
 			}
-			//g_pSysTray->Insert(hLngMenu, GetLang(_T("&Language")), 4,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_LNG),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
+			//g_pSysTray->Insert(hLngMenu, _LNG("&Language"), 4,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_LNG),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
 		}
-		g_pSysTray->Insert(hLngMenu, GetLang(_T("&Language")), LNG_MENU_POS,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_LNG),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
+		g_pSysTray->Insert(hLngMenu, _LNG("&Language"), LNG_MENU_POS,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_LNG),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
 
 	}
 //#ifdef _DEBUG
-//		InsertMenu(hOptionMenu, 0, MF_BYPOSITION | MF_STRING, OPTION, GetLang(_T("Settings")));
+//		InsertMenu(hOptionMenu, 0, MF_BYPOSITION | MF_STRING, OPTION, _LNG("Settings"));
 //#endif
 
-		//g_pSysTray->Insert(hOptionMenu, GetLang(_T("Option")), 3,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_OPTION),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
+		//g_pSysTray->Insert(hOptionMenu, _LNG("Option"), 3,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_OPTION),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
 
 //#ifdef _DEBUG
 //		g_pSysTray->AddStaticIcon(OPTION,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_OPTION),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
@@ -900,7 +900,7 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 		(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_CLOSE),IMAGE_ICON,16,16,LR_DEFAULTCOLOR),
 		(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_OPEN),IMAGE_ICON,16,16,LR_DEFAULTCOLOR),
 		(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_UNKNOWN),IMAGE_ICON,16,16,LR_DEFAULTCOLOR),
-		GetLang(_T("Empty")));
+		_LNG("Empty"));
 
 //	SetMenuIcons();
 	// set skin

@@ -59,7 +59,7 @@ void MustBeFirstInstance(const TCHAR * pTitle = NULL)
 			SetForegroundWindow(hPre);
 		}
 		else {
-			MessageBox(NULL,GetLang(_T("Only One Instance Can Run.")),pTitle,MB_ICONERROR);
+			MessageBox(NULL, _LNG("Only One Instance Can Run."), pTitle, MB_ICONERROR);
 		}
 		exit(0);
 	}

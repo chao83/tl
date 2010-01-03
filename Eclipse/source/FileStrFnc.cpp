@@ -37,6 +37,31 @@ bool CFileStrFnc::GetLine(FILE * file, TSTRING &strLine)
 }
 
 
+bool CFileStrFnc::ReadLine(FILE *file, TSTRING & strLine) {
+	strLine.clear();
+	wchar_t ch = fgetwc(file);
+	while (ch != WEOF) {
+		strLine += ch;
+
+		if ('\r' == ch) {
+			ch = fgetwc(file);
+			if ('\n' == ch) {
+				strLine += static_cast<TString::value_type>('\n');
+			}
+			else {
+				ungetwc(ch, file);
+			}
+			break;
+		}
+		else if ('\n' == ch) {
+			break;
+		}
+		ch = fgetwc(file);
+	}
+	return !strLine.empty();
+};
+
+
 TSTRING & CFileStrFnc::ToLowerCase(TSTRING &str)
 {
 	TSTRING::size_type size = str.length();
@@ -59,6 +84,23 @@ const TSTRING CFileStrFnc::StripSpaces(const TSTRING & inStr)
 	}
 	return inStr.substr(iStart, iEnd - iStart);
 }
+
+
+bool CFileStrFnc::StripCharsAtEnds(TSTRING & str, const TSTRING & chars)
+{
+	const TSTRING::size_type begin = str.find_first_not_of(chars);
+	if (begin == TString::npos) {
+		str.clear();
+	}
+	else {
+		str.erase(0, begin);
+		const TSTRING::size_type end = str.find_last_not_of(chars);
+		assert (end != TString::npos);
+		str.erase(end + 1);
+	}
+	return true;
+}
+
 
 bool CFileStrFnc::GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILETIME *pSTAccess,  FILETIME *pSTWrite) {
 	bool r = false;

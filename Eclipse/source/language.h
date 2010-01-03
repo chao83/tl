@@ -84,9 +84,6 @@ private:
 class Language : private StringMap<std::wstring>
 {
 	typedef std::wstring TString;
-	static bool ReadLine(FILE *file, TString & strLine);
-	static bool StripCharsAtEnds(TString & str, const TString & chars);
-
 public:
 	Language(void):m_bApplyFilter(false) {}
 	template <unsigned int N>
@@ -123,5 +120,7 @@ private:
 
 };
 
+#undef _LNG
+#define _LNG(str) GetLang(L ## str)
 
 #endif //TRAYSTARTLANGUAGEHEADER

@@ -25,7 +25,7 @@ std::vector<TSTRING> & StrHis()
 	return vStrHis;
 };
 
-////! 判断字符串是否以 给定的字符串结尾。
+//! 判断字符串是否以 给定的字符串结尾。
 bool (*StrEndWith)(const TSTRING &, const TSTRING &, bool) ( CMenuWithIcon::IsStrEndWith );
 
 //! 按照指定的字符(ch)分割输入字符串(inStr)，输出到指定向量(vStr). 空字符串也有效。
@@ -68,7 +68,7 @@ int QuoteString(TSTRING &str, const TSTRING::value_type ch = '\"', bool bProcess
 	return 1;
 }
 
-// Write history list to setting file
+//! Write history list to setting file
 void UpdateHistoryRecordsInFile()
 {
 	Settings().AddSection(sectionHistory);
@@ -126,6 +126,7 @@ void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& 
 	TSTRING strCmdParam(const_strCmdParam);
 	strCmd = g_strEmpty;
 	strParam = g_strEmpty;
+
 	//去掉引导空白
 	if (strCmdParam.length() && (_istspace(*strCmdParam.begin()) || _istspace(*strCmdParam.rbegin()) )) {
 		strCmdParam = CFileStrFnc::StripSpaces(strCmdParam);
@@ -169,7 +170,7 @@ void SetHint(HWND hDlg, ICONTYPE hIcon, const TCHAR *pHint)
 	SetDlgItemText(hDlg, IDC_EDT_PATH, pHint);
 }
 
-
+//! 根据后缀名判断文件是否为可执行文件.
 bool IsPathExe(const TSTRING & path) {
 
 	return  StrEndWith(path,_T(".exe"),false) ||
@@ -182,7 +183,7 @@ bool IsPathExe(const TSTRING & path) {
 }
 
 
-
+//! 在注册表HKLM中指定的子键中搜索可执行文件
 bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 						const TSTRING & inStrSubKey,
 						const TCHAR * pItemName,
@@ -238,7 +239,7 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 	return bKeyFound;
 }
 
-// 展开相对路径
+//! 展开相对路径
 bool ExpandRelativePaths(tString & src) {
 
 	bool bExpanded = false;
@@ -472,6 +473,7 @@ bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL)
 	return ShellSuccess(ShellExecute(NULL,pOpr,strCmd.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
 }
 
+//! 运行命令行
 bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, HWND hwnd = NULL)
 {
 	TSTRING strCmd,strParam;
@@ -576,7 +578,6 @@ int FindFiles(const tString & strSearch, std::vector<tString> & vStr, unsigned i
 				continue;
 
 			// 忽略大小写, 排序
-
 			TSTRING strNameLower(f);
 			const TSTRING::size_type len = strNameLower.length();
 			for (TSTRING::size_type i = 0; i < len; ++i) {
@@ -594,6 +595,7 @@ int FindFiles(const tString & strSearch, std::vector<tString> & vStr, unsigned i
 	}
 	return iFound;
 }
+
 //! 根据用户输入来搜索可能的命令，以及路径下的文件
 
 //! \param vStr : vector<tString>, 结果追加到这里
@@ -637,7 +639,7 @@ int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr, bool 
 	return iFound;
 }
 
-// 不区分大小写，比较字符串相等
+//! 不区分大小写，比较字符串相等
 bool EqualNoCase(const tString & s1, const tString & s2) {
 	return (s1.length() == s2.length() && StrEndWith(s1,s2, false) );
 }
@@ -686,9 +688,9 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			strUserInput = g_strEmpty;
 			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETMINVISIBLE,10,0);
 			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_LIMITTEXT, 512,0); // 限制输入长度
-			SetWindowText(hDlg,GetLang(_T("Run")));
+			SetWindowText(hDlg, _LNG("Run"));
 			SetDlgItemText(hDlg, IDC_CBORUN, szCommand);
-			SetDlgItemText(hDlg, IDC_BTNRUN, GetLang(_T("Run")));
+			SetDlgItemText(hDlg, IDC_BTNRUN, _LNG("Run"));
 			UpdateHint(hDlg,s_hIcon,s_hIconDefault);
 			SetWindowPos(hDlg,HWND_TOPMOST,xPos,yPos,0,0,SWP_NOSIZE);
 
@@ -798,7 +800,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						bSuccessShell = bSuccessShell || Execute(szCommand);
 						if (!bSuccessShell) {
 							//执行命令失败
-							MessageBox(hDlg,szCommand,GetLang(_T("Failed To Execute:")),MB_ICONERROR);
+							MessageBox(hDlg,szCommand, _LNG("Failed To Execute:"),MB_ICONERROR);
 							ShowWindow(hDlg, SW_SHOW); //运行失败， 重新显示窗口
 							SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
 							SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
@@ -1005,8 +1007,8 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					if (!bSuccessShell) {
 						//执行命令失败
-						MessageBox(hDlg,szCommand,GetLang(_T("Failed To Execute:")),MB_ICONERROR);
-						SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
+						MessageBox(hDlg,szCommand, _LNG("Failed To Execute:"), MB_ICONERROR);
+						SendMessage(GetDlgItem(hDlg, IDC_CBORUN), CB_SETEDITSEL, 0, MAKELONG(0,-1));
 						SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
 						return TRUE;
 					}
@@ -1031,8 +1033,6 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	lastW = wParam;
 	lastL = lParam;
 #endif
-
-
 	return FALSE;
 }
 

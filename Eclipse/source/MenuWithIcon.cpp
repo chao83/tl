@@ -469,7 +469,7 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 		if( ForceCast<int, HINSTANCE>(ShellExecute(NULL, NULL, pCmd, Param(nSysID), strWorkPath.c_str(), SW_SHOW)) <= SHELL_MAX_ERROR_VALUE) {
 			//Ö´ÐÐÃüÁîÊ§°Ü
 			EnableMenuItem(Menu(),nSysID,MF_BYCOMMAND | MF_GRAYED);
-			MessageBox(NULL, Cmd(nSysID), GetLang(_T("Failed:")), MB_ICONERROR);
+			MessageBox(NULL, Cmd(nSysID), _LNG("Failed:"), MB_ICONERROR);
 			result = false;
 		}
 	}

@@ -73,37 +73,7 @@ void CSettingFile::Clear()
 	m_Settings.push_back(Section());
 }
 
-/*
-//!从文件读取一行。
 
-//! \param file FILE *文件指针，输出。
-//! \param strLine TSTRING 类型 保存结果。
-//! \return 读到文件末尾返回false； 否则返回 true 。
-const bool CSettingFile::GetLine(FILE * file, TSTRING &strLine)
-{
-
-	#ifdef UNICODE
-		wint_t ch(0);
-	#else
-		int ch(0);
-	#endif
-	strLine = _T("");
-
-	ch = _fgettc(file);
-
-	while (ch != _TEOF && ch != '\r' && ch != '\n') {
-		strLine += ch;
-		ch = _fgettc(file);
-	}
-	if ('\r' == ch) {
-		ch = _fgettc(file);
-		if (ch != '\n' && ch != _TEOF)
-			_ungettc(ch, file);
-	}
-
-	return (ch != _TEOF);
-}
-//*/
 
 //! 从文件读入设置
 const bool CSettingFile::Read()
@@ -278,25 +248,4 @@ bool CSettingFile::DisCard()
 	return Read();
 }
 
-/*
-void CSettingFile::WriteStringToFile(const TSTRING & str, FILE * file)
-{
-	fwrite(str.c_str(), sizeof(TSTRING::value_type), str.length(), file);
-}
-
-
-//! 去掉字符串 首尾 的空白。
-const TSTRING CSettingFile::StripSpaces(const TSTRING & inStr)
-{
-	TSTRING::size_type iStart(0);
-	TSTRING::size_type iEnd(inStr.size());
-	while (iStart < iEnd && _istspace(inStr[iStart])) {
-		++iStart;
-	}
-	while (iStart < iEnd && _istspace(inStr[iEnd - 1])){
-		--iEnd;
-	}
-	return inStr.substr(iStart, iEnd - iStart);
-}
-// */
 

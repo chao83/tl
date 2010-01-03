@@ -27,7 +27,7 @@ public:
 	int GetSection(const TSTRING & strSection, std::vector<TSTRING> & vStrKey, std::vector<TSTRING> & vStrValue);
 	int TryGet(const TSTRING & strIndex, std::vector<TSTRING> & vStr);
 	bool Get(const TSTRING & strSection, const TSTRING & strIndex, TSTRING & strDst);
-	bool Set(const TSTRING & strSection, const TSTRING & strIndex, const TSTRING & strSrc, bool bCreate = false);
+	bool Set(const TSTRING & strSection, const TSTRING & strIndex, const TSTRING & strSrc, bool bCreate = true);
 	bool AddSection(const TSTRING & strSection);	//Ìí¼Ó Section
 	bool ClearSection(const TSTRING & strSection);
 	bool Save();
