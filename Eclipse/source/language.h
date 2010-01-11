@@ -17,6 +17,7 @@ bool SetLanguageFile(const TCHAR * );
 // SettingFile¡¡¹Ø¼ü×Ö
 typedef const TCHAR *const CSTR;
 CSTR sectionGeneral = _T("general");
+CSTR keyConformExit = _T("conformexit");
 CSTR keyCommand = _T("command");
 CSTR keyRunIcon = _T("runicon");
 CSTR keyTrayIcon = _T("trayicon");
@@ -58,9 +59,7 @@ public:
 		}
 	}
 
-	bool Find(const TString & strSrc) const {
-		return m_strMap.find(strSrc) != m_strMap.end();
-	}
+	bool Find(const TString & strSrc) const { return m_strMap.find(strSrc) != m_strMap.end(); }
 
 	const TString & Get(const TString & strSrc, const bool bIgnoreEmptyResult = true) const {
 		typename SSMap::const_iterator it(m_strMap.find(strSrc));
@@ -87,7 +86,7 @@ class Language : private StringMap<std::wstring>
 public:
 	Language(void):m_bApplyFilter(false) {}
 	template <unsigned int N>
-	Language(const wchar_t * (&szArr)[N]):m_bApplyFilter(true)	{ LoadDefault(szArr, N); }
+	Language(const wchar_t * (&szArr)[N]):m_bApplyFilter(true)	{ LoadArray(szArr); }
 
 	void Reset() {
 		if (m_bApplyFilter){
@@ -103,15 +102,12 @@ public:
 	const wchar_t * GetCStr(const wchar_t * const szIndex) {
 		return Get(szIndex);
 	}
+	template <unsigned int N>
+	unsigned int LoadArray(const wchar_t * (&szArr)[N]) { return LoadDefault(szArr, N); }
 
 private:
-	unsigned int LoadDefault(const wchar_t **strArray, const unsigned int N) {
-		Reset();
-		for (unsigned int i = 0; i < N; ++i) {
-			Set(strArray[i], strArray[i]);
-		}
-		return Size();
-	}
+	unsigned int LoadDefault(const wchar_t **strArray, const unsigned int N);
+	
 	const bool m_bApplyFilter;
 
 	// non-copyable

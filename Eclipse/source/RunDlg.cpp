@@ -688,9 +688,9 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			strUserInput = g_strEmpty;
 			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETMINVISIBLE,10,0);
 			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_LIMITTEXT, 512,0); // 限制输入长度
-			SetWindowText(hDlg, _LNG("Run"));
+			SetWindowText(hDlg, _LNG("MENU_Run"));
 			SetDlgItemText(hDlg, IDC_CBORUN, szCommand);
-			SetDlgItemText(hDlg, IDC_BTNRUN, _LNG("Run"));
+			SetDlgItemText(hDlg, IDC_BTNRUN, _LNG("MENU_Run"));
 			UpdateHint(hDlg,s_hIcon,s_hIconDefault);
 			SetWindowPos(hDlg,HWND_TOPMOST,xPos,yPos,0,0,SWP_NOSIZE);
 
