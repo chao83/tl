@@ -59,7 +59,7 @@ void MustBeFirstInstance(const TCHAR * pTitle = NULL)
 			SetForegroundWindow(hPre);
 		}
 		else {
-			MessageBox(NULL, _LNG("STR_Single_Instance_Only"), pTitle, MB_ICONERROR);
+			MessageBox(NULL, _LNG(STR_Single_Instance_Only), pTitle, MB_ICONERROR);
 		}
 		exit(0);
 	}

@@ -688,9 +688,9 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			strUserInput = g_strEmpty;
 			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETMINVISIBLE,10,0);
 			SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_LIMITTEXT, 512,0); // 限制输入长度
-			SetWindowText(hDlg, _LNG("MENU_Run"));
+			SetWindowText(hDlg, _LNG(MENU_Run));
 			SetDlgItemText(hDlg, IDC_CBORUN, szCommand);
-			SetDlgItemText(hDlg, IDC_BTNRUN, _LNG("MENU_Run"));
+			SetDlgItemText(hDlg, IDC_BTNRUN, _LNG(MENU_Run));
 			UpdateHint(hDlg,s_hIcon,s_hIconDefault);
 			SetWindowPos(hDlg,HWND_TOPMOST,xPos,yPos,0,0,SWP_NOSIZE);
 
@@ -800,7 +800,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						bSuccessShell = bSuccessShell || Execute(szCommand);
 						if (!bSuccessShell) {
 							//执行命令失败
-							MessageBox(hDlg,szCommand, _LNG("Failed To Execute:"),MB_ICONERROR);
+							MessageBox(hDlg,szCommand, _LNG(Failed To Execute:),MB_ICONERROR);
 							ShowWindow(hDlg, SW_SHOW); //运行失败， 重新显示窗口
 							SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
 							SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
@@ -1007,7 +1007,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					if (!bSuccessShell) {
 						//执行命令失败
-						MessageBox(hDlg,szCommand, _LNG("Failed To Execute:"), MB_ICONERROR);
+						MessageBox(hDlg,szCommand, _LNG(Failed To Execute:), MB_ICONERROR);
 						SendMessage(GetDlgItem(hDlg, IDC_CBORUN), CB_SETEDITSEL, 0, MAKELONG(0,-1));
 						SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
 						return TRUE;
