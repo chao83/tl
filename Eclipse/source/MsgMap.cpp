@@ -81,6 +81,14 @@ const UINT ID_TASKBARICON = 10;
 const UINT UM_ICONNOTIFY = WM_USER + 1;
 
 
+const TSTRING GetLngName(const TSTRING & strFileName);
+const TSTRING GetLngMenuStr(const TSTRING & strFileName)
+{
+	if (strFileName.empty())
+		return strFileName;
+	return GetLngName(strFileName) + _T(" @ ") + strFileName;
+}
+
 TSTRING g_fileName = TEXT(".\\TLCmd.txt");
 
 icon_ptr & GTrayIcon()
@@ -266,8 +274,10 @@ void SetLanguage(const TSTRING & strFNLng)
 			CheckMenuItem( hLngMenu, i, MF_BYPOSITION | MF_UNCHECKED);
 		}
 		if ( ! strFNLng.empty()) {
+			TSTRING strLngName (GetLngMenuStr(strFNLng));
+
 			for (unsigned int i = 1; i < count; ++i) {
-				if (strFNLng == g_pSysTray->Name(GetMenuItemID(hLngMenu, i))) {
+				if (strLngName == g_pSysTray->Name(GetMenuItemID(hLngMenu, i))) {
 					CheckMenuItem( hLngMenu, i, MF_BYPOSITION | MF_CHECKED);
 					return;
 				}
@@ -519,6 +529,8 @@ void ShowAbout()
 	DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, About);
 }
 
+static std::map<int, TSTRING> s_id2LngFN;
+
 int MyProcessCommand(HWND hWnd, int id)
 {
 	if(IgnoreUser() || id >= MENUID_START || id < CMDID_START)
@@ -617,7 +629,9 @@ int MyProcessCommand(HWND hWnd, int id)
 					SetMenuSkin(pSkinDir);
 			}
 			else if (id > LNGIDSTART && id < LNGIDEND) {
-				const TCHAR * pLngFile = g_pSysTray->Name(id);
+				assert(s_id2LngFN.find(id) != s_id2LngFN.end());
+				const TCHAR * //pLngFile = g_pSysTray->Name(id);
+				pLngFile = s_id2LngFN[id].c_str();
 				if (pLngFile && *pLngFile)
 					SetLanguage(pLngFile);
 			}
@@ -885,7 +899,11 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 			int id = LNGIDSTART;
 			std::map<TSTRING,TSTRING>::iterator itStr,itName;
 			for (itName = nameName.begin(); itName != nameName.end() && ++id < LNGIDEND; ++itName) {
-				InsertMenu(hLngMenu,static_cast<UINT>(-1), MF_BYPOSITION | MF_STRING, id, itName->second.c_str());
+				s_id2LngFN[id] = itName->second;
+
+				TSTRING strLngName(GetLngMenuStr(itName->second));
+				const TCHAR *sz = strLngName.c_str();
+				InsertMenu(hLngMenu,static_cast<UINT>(-1), MF_BYPOSITION | MF_STRING, id, sz);//itName->second.c_str());
 			}
 			//g_pSysTray->Insert(hLngMenu, _LNG(MENU_Language), 4,(ICONTYPE)LoadImage(ThisHinstGet(), MAKEINTRESOURCE(IDI_LNG),IMAGE_ICON,0,0,LR_DEFAULTCOLOR));
 		}

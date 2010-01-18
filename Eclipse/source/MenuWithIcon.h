@@ -57,7 +57,7 @@ public:
 	void DestroyDynamic(void);
 	int BuildDynamic(MENUTYPE hSubMenu);
 	bool & ShowHidden() {return m_bShowHidden;};
-	
+
 	int LoadMenuFromFile(const tString & strFileName, UINT uStartID);
 	//int BuildMenu(FILE *pFile,UINT uStartID);
 
@@ -66,7 +66,7 @@ public:
 
 private:
 	int Reset(void);
-	CMenuWithIcon(const CMenuWithIcon &){};
+	CMenuWithIcon(const CMenuWithIcon &);
 
 	static TSTRING & DoubleChar(TSTRING & str, const TSTRING::value_type ch);
 	static TSTRING & ToLowerCase(TSTRING &str);

@@ -874,7 +874,7 @@ LRESULT COwnerDrawMenu::MenuChar_impl(MENUTYPE hMenu,TCHAR ch)
 			vFound.push_back(i);
 	}
 
-	if (0 == vFound.size())
+	if (vFound.empty())
 		return MAKELRESULT(0,MNC_IGNORE);
 	else if (1 == vFound.size() && !(GetKeyState(VK_SHIFT)&0x8000) )
 		return MAKELRESULT(vFound.front(),MNC_EXECUTE);

@@ -29,9 +29,9 @@ public:
 	// SetFilter(const StringType & vStr);
 
 	void Clear() { m_ssmap.clear(); }
-	
+
 	bool SetLngFile(const StringType & strFileName, const StringType & strSeparator = _T("==>"), const StringType & strLineComment = _T(";"));
-	
+
 	const StringType &GetStr(const StringType & strIndex) {
 		SSMap::const_iterator pos = m_ssmap.find(strIndex);
 		if (pos != m_ssmap.end()) {
@@ -49,12 +49,12 @@ public:
 	}
 
 	unsigned int LoadArray(const CharType **strArray, const unsigned int N);
-	
+
 	template <unsigned int N>
 	unsigned int LoadArray(const CharType * (&szArr)[N]) { return LoadArray(szArr, N); }
 
 private:
-	
+
 	SSMap m_ssmap;
 
 	// non-copyable
@@ -108,7 +108,10 @@ bool Language::SetLngFile(const StringType & strFileName, const StringType & str
 	return true;
 }
 
+//// end of Language class
 
+
+// default language : English
 const TCHAR * g_strEnglishLngArray[] = {
 	//英文界面 English Interface
 	_T("MENU_Exit"),							_T("E&xit"),
@@ -119,11 +122,11 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("MENU_Select_Skin"),						_T("Select &Skin"),
 	_T("MENU_Internal"),						_T("Internal"),
 	_T("MENU_Language"),						_T("&Language"),
-	_T("MENU_Option"),							_T("Option"),
-	_T("MENU_Use_MClick"),						_T("Use Mid Click"),
-	_T("MENU_Run"),								_T("Run"),
+	_T("MENU_Option"),							_T("&Option"),
+	_T("MENU_Use_MClick"),						_T("Use &Mid Click"),
+	_T("MENU_Run"),								_T("&Run"),
 
-
+	_T("STR_Run"),								_T("Run"),
 	_T("STR_Failed"),							_T("Failed:"),
 	_T("STR_Exit_Ask"),							_T("Exit Tray Launcher ?"),
 	_T("STR_Confirm"),							_T("Confirm:"),
@@ -166,15 +169,53 @@ const TCHAR * GetLang(const TCHAR * strSrc)
 
 bool SetLanguageFile(const TCHAR * szFileName)
 {
-	// 先初始化为默认值
+	// first, reset to default.
 	MainLng().LoadArray(g_strEnglishLngArray);
 
 	if (!szFileName || !*szFileName) {
 		return true;
 	}
 	TSTRING strFile(szFileName);
-	if(!file_ptr(strFile.c_str(), TEXT("rb")) && strFile.find('\\') == strFile.npos) {
+	if(!file_ptr(strFile.c_str(), _T("rb")) && strFile.find('\\') == strFile.npos) {
 		strFile = _T(".\\Lng\\") + strFile;
 	}
 	return MainLng().SetLngFile(strFile.c_str());
+}
+
+const TSTRING GetLngName(const TSTRING & strFileName)
+{
+	TSTRING strLngName; // return it
+
+	TSTRING strFile(strFileName);
+	if(!file_ptr(strFile.c_str(), _T("rb")) && strFile.find('\\') == strFile.npos) {
+		strFile = _T(".\\Lng\\") + strFile;
+	}
+
+	file_ptr file(_wfopen(strFile.c_str(), L"rb"));
+
+	// check unicode le file
+	if (!file || fgetwc(file) != 0xfeff) {
+		return strLngName;
+	}
+
+	const TSTRING strSpaceChars(L" \t\r\n");
+	const TSTRING strKey(L";Language");
+	const TSTRING strSeparator(L":");
+	TSTRING strLine;
+	while (CFileStrFnc::GetLine(file, strLine)) {
+		// analyze this line
+		TSTRING::size_type pos = strLine.find(strSeparator);
+		if (pos != TSTRING::npos) {
+			// found
+			TSTRING strSrc(strLine.substr(0, pos));
+			CFileStrFnc::StripCharsAtEnds(strSrc, strSpaceChars);
+			if (strSrc == strKey)
+			{
+				strLngName = strLine.substr(pos + strSeparator.length());
+				CFileStrFnc::StripCharsAtEnds(strLngName, strSpaceChars);
+				break;
+			}
+		}
+	}
+	return strLngName;
 }
