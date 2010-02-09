@@ -68,9 +68,6 @@ private:
 	int Reset(void);
 	CMenuWithIcon(const CMenuWithIcon &);
 
-	static TSTRING & DoubleChar(TSTRING & str, const TSTRING::value_type ch);
-	static TSTRING & ToLowerCase(TSTRING &str);
-
 	enum EICONGETTYPE{NOICON, FILEFOLDERICON, FILEICON};
 
 	//typedef std::map<TSTRING, MENUTYPE> StrMenuMap;
