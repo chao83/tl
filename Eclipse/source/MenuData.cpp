@@ -1,5 +1,6 @@
 
 #include "MenuData.h"
+using namespace ns_file_str_ops;
 
 CItem::CItem( Prm strName, Prm strPath, Prm strEx):m_str(3){
 		m_str[0] = strName;

@@ -61,9 +61,6 @@ public:
 	int LoadMenuFromFile(const tString & strFileName, UINT uStartID);
 	//int BuildMenu(FILE *pFile,UINT uStartID);
 
-	//! 判断字符串是否以 给定的字符串结尾。
-	using Super::IsStrEndWith;
-
 private:
 	int Reset(void);
 	CMenuWithIcon(const CMenuWithIcon &);

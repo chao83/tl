@@ -4,6 +4,8 @@
 #include "SettingFile.h"
 
 
+using namespace ns_file_str_ops;
+
 CSettingFile::CSettingFile()
 : m_bSettingChanged(false)
 {

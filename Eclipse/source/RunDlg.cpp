@@ -26,7 +26,7 @@ std::vector<TSTRING> & StrHis()
 };
 
 //! 判断字符串是否以 给定的字符串结尾。
-bool (*StrEndWith)(const TSTRING &, const TSTRING &, bool) ( CMenuWithIcon::IsStrEndWith );
+using ns_file_str_ops::IsStrEndWith;
 
 //! 按照指定的字符(ch)分割输入字符串(inStr)，输出到指定向量(vStr). 空字符串也有效。
 unsigned int GetSeparatedString(const TSTRING & inStr, const TSTRING::value_type ch, std::vector<TSTRING> & vStr);
@@ -129,7 +129,7 @@ void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& 
 
 	//去掉引导空白
 	if (strCmdParam.length() && (_istspace(*strCmdParam.begin()) || _istspace(*strCmdParam.rbegin()) )) {
-		strCmdParam = CFileStrFnc::StripSpaces(strCmdParam);
+		strCmdParam = ns_file_str_ops::StripSpaces(strCmdParam);
 	}
 
 	if( ! strCmdParam.empty()) {
@@ -153,10 +153,10 @@ void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& 
 		}
 
 		if (strCmd.length() && (_istspace(*strCmd.begin()) || _istspace(*strCmd.rbegin()) )) {
-			strCmd = CFileStrFnc::StripSpaces(strCmd);
+			strCmd = ns_file_str_ops::StripSpaces(strCmd);
 		}
 		if (strParam.length() && (_istspace(*strParam.begin()) || _istspace(*strParam.rbegin()) ) ){
-			strParam = CFileStrFnc::StripSpaces(strParam);
+			strParam = ns_file_str_ops::StripSpaces(strParam);
 		}
 	}
 }
@@ -173,13 +173,13 @@ void SetHint(HWND hDlg, ICONTYPE hIcon, const TCHAR *pHint)
 //! 根据后缀名判断文件是否为可执行文件.
 bool IsPathExe(const TSTRING & path) {
 
-	return  StrEndWith(path,_T(".exe"),false) ||
-			StrEndWith(path,_T(".cmd"),false) ||
-			StrEndWith(path,_T(".bat"),false) ||
-			StrEndWith(path,_T(".pif"),false) ||
-			StrEndWith(path,_T(".scr"),false) ||
-			StrEndWith(path,_T(".com"),false) ||
-			StrEndWith(path,_T(".scf"),false);
+	return  IsStrEndWith(path,_T(".exe"),false) ||
+			IsStrEndWith(path,_T(".cmd"),false) ||
+			IsStrEndWith(path,_T(".bat"),false) ||
+			IsStrEndWith(path,_T(".pif"),false) ||
+			IsStrEndWith(path,_T(".scr"),false) ||
+			IsStrEndWith(path,_T(".com"),false) ||
+			IsStrEndWith(path,_T(".scf"),false);
 }
 
 
@@ -200,7 +200,7 @@ bool SearchRegkeyForExe(const TSTRING & strCmdParam,
 		TSTRING strFileName (strCmd);
 		if (bNameOnly && strFileName.find('\\') != strFileName.npos)
 			strFileName = strFileName.substr(strFileName.find_last_of('\\'));
-		if (StrEndWith(strFileName, _T(".exe"),false)) {
+		if (IsStrEndWith(strFileName, _T(".exe"),false)) {
 			strSubKey += strFileName;
 		}
 		else {
@@ -365,7 +365,7 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 								strMaybe += strCmd;
 							else
 								strMaybe += (_T("\\") + strCmd);
-							if (! StrEndWith(strCmd, _T("exe"), false))
+							if (! IsStrEndWith(strCmd, _T("exe"), false))
 								strMaybe += _T(".exe");
 							DWORD dwType(0);
 							if (GetBinaryType(strMaybe.c_str(), &dwType))
@@ -641,7 +641,7 @@ int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr, bool 
 
 //! 不区分大小写，比较字符串相等
 bool EqualNoCase(const tString & s1, const tString & s2) {
-	return (s1.length() == s2.length() && StrEndWith(s1,s2, false) );
+	return (s1.length() == s2.length() && IsStrEndWith(s1,s2, false) );
 }
 
 template <class T>
@@ -937,7 +937,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 								SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETCURSEL,0,0);
 							if (SendMessage(GetDlgItem(hDlg, IDC_CBORUN), static_cast<unsigned int>(CB_GETLBTEXT), index, (LPARAM) szCommand)) { //MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize)) {
 								tString str(szCommand);
-								if (StrEndWith(str.substr(0, strUserInput.length()), strUserInput, false)){
+								if (IsStrEndWith(str.substr(0, strUserInput.length()), strUserInput, false)){
 									PostMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(strUserInput.length(),-1));
 								}
 							}

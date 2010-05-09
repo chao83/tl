@@ -6,7 +6,7 @@
 #include "FileStrFnc.h"
 
 class CMenuData;
-class CItem : protected CFileStrFnc
+class CItem
 {
 	friend class CMenuData;
 protected:
@@ -46,7 +46,7 @@ private:
 };
 
 
-class CMenuData : public CItem//, private CFileStrFnc
+class CMenuData : public CItem//, private ns_file_str_ops
 {
 public:
 	using CItem::Name;

@@ -5,7 +5,7 @@
 #include "FileStrFnc.h"
 
 
-class CSettingFile : private CFileStrFnc
+class CSettingFile
 {
 	typedef std::map<TSTRING,TSTRING> StrStrMap;	//一条记录,文件中的一行。
 	typedef std::pair<TSTRING,StrStrMap> Section;	//一组多条记录，用 [ ] 开始。

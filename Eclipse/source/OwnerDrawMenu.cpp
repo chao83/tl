@@ -4,27 +4,6 @@
 //typedef WINGDIAPI BOOL (WINAPI *DCDeteler)(HDC);
 const TSTRING COwnerDrawMenu::szHiddenMenuItem = _T("< . >");// normal items should not contain "<"
 
-bool COwnerDrawMenu::IsStrEndWith(const TSTRING & strSrc, const TSTRING & strMatchThis, bool bMatchCase)
-{
-	if (strSrc.length() < strMatchThis.length())
-		return false;
-	TSTRING::size_type dif = strSrc.length() - strMatchThis.length();
-	if (bMatchCase) {
-		for (TSTRING::size_type i = 0; i < strMatchThis.length(); ++i) {
-			if (strMatchThis[i] != strSrc[dif + i]) {
-				return false;
-			}
-		}
-	}
-	else {
-		for (TSTRING::size_type i = 0; i < strMatchThis.length(); ++i) {
-			if (_totlower(strMatchThis[i]) != _totlower(strSrc[dif + i])) {
-				return false;
-			}
-		}
-	}
-	return true;
-}
 
 
 COwnerDrawMenu::CWindowClass::CWindowClass(HINSTANCE hInstance, const TCHAR * szWindowClass, WindowProcessor WndProc)
@@ -688,7 +667,7 @@ MENUTYPE COwnerDrawMenu::TryGetSubMenu(const DRAWITEMSTRUCT * pDI)
 				}
 			}
 			else {
-				assert(false);
+				//assert(false);
 			}
 		}
 	}

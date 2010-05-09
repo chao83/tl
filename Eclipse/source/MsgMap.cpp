@@ -459,7 +459,7 @@ void UpdateMenu(const bool bForce = false) {
 	static FILETIME s_tmWrite = {0};
 	bool bBuild(bForce);
 	FILETIME tmCreate, tmAccess, tmWrite;
-	if (CFileStrFnc::GetLastFileTime(g_fileName.c_str(), &tmCreate, &tmAccess, &tmWrite) ) {
+	if (ns_file_str_ops::GetLastFileTime(g_fileName.c_str(), &tmCreate, &tmAccess, &tmWrite) ) {
 		if (bForce || CompareFileTime(&tmCreate, &s_tmCreate) || CompareFileTime(&tmWrite , &s_tmWrite) ) {
 			s_tmCreate = tmCreate;
 			s_tmWrite = tmWrite;

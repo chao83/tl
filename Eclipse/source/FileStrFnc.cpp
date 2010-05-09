@@ -1,20 +1,14 @@
 
 #include "FileStrFnc.h"
 
-CFileStrFnc::CFileStrFnc(void)
-{
-}
-
-CFileStrFnc::~CFileStrFnc(void)
-{
-}
+namespace ns_file_str_ops {
 
 //!从文件读取一行。
 
 //! \param file FILE *文件指针，输出。
 //! \param strLine TSTRING 类型 保存结果。
 //! \return 读到文件末尾返回false； 否则返回 true 。
-bool CFileStrFnc::GetLine(FILE * file, TSTRING &strLine) 
+bool GetLine(FILE * file, TSTRING &strLine) 
 {
 
 #ifdef UNICODE
@@ -37,7 +31,7 @@ bool CFileStrFnc::GetLine(FILE * file, TSTRING &strLine)
 }
 
 
-bool CFileStrFnc::ReadLine(FILE *file, TSTRING & strLine) {
+bool ReadLine(FILE *file, TSTRING & strLine) {
 	strLine.clear();
 	wchar_t ch = fgetwc(file);
 	while (ch != WEOF) {
@@ -62,7 +56,7 @@ bool CFileStrFnc::ReadLine(FILE *file, TSTRING & strLine) {
 };
 
 
-TSTRING & CFileStrFnc::ToLowerCase(TSTRING &str)
+TSTRING & ToLowerCase(TSTRING &str)
 {
 	TSTRING::size_type size = str.length();
 	for (TSTRING::size_type i = 0; i < size; ++i) {
@@ -72,7 +66,7 @@ TSTRING & CFileStrFnc::ToLowerCase(TSTRING &str)
 }
 
 //! 去掉字符串 首尾 的空白。
-const TSTRING CFileStrFnc::StripSpaces(const TSTRING & inStr)
+const TSTRING StripSpaces(const TSTRING & inStr)
 {
 	TSTRING::size_type iStart(0);
 	TSTRING::size_type iEnd(inStr.size());
@@ -86,7 +80,7 @@ const TSTRING CFileStrFnc::StripSpaces(const TSTRING & inStr)
 }
 
 
-bool CFileStrFnc::StripCharsAtEnds(TSTRING & str, const TSTRING & chars)
+bool StripCharsAtEnds(TSTRING & str, const TSTRING & chars)
 {
 	const TSTRING::size_type begin = str.find_first_not_of(chars);
 	if (begin == TString::npos) {
@@ -101,8 +95,41 @@ bool CFileStrFnc::StripCharsAtEnds(TSTRING & str, const TSTRING & chars)
 	return true;
 }
 
+TSTRING & DoubleChar(TSTRING & str, const TSTRING::value_type ch)
+{
+	TSTRING::size_type pos = 0;
+	while((pos = str.find(ch,pos)) != str.npos) {
+		str.insert(pos,1,ch);
+		pos+=2;
+	}
+	return str;
+}
 
-bool CFileStrFnc::GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILETIME *pSTAccess,  FILETIME *pSTWrite) {
+
+bool IsStrEndWith(const TSTRING & strSrc, const TSTRING & strMatchThis, bool bMatchCase)
+{
+	if (strSrc.length() < strMatchThis.length())
+		return false;
+	TSTRING::size_type dif = strSrc.length() - strMatchThis.length();
+	if (bMatchCase) {
+		for (TSTRING::size_type i = 0; i < strMatchThis.length(); ++i) {
+			if (strMatchThis[i] != strSrc[dif + i]) {
+				return false;
+			}
+		}
+	}
+	else {
+		for (TSTRING::size_type i = 0; i < strMatchThis.length(); ++i) {
+			if (_totlower(strMatchThis[i]) != _totlower(strSrc[dif + i])) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
+bool GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILETIME *pSTAccess,  FILETIME *pSTWrite) {
 	bool r = false;
 	HANDLE hFile = CreateFile(szFN, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 	if (INVALID_HANDLE_VALUE != hFile) {		
@@ -110,5 +137,7 @@ bool CFileStrFnc::GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILET
 		CloseHandle(hFile);
 	}
 	return r;
+
+}
 
 }

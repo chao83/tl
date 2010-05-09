@@ -45,12 +45,12 @@ UINT CHotkey::GetVK(const TSTRING &strVK) {
 bool CHotkey::Add(CHotkey::ID id, const TSTRING &inKeyStr) {
 	Remove(id);
 	TSTRING keyStr(inKeyStr);
-	CFileStrFnc::ToLowerCase(keyStr);
+	ns_file_str_ops::ToLowerCase(keyStr);
 
 	std::vector<TSTRING> vKey;
 	GetSeparatedString(keyStr, '+', vKey);
 	for (unsigned int i = 0; i < vKey.size(); ++i) {
-		vKey[i] = CFileStrFnc::StripSpaces(vKey[i]);
+		vKey[i] = ns_file_str_ops::StripSpaces(vKey[i]);
 	}
 
 	if (vKey.size() < 2) {

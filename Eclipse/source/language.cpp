@@ -87,7 +87,7 @@ bool Language::SetLngFile(const StringType & strFileName, const StringType & str
 
 	const StringType strSpaceChars(L" \t\r\n");
 	StringType strLine;
-	while (CFileStrFnc::GetLine(file, strLine)) {
+	while (ns_file_str_ops::GetLine(file, strLine)) {
 		if (strLine.substr(0, strLineComment.length()) == strLineComment) {
 			continue;
 		}
@@ -97,10 +97,10 @@ bool Language::SetLngFile(const StringType & strFileName, const StringType & str
 		if (pos != StringType::npos) {
 			// found
 			StringType strSrc(strLine.substr(0, pos));
-			CFileStrFnc::StripCharsAtEnds(strSrc, strSpaceChars);
+			ns_file_str_ops::StripCharsAtEnds(strSrc, strSpaceChars);
 
 			StringType strDst(strLine.substr(pos + strSeparator.length()));
-			CFileStrFnc::StripCharsAtEnds(strDst, strSpaceChars);
+			ns_file_str_ops::StripCharsAtEnds(strDst, strSpaceChars);
 
 			m_ssmap[strSrc] = strDst;
 		}
@@ -202,17 +202,17 @@ const TSTRING GetLngName(const TSTRING & strFileName)
 	const TSTRING strKey(L";Language");
 	const TSTRING strSeparator(L":");
 	TSTRING strLine;
-	while (CFileStrFnc::GetLine(file, strLine)) {
+	while (ns_file_str_ops::GetLine(file, strLine)) {
 		// analyze this line
 		TSTRING::size_type pos = strLine.find(strSeparator);
 		if (pos != TSTRING::npos) {
 			// found
 			TSTRING strSrc(strLine.substr(0, pos));
-			CFileStrFnc::StripCharsAtEnds(strSrc, strSpaceChars);
+			ns_file_str_ops::StripCharsAtEnds(strSrc, strSpaceChars);
 			if (strSrc == strKey)
 			{
 				strLngName = strLine.substr(pos + strSeparator.length());
-				CFileStrFnc::StripCharsAtEnds(strLngName, strSpaceChars);
+				ns_file_str_ops::StripCharsAtEnds(strLngName, strSpaceChars);
 				break;
 			}
 		}
