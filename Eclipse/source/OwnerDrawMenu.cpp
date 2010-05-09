@@ -147,9 +147,37 @@ COwnerDrawMenu::CWindowClass COwnerDrawMenu::s_windowClass(ThisHinstGet(), szMen
 
 
 COwnerDrawMenu::COwnerDrawMenu(ICONTYPE hIconCheck, const unsigned int iLeftSide )
-:m_hWnd(CreateWindow(s_windowClass, NULL, WS_OVERLAPPED, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, ThisHinstGet(), NULL))
-,m_bUseAble(!(!m_hWnd)),m_hMenu(NULL),m_hIconCheck(hIconCheck)
-,m_vClrs(ClrIndex_Num),m_hSkinDC(CreateCompatibleDC(NULL)), bUseActualIconSize(false), m_iExtraLeftSideWidth(iLeftSide)
+:m_hWnd(CreateWindow(s_windowClass, NULL, WS_OVERLAPPED, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, ThisHinstGet(), NULL)),
+m_bUseAble(!!m_hWnd),
+m_hMenu(NULL),
+m_hIconCheck(hIconCheck),
+m_vClrs(ClrIndex_Num),
+m_hSkinDC(CreateCompatibleDC(NULL)),
+m_hSepPic(0),
+m_sepPicHeight(0),
+m_sepPicWidth(0),
+m_hSepPicLeft(0),
+m_sepLeftWidth(0),
+m_hSepPicRight(0),
+m_sepRightWidth(0),
+m_hBkPic(0),
+m_BkHeight(0),
+m_BkWidth(0),
+m_hBkPicLeft(0),
+m_BkLeftWidth(0),
+m_hBkPicRight(0),
+m_BkRightWidth(0),
+m_hSelBkPic(0),
+m_selBkHeight(0),
+m_selBkWidth(0),
+m_hSelBkPicLeft(0),
+m_selBkLeftWidth(0),
+m_hSelBkPicRight(0),
+m_selBkRightWidth(0),
+m_hTitalPic(0),
+m_titalPicWidth(0),
+bUseActualIconSize(false),
+m_iExtraLeftSideWidth(iLeftSide)
 {
 	AddThis();
 
@@ -359,7 +387,7 @@ bool COwnerDrawMenu::IconByPos(const int iPos, const ICONTYPE hIcon) {
 			}
 		}
 	}
-	return false;
+	return r;
 }
 
 //! 插入一个菜单项
@@ -391,7 +419,7 @@ BOOL COwnerDrawMenu::Insert(IDTYPE ID,const TCHAR * strName, UINT pos, ICONTYPE 
 }
 
 //Get ItemIcon
-const ICONTYPE COwnerDrawMenu::ItemIcon(const int nID)
+const ICONTYPE COwnerDrawMenu::ItemIcon(const int nID) const
 {
 	return m_MenuItemIcons[nID];
 }
@@ -404,7 +432,7 @@ bool COwnerDrawMenu::ItemIcon(const int nID, const ICONTYPE hIcon)
 
 
 //Get MenuIcon
-const ICONTYPE COwnerDrawMenu::MenuIcon(const MENUTYPE hSubMenu)
+const ICONTYPE COwnerDrawMenu::MenuIcon(const MENUTYPE hSubMenu) const
 {
 	return m_SubMenuIcons[hSubMenu];
 }
@@ -655,16 +683,13 @@ MENUTYPE COwnerDrawMenu::TryGetSubMenu(const DRAWITEMSTRUCT * pDI)
 			if (m_ItemName.empty() || (--last)->first < id) {
 				MenuStrMap::const_iterator it = m_MenuName.find(reinterpret_cast<MENUTYPE>(id));
 				if (it != m_MenuName.end()) {
-					assert (id>65535);
+					assert (id >= (1 << 16));
 					hResult = it->first;
 				}
 			}
-#ifdef _DEBUG
 			else {
-				int a = 0;
-				++a;
+				assert(false);
 			}
-#endif
 		}
 	}
 	return hResult;

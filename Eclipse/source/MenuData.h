@@ -48,12 +48,6 @@ private:
 
 class CMenuData : public CItem//, private CFileStrFnc
 {
-private:
-	std::vector<CItem*> m_sub;
-	CMenuData & operator = (const CMenuData &) ;
-
-	const CItem * GetByPos(Ui pos) const { return pos < m_sub.size() ? m_sub[pos] : 0; }
-	CItem * GetByPos(Ui pos) {	return pos < m_sub.size() ? m_sub[pos] : 0; }
 public:
 	using CItem::Name;
 	using CItem::Path;
@@ -62,10 +56,10 @@ public:
 	~CMenuData();
 	Ui Count() const { return m_sub.size(); }
 
-	const CMenuData * Menu(Ui pos) const { return dynamic_cast<const CMenuData*>(GetByPos(pos)); }
-	CMenuData * Menu(Ui pos) { return dynamic_cast<CMenuData*>(GetByPos(pos)); }
-	const CItem * Item(Ui pos) const { return GetByPos(pos); }
-	CItem * Item(Ui pos) { return GetByPos(pos); }
+	const CMenuData * Menu(Ui pos) const { return dynamic_cast<const CMenuData*>(Item(pos)); }
+	CMenuData * Menu(Ui pos) { return dynamic_cast<CMenuData*>(Item(pos)); }
+	const CItem * Item(Ui pos) const {  return pos < m_sub.size() ? m_sub[pos] : 0; }
+	CItem * Item(Ui pos) {  return pos < m_sub.size() ? m_sub[pos] : 0; }
 	//CItem & Ref(Ui pos) {
 	//	return *m_sub.at(pos);
 	//}
@@ -79,15 +73,26 @@ public:
 
 	bool Remove(Ui pos) ;
 
-	bool SaveAs(CRTS strFileName, TCHAR pad = '\t', int nPad = 0, int step = 1);
+	bool SaveAs(CRTS strFileName, TCHAR pad = '\t', int nPad = 0, int step = 1) const;
 
 	int Load(CRTS strFileName);
 
-private:
-	bool OutPut(FILE * pFile, TCHAR pad = '\t', int nPad = 0, int step = 1) const;
-	int LoadFile(FILE *pFile) ;
-	int LoadFileAlter(FILE *pFile) ;
 
+private:
+	//! 输出格式化内容到文件,递归应用于子菜单
+	
+	//! @param pFile 已经打开的文件
+	//! @param pad 子菜单的前缀字符( 如用tab缩进)
+	//! @param nPad 固定添加的前缀字符个数
+	//! @param pFile 子菜单的缩进级数(pad的个数)
+	bool OutPut(FILE * pFile, TCHAR pad, int nPad, int step) const;
+	int LoadFile(FILE *pFile) ;
+	std::vector<CItem*> m_sub;
+
+	//{{ disabled features
+	CMenuData & operator = (const CMenuData &);
+	CMenuData(const CMenuData &);
+	//}}
 };
 
 #endif

@@ -885,14 +885,24 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 				if (GetVolumeInformation(strDrive.c_str(), szVolName, MAX_PATH + 1, 0,0,0, szFSName, MAX_PATH + 1) && *szVolName) {
 					strVolName = szVolName;
 				}
-				else {
+				//else {
 					SHFILEINFO sfi;
-					SHGetFileInfo(strDrive.c_str(), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi),SHGFI_TYPENAME);
-					strVolName = sfi.szTypeName;
-				}
+					SHGetFileInfo(strDrive.c_str(), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi), SHGFI_TYPENAME | SHGFI_DISPLAYNAME);
+					strVolName = sfi.szDisplayName;
+				//}
 				DoubleChar(strVolName, '&');
 				strMenuName = strVolName;
-				strMenuName += _T(" (&") + strDrive.substr(0,2) + _T(")");
+
+				// string replace
+				TSTRING strOld(_T("(") + strDrive.substr(0,2) + _T(")"));
+				TSTRING strNew(_T("(&") + strDrive.substr(0,2) + _T(")"));
+				tString::size_type pos = strMenuName.find(strOld);
+				if (pos != tString::npos) {
+					strMenuName.replace(pos, strOld.size(), strNew);
+				} else {
+					strMenuName.append(strNew);
+				}
+				
 				AddSubMenu(hMenu, hSubMenu, strMenuName, strDrive);
 			}
 
@@ -1177,8 +1187,9 @@ unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath) con
 	TSTRING strSearch(strName);
 	ToLowerCase(strSearch);
 
-	std::map<TSTRING,IDTYPE>::const_iterator iter;
-	if((iter = m_NameIdMap.find(strSearch)) != m_NameIdMap.end() && Cmd(iter->second)) {
+	//std::map<TSTRING,IDTYPE>::const_iterator;
+	auto iter = m_NameIdMap.find(strSearch);
+	if(iter != m_NameIdMap.end() && Cmd(iter->second)) {
 		strPath = Cmd(iter->second);
 		if(strPath.length() && strPath[0] != '\"')
 			strPath = _T("\"") + strPath + _T("\"");
@@ -1200,8 +1211,8 @@ unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::ve
 	const TSTRING::size_type size = strSearch.length();
 
 	unsigned int iFound = 0;
-	std::map<TSTRING,IDTYPE>::const_iterator iter;
-	for(iter = m_NameIdMap.begin(); iter != m_NameIdMap.end(); ++iter) { //m_NameIdMap是按照字母表顺序的
+	//std::map<TSTRING,IDTYPE>::const_iterator iter;
+	for(auto iter = m_NameIdMap.begin(); iter != m_NameIdMap.end(); ++iter) { //m_NameIdMap是按照字母表顺序的
 		if(iter->first.length() >= size && iter->first.substr(0,size) == strSearch) {
 			bool bIgnoreThis = false;
 			if (!bAllowDup) {

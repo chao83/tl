@@ -53,10 +53,10 @@ public:
 	//! ÅÐ¶Ï×Ö·û´®ÊÇ·ñÒÔ ¸ø¶¨µÄ×Ö·û´®½áÎ²¡£
 	static bool IsStrEndWith(const TSTRING & strSrc, const TSTRING & strMatchThis, bool bMatchCase = true);
 
-	const ICONTYPE ItemIcon(const int nID);
+	const ICONTYPE ItemIcon(const int nID) const;
 	bool ItemIcon(const int nID, const ICONTYPE hIcon);
 
-	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu);
+	const ICONTYPE MenuIcon(const MENUTYPE hSubMenu) const;
 	bool MenuIcon(const MENUTYPE hSubMenu, const ICONTYPE hIcon);
 
 	bool IconByPos(const int iPos, const ICONTYPE hIcon);
@@ -134,7 +134,7 @@ protected:
 			}
 			m_map.clear();
 		}
-		CValue operator [] (const CKey & key)
+		CValue operator [] (const CKey & key) const
 		{
 			typename CMap::const_iterator pos(m_map.find(key));
 			if (pos != m_map.end())

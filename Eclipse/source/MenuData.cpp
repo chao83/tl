@@ -63,7 +63,7 @@ bool CMenuData::Remove(Ui pos) {
 	return br;
 }
 
-bool CMenuData::SaveAs(CRTS strFileName, TCHAR pad, int nPad, int step) {
+bool CMenuData::SaveAs(CRTS strFileName, TCHAR pad, int nPad, int step) const {
 	wukong::file_ptr outfile(strFileName.c_str(), _T("wb"));
 	bool r(false);
 	if (outfile.Get()) {
@@ -93,7 +93,7 @@ bool CMenuData::OutPut(FILE * pFile, TCHAR pad, int nPad, int step) const {
 			Item(i)->CItem::OutPut(pFile, '\t', 1);
 			WriteStringToFile(_T("\r\n"), pFile);
 
-			Menu(i)->OutPut(pFile, pad, nPad + step);
+			Menu(i)->OutPut(pFile, pad, nPad + step, 1);
 
 			WriteStringToFile(tString(nPad, pad) + _T("<\r\n"), pFile);
 		}
@@ -104,8 +104,10 @@ bool CMenuData::OutPut(FILE * pFile, TCHAR pad, int nPad, int step) const {
 	}
 	return true;
 }
-int CMenuData::LoadFileAlter(FILE * pFile)
-{
+
+
+int CMenuData::LoadFile(FILE *pFile) {
+
 	assert(pFile);
 	int nItems = 0;
 	tString strLine;
@@ -118,9 +120,9 @@ int CMenuData::LoadFileAlter(FILE * pFile)
 			AddItem(Count(), Empty(), Empty() ); //  separater
 			continue;
 		}
-		
+
 		strLine = StripSpaces( strLine.substr( 0, strLine.find(';') ) );
-		if (strLine.empty()) { // comments 
+		if (strLine.empty()) { // comments
 			continue;
 		}
 
@@ -132,7 +134,7 @@ int CMenuData::LoadFileAlter(FILE * pFile)
 			case '>' :
 			case '{' :
 				strName = StripSpaces(strName.substr(1));
-				
+
 				if (AddMenu(Count(), strName, strPath ) ) {
 					assert(IsMenu(Count()-1));
 					Menu(Count()-1)->LoadFile(pFile);
@@ -141,7 +143,7 @@ int CMenuData::LoadFileAlter(FILE * pFile)
 			case '<' :
 			case '}' :
 				return nItems;
-				break;
+				//break;
 			default:
 				nItems += AddItem(Count(), strName, strPath);
 				break;
@@ -149,141 +151,5 @@ int CMenuData::LoadFileAlter(FILE * pFile)
 	}
 
 	return nItems;
-}
-int CMenuData::LoadFile(FILE *pFile) {
-	return LoadFileAlter(pFile);
-/*
-	assert(pFile);
-
-	int nItems = 0;
-	const int NBUF = 1024;
-	TCHAR buf[NBUF] = {0};
-	int i = 0;//偏移，读入的字符个数
-	int iStartOfPath = 0; // 菜单目标路径
-
-#ifdef UNICODE
-	typedef wint_t CH;
-#else
-	typedef int CH;
-#endif
-	CH ch = 0xfeff; // not EOF or WEOF
-
-	while(i < NBUF && ch != _TEOF) {
-		ch = _fgettc(pFile);
-		// 去掉行首的空白
-		if (0 == i)
-			while(_istspace(ch) && ch != '\r' && ch != '\n')
-				ch = _fgettc(pFile);
-
-		buf[i] = (TCHAR)ch;
-		switch (buf[i])
-		{
-		case '=':
-			if (0 == iStartOfPath) {
-				// 去掉 命令行开头的空白符号
-				while((ch = _fgettc(pFile))!=_TEOF && _istspace(ch) && ch != '\r' && ch != '\n') ;
-				_ungettc(ch,pFile);
-
-				buf[i] = '\0';
-				// 去掉 名称后面的空白
-				while(i > 0 && _istspace(buf[--i])){
-					buf[i] = '\0';
-				}
-				if (i < 0) // 本行格式错误跳过
-				{
-					while((ch = _fgettc(pFile)) !='\r' && '\n' != ch);// 处理换行符类别
-					if ( '\r' == ch && (ch = _fgettc(pFile)) != '\n')
-						_ungettc(ch, pFile);
-					i = 0;
-				}
-				else {	i += 2;
-					iStartOfPath = i;
-				}
-			}
-			else {
-				//从第二个开始的等号 "=" 当成普通字符
-				++i; //读入字符到 buf 中
-			}
-			break;
-		case ';':
-			// 分号表示 行注释
-			while((ch = _fgettc(pFile)) !='\r' && ch != '\n'&& ch != (int)_TEOF) {
-				;
-			}
-			// 处理换行符类别
-			if ('\r' == ch && (ch = _fgettc(pFile)) != '\n')
-				_ungettc(ch, pFile);
-			if (i == 0) {
-				// 整行都是注释，跳过。
-				iStartOfPath = 0;
-				continue;//继续循环读取字符。
-			}
-			else { ; }
-			// 继续向下
-
-		case '\r':
-			if ((ch = _fgettc(pFile)) != '\n')
-				_ungettc(ch, pFile);// 处理换行符类别
-			// go on
-		case '\n':
-		case _TEOF:
-			if (0 == i) {
-				if ( _TEOF != buf[i] ) {
-					AddItem(Count(), Empty(), Empty() ); // 分割
-					iStartOfPath = 0;
-				}
-				continue;
-			}
-
-			// 本字符串结束，
-			buf[i] = '\0';
-			while(_istspace(buf[--i]) && buf[i] != '\0')//去掉行末尾空白
-				buf[i] = '\0';
-
-			switch(*buf)
-			{
-				const TCHAR * pName;
-			case '>':
-			case '{':
-				// 子菜单
-				pName = buf + 1;
-				while(*pName && _istspace(*pName)) ++pName;
-
-				if (AddMenu(Count(), pName, iStartOfPath > 0 ? buf + iStartOfPath : Empty() ) ) {
-					//int a = Count();
-					assert(IsMenu(Count()-1));
-					Menu(Count()-1)->LoadFile(pFile);
-				}
-				break;
-			case '<':
-			case '}':
-				// 子菜单结束
-				return nItems;
-
-			default:
-				if(0 < iStartOfPath) {
-					pName = buf;
-					while(*pName && _istspace(*pName)) ++pName;
-					nItems += AddItem(Count(), pName, buf + iStartOfPath);
-				}
-				else {
-					nItems += AddItem(Count(), buf, Empty() );
-				}
-				break;
-
-			} // end if switch(*buf)
-
-			memset(buf, 0, sizeof(buf));
-			i = 0;
-			iStartOfPath = 0;
-			break;
-		default:
-			//普通字符
-			++i; //读入字符到 buf 中
-			break;
-		} //end of switch(buf[i])
-	}//end of while
-	return nItems;
-//	*/
 }
 

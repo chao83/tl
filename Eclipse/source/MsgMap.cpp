@@ -58,7 +58,7 @@ public:
 			m_hinstDLL = 0;
 		}
 	}
-	operator bool() {return !!m_hinstDLL;}
+	operator bool() const {return !!m_hinstDLL;}
 };
 
 bool SwitchHook(bool bSet = false, bool bOn = true) {
