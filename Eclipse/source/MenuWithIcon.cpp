@@ -385,11 +385,9 @@ int CMenuWithIcon::BuildDynamic(MENUTYPE hSubMenu)
 	if(!IsMenu(hSel) || hSubMenu != hSel) {
 		result = 0;
 	}
-	else if (m_StaticPath.find(hSel) != m_StaticPath.end()) {
-		result = DynamicBuild(hSel);
-	}
-	else if (m_DynamicPath.find(hSel) != m_DynamicPath.end()) {
-		result = DynamicBuild(hSel);
+	else if (m_StaticPath.find(hSel) != m_StaticPath.end() ||
+			m_DynamicPath.find(hSel) != m_DynamicPath.end()) {
+		result = DoBuildDynamic(hSel);
 	}
 	return result;
 }
@@ -399,7 +397,7 @@ int CMenuWithIcon::BuildDynamic(MENUTYPE hSubMenu)
 
 //! \note 只是生成子菜单和菜单项，子菜单不展开，
 //! 想要展开子菜单，对该子菜单调用本函数。
-int CMenuWithIcon::DynamicBuild(MENUTYPE hMenu)
+int CMenuWithIcon::DoBuildDynamic(MENUTYPE hMenu)
 {
 	// 需要记录每个动态的子菜单和菜单项，//并动态 销毁。
 
@@ -833,7 +831,7 @@ int CMenuWithIcon::MultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathF
 	GetSeparatedString(strName, '|', vStrFilter);
 	std::sort(vStrFilter.begin(), vStrFilter.end());
 	std::unique(vStrFilter.begin(), vStrFilter.end());
-	return MultiModeBuildMenuImpl(hMenu, inStrPathForSearch, strName, vStrFilter,mode, bNoFileIcon);
+	return DoMultiModeBuildMenu(hMenu, inStrPathForSearch, strName, vStrFilter,mode, bNoFileIcon);
 }
 
 int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
@@ -885,7 +883,7 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 				} else {
 					strMenuName.append(strNew);
 				}
-				
+
 				AddSubMenu(hMenu, hSubMenu, strMenuName, strDrive);
 			}
 
@@ -901,7 +899,7 @@ int CMenuWithIcon::BuildMyComputer(MENUTYPE hMenu, const tString & strName)
 //! 通配符菜单项构造函数，用于多种模式
 //!\param mode ：file，folder，expand，expandnow等模式
 //!
-int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, const std::vector<TSTRING> & vStrFilter, EBUILDMODE mode,bool bNoFileIcon/* = false*/)
+int CMenuWithIcon::DoMultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, const std::vector<TSTRING> & vStrFilter, EBUILDMODE mode,bool bNoFileIcon/* = false*/)
 {
 	assert(vStrFilter.size());
 	if (_T("\\\\*") == inStrPathForSearch && EEXPAND == mode) {
@@ -910,6 +908,100 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 
 	const TCHAR * pSearch = inStrPathForSearch.c_str();//strPath 包含最后一个*，用于搜索条件
 	int result = 0;
+
+	unsigned int nSubMenus = 0;
+
+	if (EEXPAND == mode || EEXPANDNOW == mode || EDYNAMIC == mode) {
+
+		// 添加所有子目录为子菜单。
+
+		typedef std::vector<StrPair> NamePathContainer;
+
+		NamePathContainer namePaths;
+
+		if (m_bShowHidden) {
+			nSubMenus = BuildNameMap(inStrPathForSearch, namePaths, KeepDir());
+		} else {
+			nSubMenus = BuildNameMap(inStrPathForSearch, namePaths, KeepNohiddenDir());
+		}
+
+		//文件名作为菜单名时，其中的 '&' 扩展成  '&&'
+		for (NamePathContainer::iterator it = namePaths.begin(); it != namePaths.end(); ++it) {
+			DoubleChar(it->first, '&');
+		}
+
+		// 忽略大小写
+		sort(namePaths.begin(), namePaths.end(), NoCaseCmp1st() );	// for vector<>
+		//namePaths.sort(NoCaseCmp1st()); // for list<>
+
+		// 构造排序后的子菜单
+		MENUTYPE hSubMenu = NULL;
+		TSTRING strWildCardPath;
+		bool bStaticMenu = IsStaticMenu(hMenu);
+		switch (mode) {
+			case EDYNAMIC:
+				if (OpenDynamicDir()) {
+					AddMenuItem(hMenu, szHiddenMenuItem, inStrPathForSearch.substr(0, inStrPathForSearch.length()-1), NOICON);
+					SetMenuDefaultItem(hMenu, 0, TRUE);
+					// empty, separator
+					//InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
+				}
+				for (NamePathContainer::const_iterator it = namePaths.begin(); it != namePaths.end(); ++it) {
+					hSubMenu = CreatePopupMenu();
+					strWildCardPath = it->second + _T("\\*");
+					//记录动态菜单
+
+					AddToMap(m_DynamicPath, hSubMenu, strWildCardPath);
+
+					// 记录通配符
+					if (bStaticMenu)
+						m_DynamicMenuWildcard[hSubMenu] = m_StaticMenuWildcard[hMenu];
+					else {
+						assert (IsDynamicMenu(hMenu));
+						m_DynamicMenuWildcard[hSubMenu] = m_DynamicMenuWildcard[hMenu];
+					}
+
+					AddSubMenu(hMenu, hSubMenu, it->first, it->second,FILEFOLDERICON);
+
+				}
+				break;
+			case EEXPANDNOW:
+				for (NamePathContainer::const_iterator it = namePaths.begin(); it != namePaths.end(); ++it) {
+					hSubMenu = CreatePopupMenu();
+					strWildCardPath = it->second + _T("\\*");
+					//记录动态菜单
+					DoMultiModeBuildMenu(hSubMenu,strWildCardPath.c_str(),strName, vStrFilter, EEXPANDNOW,true);
+
+					if (GetMenuItemCount(hSubMenu) > 0) {
+						AddSubMenu(hMenu,hSubMenu, it->first, it->second);
+						AddToMap(m_ExpanedMenu, hSubMenu, strWildCardPath);
+					}
+					else {
+						DestroyMenu(hSubMenu);
+						hSubMenu = NULL;
+					}
+				}
+				break;
+			case EEXPAND:
+				for (NamePathContainer::const_iterator it = namePaths.begin(); it != namePaths.end(); ++it) {
+					hSubMenu = CreatePopupMenu();
+					strWildCardPath = it->second + _T("\\*");
+					//记录动态菜单
+
+					//第一级动态菜单，不需要销毁
+					AddToMap(m_StaticPath, hSubMenu, strWildCardPath);//static 表示不删除的 dynamic
+					m_StaticMenuWildcard[hSubMenu] = AddWildcard(strName);
+
+					AddSubMenu(hMenu, hSubMenu, it->first, it->second);
+				}
+				break;
+			default:
+				assert(false);
+		}
+	}
+
+	// 以strName为条件，找当前目录中的文件
+
 	WIN32_FIND_DATA fd = {0};
 	HANDLE handle = INVALID_HANDLE_VALUE;
 	const TCHAR *f = fd.cFileName;
@@ -919,99 +1011,6 @@ int CMenuWithIcon::MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrP
 
 	memcpy(fullPath,pSearch, len * sizeof(TCHAR));
 	fullPath[len] = '\0';	// len : 主目录路径(包括反斜线)长度
-
-	unsigned int nSubMenus = 0;
-
-	//std::vector<TSTRING> vStrFilter;
-	if (EEXPAND == mode || EEXPANDNOW == mode || EDYNAMIC == mode) {
-
-		// 添加所有子目录为子菜单。
-		handle = FindFirstFile(pSearch, &fd);
-		if (handle != INVALID_HANDLE_VALUE) {
-			std::vector<StrPair> vNamePath;
-
-			if (m_bShowHidden) {
-				nSubMenus = BuildNameMap(inStrPathForSearch, vNamePath, KeepDir());
-			} else {
-				nSubMenus = BuildNameMap(inStrPathForSearch, vNamePath, KeepNohiddenDir());
-			}
-
-			//文件名作为菜单名时，其中的 '&' 扩展成  '&&'
-			for (std::vector<StrPair>::iterator it = vNamePath.begin(); it != vNamePath.end(); ++it) {
-				DoubleChar(it->first, '&');
-			}
-			
-			// 忽略大小写
-			std::sort(vNamePath.begin(), vNamePath.end(), NoCaseCmp1st() );
-
-			// 构造排序后的子菜单
-			MENUTYPE hSubMenu = NULL;
-			TSTRING strWildCardPath;
-			bool bStaticMenu = IsStaticMenu(hMenu);
-			switch (mode) {
-				case EDYNAMIC:
-					if (OpenDynamicDir()) {
-						AddMenuItem(hMenu, szHiddenMenuItem, inStrPathForSearch.substr(0, inStrPathForSearch.length()-1), NOICON);
-						SetMenuDefaultItem(hMenu, 0, TRUE);
-						// empty, separator
-						//InsertMenu(hMenu,(UINT)-1,MF_BYPOSITION | MF_OWNERDRAW | MF_SEPARATOR,0,0);
-					}
-					for (std::vector<StrPair>::const_iterator it = vNamePath.begin(); it != vNamePath.end(); ++it) {
-						hSubMenu = CreatePopupMenu();
-						strWildCardPath = it->second + _T("\\*");
-						//记录动态菜单
-
-						AddToMap(m_DynamicPath, hSubMenu, strWildCardPath);
-
-						// 记录通配符
-						if (bStaticMenu)
-							m_DynamicMenuWildcard[hSubMenu] = m_StaticMenuWildcard[hMenu];
-						else {
-							assert (IsDynamicMenu(hMenu));
-							m_DynamicMenuWildcard[hSubMenu] = m_DynamicMenuWildcard[hMenu];
-						}
-
-						AddSubMenu(hMenu, hSubMenu, it->first, it->second,FILEFOLDERICON);
-
-					}
-					break;
-				case EEXPANDNOW:
-					for (std::vector<StrPair>::const_iterator it = vNamePath.begin(); it != vNamePath.end(); ++it) {
-						hSubMenu = CreatePopupMenu();
-						strWildCardPath = it->second + _T("\\*");
-						//记录动态菜单
-						MultiModeBuildMenuImpl(hSubMenu,strWildCardPath.c_str(),strName, vStrFilter, EEXPANDNOW,true);
-
-						if (GetMenuItemCount(hSubMenu) > 0) {
-							AddSubMenu(hMenu,hSubMenu, it->first, it->second);
-							AddToMap(m_ExpanedMenu, hSubMenu, strWildCardPath);
-						}
-						else {
-							DestroyMenu(hSubMenu);
-							hSubMenu = NULL;
-						}
-					}
-					break;
-				case EEXPAND:
-					for (std::vector<StrPair>::const_iterator it = vNamePath.begin(); it != vNamePath.end(); ++it) {
-						hSubMenu = CreatePopupMenu();
-						strWildCardPath = it->second + _T("\\*");
-						//记录动态菜单
-
-						//第一级动态菜单，不需要销毁
-						AddToMap(m_StaticPath, hSubMenu, strWildCardPath);//static 表示不删除的 dynamic
-						m_StaticMenuWildcard[hSubMenu] = AddWildcard(strName);
-
-						AddSubMenu(hMenu, hSubMenu, it->first, it->second);
-					}
-					break;
-				default:
-					assert(false);
-			}
-		}
-	}
-
-	// 以strName为条件，找当前目录中的文件
 
 	StrStrMap namePath;
 	StrStrMap nameName;

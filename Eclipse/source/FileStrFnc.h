@@ -63,8 +63,8 @@ namespace ns_findfile {
 		}
 	};
 
-	template <class Cond>
-	unsigned int BuildNameMap(const TSTRING & strPath, std::vector<StrPair> &vNamePath, Cond allow = KeepAll())
+	template <class Container, class Cond>
+	unsigned int BuildNameMap(const TSTRING & strPath, Container &namePaths, Cond allow = KeepAll())
 	{
 		const TCHAR * pSearch = strPath.c_str();//strPath 包含最后一个*，用于搜索条件
 		assert(!strPath.empty() && *strPath.rbegin() == '*');
@@ -75,6 +75,7 @@ namespace ns_findfile {
 		const size_t len = _tcslen(pSearch)-1;// len : 主目录路径(包括反斜线)长度
 
 		memcpy(fullPath,pSearch, len * sizeof(TCHAR));
+		unsigned int n = 0;
 
 		HANDLE handle = FindFirstFile(pSearch, &fd);
 		if (handle != INVALID_HANDLE_VALUE) {
@@ -86,12 +87,13 @@ namespace ns_findfile {
 				//文件或子目录（不带反斜线）的完整路径，
 				memcpy(fullPath + len,f,(1 + _tcslen(f))*sizeof(TCHAR));
 
-				vNamePath.push_back(StrPair(f, fullPath));
+				namePaths.push_back(StrPair(f, fullPath));
+				++n;
 
 			} while (FindNextFile(handle,&fd));
 			FindClose(handle);
 		}
-		return vNamePath.size();
+		return n;
 	}
 }
 

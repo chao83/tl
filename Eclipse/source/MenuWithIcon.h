@@ -73,7 +73,7 @@ private:
 	bool AddSubMenu(MENUTYPE hMenu,MENUTYPE hSubMenu,const tString & strName, const tString & strPath, EICONGETTYPE needIcon = FILEFOLDERICON);
 	int AddMenuItem(MENUTYPE hMenu, const tString & strName, const tString & inStrPath, EICONGETTYPE needIcon = FILEFOLDERICON, const tString & strIcon = _T(""));
 	int MultiAddMenuItem(MENUTYPE hMenu, const tString & inStrPath,const tString & strName);
-	int DynamicBuild(MENUTYPE hMenu);
+	int DoBuildDynamic(MENUTYPE hMenu);
 	void Destroy(void);
 	ICONTYPE GetIcon(const tString & strPath, EICONGETTYPE needIcon = FILEFOLDERICON,int iconIndex = 0, bool bIcon32 = false);
 	ICONTYPE GetShortCutIcon(LPCTSTR lpszLinkFile, bool bIcon32 = true);
@@ -102,7 +102,7 @@ private:
 private :
 	enum EBUILDMODE {EFILE,EFOLDER,EEXPAND,EEXPANDNOW,EDYNAMIC};
 	int GetFilteredFileList(const TSTRING & inStrPathForSearch, const TCHAR * szFilter, std::vector<TSTRING> & vResult);
-	int MultiModeBuildMenuImpl(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, const std::vector<TSTRING> & vStrFilter, EBUILDMODE mode,bool bNoFileIcon);
+	int DoMultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, const std::vector<TSTRING> & vStrFilter, EBUILDMODE mode,bool bNoFileIcon);
 	int MultiModeBuildMenu(MENUTYPE, const tString & strPath, const tString & strName, EBUILDMODE mode,bool bNoFileIcon = false);
 
 
