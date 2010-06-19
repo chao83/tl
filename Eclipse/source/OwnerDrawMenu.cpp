@@ -693,10 +693,10 @@ bool COwnerDrawMenu::DrawMenuIcon(const DRAWITEMSTRUCT *pDI) {
 	// a function to get icon size;
 	class CGetIconSize {
 	public:
-		static bool GetIconSize(ICONTYPE hIcon, int &x, int &y) {
+		static bool GetIconSize(ICONTYPE hIconIn, int &x, int &y) {
 			bool r = false;
-			ICONINFO ii;
-			if (GetIconInfo(hIcon, &ii)) {
+			ICONINFO ii = {0};
+			if (GetIconInfo(hIconIn, &ii)) {
 				x = ii.xHotspot * 2;
 				y = ii.yHotspot * 2;
 				DeleteObject(ii.hbmColor);

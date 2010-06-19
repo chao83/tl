@@ -353,9 +353,9 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 				if (nSize) {
 					Arr<TCHAR> pPath (new TCHAR[nSize]);
 					if (GetEnvironmentVariable(_T("PATH"), pPath.Get(), nSize) == nSize - 1) {
-						const TSTRING strPath(pPath.Get());
+						const TSTRING strPathEnv(pPath.Get());
 						std::vector<TSTRING> vPath;
-						GetSeparatedString(strPath, ';', vPath);
+						GetSeparatedString(strPathEnv, ';', vPath);
 
 						for (std::vector<TSTRING>::size_type i = 0; i < vPath.size(); ++i) {
 							if (vPath[i].empty())
@@ -479,9 +479,9 @@ bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, HWND 
 	TSTRING strCmd,strParam;
 	GetCmdAndParam(strToBeExecuted, strCmd, strParam);
 	TSTRING strDir;
-	TSTRING::size_type pos = strCmd.find_last_of('\\');
-	if (strCmd.npos != pos) {
-		strDir = strCmd.substr(0,pos);
+	const TSTRING::size_type posDirEnd = strCmd.find_last_of('\\');
+	if (strCmd.npos != posDirEnd) {
+		strDir = strCmd.substr(0, posDirEnd);
 	}
 
 	SHELLEXECUTEINFO sei = {0};
@@ -843,10 +843,10 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 								if (!bAppendChar){
 									//Òþ²ØÏÂÀ­¿ò
 									if ( SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_GETDROPPEDSTATE, 0,0)) {
-										LRESULT dwSel = SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_GETEDITSEL,0,0);
+										LRESULT dwSelState = SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_GETEDITSEL,0,0);
 										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN ,false,0);
 										SetDlgItemText(hDlg, IDC_CBORUN, szCommand);
-										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,dwSel);
+										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,dwSelState);
 									}
 									iFoundLast = -1;
 								}

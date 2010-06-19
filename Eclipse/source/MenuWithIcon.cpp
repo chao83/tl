@@ -9,7 +9,7 @@
 #include "resource.h"
 #include "language.h"
 #include "FileStrFnc.h"
-#include <boost/function.hpp>
+//#include <boost/function.hpp>
 #include "MenuWithIcon.h"
 
 using namespace ns_findfile;
@@ -1097,8 +1097,9 @@ unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath) con
 	TSTRING strSearch(strName);
 	ToLowerCase(strSearch);
 
-	//std::map<TSTRING,IDTYPE>::const_iterator;
-	auto iter = m_NameIdMap.find(strSearch);
+	std::map<TSTRING,IDTYPE>::const_iterator
+	//auto
+	iter = m_NameIdMap.find(strSearch);
 	if(iter != m_NameIdMap.end() && Cmd(iter->second)) {
 		strPath = Cmd(iter->second);
 		if(strPath.length() && strPath[0] != '\"')
@@ -1121,8 +1122,8 @@ unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::ve
 	const TSTRING::size_type size = strSearch.length();
 
 	unsigned int iFound = 0;
-	//std::map<TSTRING,IDTYPE>::const_iterator iter;
-	for(auto iter = m_NameIdMap.begin(); iter != m_NameIdMap.end(); ++iter) { //m_NameIdMap是按照字母表顺序的
+
+	for(std::map<TSTRING,IDTYPE>::const_iterator iter = m_NameIdMap.begin(); iter != m_NameIdMap.end(); ++iter) { //m_NameIdMap是按照字母表顺序的
 		if(iter->first.length() >= size && iter->first.substr(0,size) == strSearch) {
 			bool bIgnoreThis = false;
 			if (!bAllowDup) {
