@@ -41,6 +41,7 @@
 			<Add option="-include stdafx.h" />
 			<Add directory="..\dll" />
 			<Add directory="..\Eclipse\source" />
+			<Add directory="..\Eclipse\include" />
 		</Compiler>
 		<ResourceCompiler>
 			<Add directory="..\Eclipse\source\rc" />
