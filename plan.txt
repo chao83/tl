@@ -1,7 +1,4 @@
-功能
-	Run 对话框 的下拉列表也显示图标
-	不画图标，
-	可视编辑，
-
-代码
-	整理文件列表, 取消map排序,使用不区分大小写的排序,减少内存占用.
+功能 (features)
+	Run 对话框 的下拉列表也显示图标; (icons for run dialog dropdown list)
+	不画图标， (optional : no icons for menu items)
+	可视编辑，(a visual editor)

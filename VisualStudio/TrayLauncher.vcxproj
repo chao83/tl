@@ -47,8 +47,8 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateManifest>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EmbedManifest>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\Eclipse\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\Eclipse\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\src\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\src\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -65,7 +65,7 @@
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\Eclipse\source\rc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src\source\rc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -92,7 +92,7 @@
       <ForcedIncludeFiles>stdafx.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>..\Eclipse\source\rc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\src\source\rc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -110,39 +110,39 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Eclipse\source\FileStrFnc.cpp" />
-    <ClCompile Include="..\Eclipse\source\GDIWavePic.cpp" />
-    <ClCompile Include="..\Eclipse\source\Hotkey.cpp" />
-    <ClCompile Include="..\Eclipse\source\language.cpp" />
-    <ClCompile Include="..\Eclipse\source\MenuData.cpp" />
-    <ClCompile Include="..\Eclipse\source\MenuWithIcon.cpp" />
-    <ClCompile Include="..\Eclipse\source\MsgMap.cpp" />
-    <ClCompile Include="..\Eclipse\source\OwnerDrawMenu.cpp" />
-    <ClCompile Include="..\Eclipse\source\RunDlg.cpp" />
-    <ClCompile Include="..\Eclipse\source\SettingFile.cpp" />
-    <ClCompile Include="..\Eclipse\source\stdafx.cpp" />
-    <ClCompile Include="..\Eclipse\source\TrayStart.cpp" />
-    <ClCompile Include="..\Eclipse\source\WavePic.cpp" />
+    <ClCompile Include="..\src\source\FileStrFnc.cpp" />
+    <ClCompile Include="..\src\source\GDIWavePic.cpp" />
+    <ClCompile Include="..\src\source\Hotkey.cpp" />
+    <ClCompile Include="..\src\source\language.cpp" />
+    <ClCompile Include="..\src\source\MenuData.cpp" />
+    <ClCompile Include="..\src\source\MenuWithIcon.cpp" />
+    <ClCompile Include="..\src\source\MsgMap.cpp" />
+    <ClCompile Include="..\src\source\OwnerDrawMenu.cpp" />
+    <ClCompile Include="..\src\source\RunDlg.cpp" />
+    <ClCompile Include="..\src\source\SettingFile.cpp" />
+    <ClCompile Include="..\src\source\stdafx.cpp" />
+    <ClCompile Include="..\src\source\TrayStart.cpp" />
+    <ClCompile Include="..\src\source\WavePic.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Eclipse\source\FileStrFnc.h" />
-    <ClInclude Include="..\Eclipse\source\GDIWavePic.h" />
-    <ClInclude Include="..\Eclipse\source\Hotkey.h" />
-    <ClInclude Include="..\Eclipse\source\language.h" />
-    <ClInclude Include="..\Eclipse\source\MenuData.h" />
-    <ClInclude Include="..\Eclipse\source\MenuWithIcon.h" />
-    <ClInclude Include="..\Eclipse\source\MsgMap.h" />
-    <ClInclude Include="..\Eclipse\source\OwnerDrawMenu.h" />
-    <ClInclude Include="..\Eclipse\source\Resource.h" />
-    <ClInclude Include="..\Eclipse\source\RunDlg.h" />
-    <ClInclude Include="..\Eclipse\source\SettingFile.h" />
-    <ClInclude Include="..\Eclipse\source\stdafx.h" />
-    <ClInclude Include="..\Eclipse\source\stdafx_real.h" />
-    <ClInclude Include="..\Eclipse\source\TrayStart.h" />
-    <ClInclude Include="..\Eclipse\source\WavePic.h" />
+    <ClInclude Include="..\src\source\FileStrFnc.h" />
+    <ClInclude Include="..\src\source\GDIWavePic.h" />
+    <ClInclude Include="..\src\source\Hotkey.h" />
+    <ClInclude Include="..\src\source\language.h" />
+    <ClInclude Include="..\src\source\MenuData.h" />
+    <ClInclude Include="..\src\source\MenuWithIcon.h" />
+    <ClInclude Include="..\src\source\MsgMap.h" />
+    <ClInclude Include="..\src\source\OwnerDrawMenu.h" />
+    <ClInclude Include="..\src\source\Resource.h" />
+    <ClInclude Include="..\src\source\RunDlg.h" />
+    <ClInclude Include="..\src\source\SettingFile.h" />
+    <ClInclude Include="..\src\source\stdafx.h" />
+    <ClInclude Include="..\src\source\stdafx_real.h" />
+    <ClInclude Include="..\src\source\TrayStart.h" />
+    <ClInclude Include="..\src\source\WavePic.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\Eclipse\source\TrayStart.rc" />
+    <ResourceCompile Include="..\src\source\TrayStart.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

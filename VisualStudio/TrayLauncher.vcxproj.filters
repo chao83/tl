@@ -15,95 +15,95 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Eclipse\source\FileStrFnc.cpp">
+    <ClCompile Include="..\src\source\FileStrFnc.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\GDIWavePic.cpp">
+    <ClCompile Include="..\src\source\GDIWavePic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\Hotkey.cpp">
+    <ClCompile Include="..\src\source\Hotkey.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\language.cpp">
+    <ClCompile Include="..\src\source\language.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\MenuData.cpp">
+    <ClCompile Include="..\src\source\MenuData.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\MenuWithIcon.cpp">
+    <ClCompile Include="..\src\source\MenuWithIcon.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\MsgMap.cpp">
+    <ClCompile Include="..\src\source\MsgMap.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\OwnerDrawMenu.cpp">
+    <ClCompile Include="..\src\source\OwnerDrawMenu.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\RunDlg.cpp">
+    <ClCompile Include="..\src\source\RunDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\SettingFile.cpp">
+    <ClCompile Include="..\src\source\SettingFile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\stdafx.cpp">
+    <ClCompile Include="..\src\source\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\TrayStart.cpp">
+    <ClCompile Include="..\src\source\TrayStart.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\Eclipse\source\WavePic.cpp">
+    <ClCompile Include="..\src\source\WavePic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Eclipse\source\FileStrFnc.h">
+    <ClInclude Include="..\src\source\FileStrFnc.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\GDIWavePic.h">
+    <ClInclude Include="..\src\source\GDIWavePic.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\Hotkey.h">
+    <ClInclude Include="..\src\source\Hotkey.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\language.h">
+    <ClInclude Include="..\src\source\language.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\MenuData.h">
+    <ClInclude Include="..\src\source\MenuData.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\MenuWithIcon.h">
+    <ClInclude Include="..\src\source\MenuWithIcon.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\MsgMap.h">
+    <ClInclude Include="..\src\source\MsgMap.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\OwnerDrawMenu.h">
+    <ClInclude Include="..\src\source\OwnerDrawMenu.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\Resource.h">
+    <ClInclude Include="..\src\source\Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\RunDlg.h">
+    <ClInclude Include="..\src\source\RunDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\SettingFile.h">
+    <ClInclude Include="..\src\source\SettingFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\stdafx.h">
+    <ClInclude Include="..\src\source\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\stdafx_real.h">
+    <ClInclude Include="..\src\source\stdafx_real.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\TrayStart.h">
+    <ClInclude Include="..\src\source\TrayStart.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Eclipse\source\WavePic.h">
+    <ClInclude Include="..\src\source\WavePic.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\Eclipse\source\TrayStart.rc">
+    <ResourceCompile Include="..\src\source\TrayStart.rc">
       <Filter>资源</Filter>
     </ResourceCompile>
   </ItemGroup>

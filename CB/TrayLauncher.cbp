@@ -40,11 +40,11 @@
 			<Add option="-Winvalid-pch" />
 			<Add option="-include stdafx.h" />
 			<Add directory="..\dll" />
-			<Add directory="..\Eclipse\source" />
-			<Add directory="..\Eclipse\include" />
+			<Add directory="..\src\source" />
+			<Add directory="..\src\include" />
 		</Compiler>
 		<ResourceCompiler>
-			<Add directory="..\Eclipse\source\rc" />
+			<Add directory="..\src\source\rc" />
 		</ResourceCompiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
@@ -57,53 +57,54 @@
 			<Add library="Comctl32" />
 			<Add library="uuid" />
 		</Linker>
-		<Unit filename="..\Eclipse\source\FileStrFnc.cpp" />
-		<Unit filename="..\Eclipse\source\FileStrFnc.h" />
-		<Unit filename="..\Eclipse\source\GDIWavePic.cpp" />
-		<Unit filename="..\Eclipse\source\GDIWavePic.h" />
-		<Unit filename="..\Eclipse\source\Hotkey.cpp" />
-		<Unit filename="..\Eclipse\source\Hotkey.h" />
-		<Unit filename="..\Eclipse\source\MenuData.cpp" />
-		<Unit filename="..\Eclipse\source\MenuData.h" />
-		<Unit filename="..\Eclipse\source\MenuWithIcon.cpp">
+		<Unit filename="..\src\source\FileStrFnc.cpp" />
+		<Unit filename="..\src\source\FileStrFnc.h" />
+		<Unit filename="..\src\source\GDIWavePic.cpp" />
+		<Unit filename="..\src\source\GDIWavePic.h" />
+		<Unit filename="..\src\source\Hotkey.cpp" />
+		<Unit filename="..\src\source\Hotkey.h" />
+		<Unit filename="..\src\source\MenuData.cpp" />
+		<Unit filename="..\src\source\MenuData.h" />
+		<Unit filename="..\src\source\MenuWithIcon.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="..\Eclipse\source\MenuWithIcon.h" />
-		<Unit filename="..\Eclipse\source\MsgMap.cpp" />
-		<Unit filename="..\Eclipse\source\MsgMap.h" />
-		<Unit filename="..\Eclipse\source\OwnerDrawMenu.cpp">
+		<Unit filename="..\src\source\MenuWithIcon.h" />
+		<Unit filename="..\src\source\MsgMap.cpp" />
+		<Unit filename="..\src\source\MsgMap.h" />
+		<Unit filename="..\src\source\OwnerDrawMenu.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="..\Eclipse\source\OwnerDrawMenu.h" />
-		<Unit filename="..\Eclipse\source\Resource.h" />
-		<Unit filename="..\Eclipse\source\RunDlg.cpp" />
-		<Unit filename="..\Eclipse\source\RunDlg.h" />
-		<Unit filename="..\Eclipse\source\SettingFile.cpp">
+		<Unit filename="..\src\source\OwnerDrawMenu.h" />
+		<Unit filename="..\src\source\Resource.h" />
+		<Unit filename="..\src\source\RunDlg.cpp" />
+		<Unit filename="..\src\source\RunDlg.h" />
+		<Unit filename="..\src\source\SettingFile.cpp">
 			<Option weight="6" />
 		</Unit>
-		<Unit filename="..\Eclipse\source\SettingFile.h" />
-		<Unit filename="..\Eclipse\source\TrayStart.cpp" />
-		<Unit filename="..\Eclipse\source\TrayStart.h" />
-		<Unit filename="..\Eclipse\source\TrayStart.rc">
+		<Unit filename="..\src\source\SettingFile.h" />
+		<Unit filename="..\src\source\TrayStart.cpp" />
+		<Unit filename="..\src\source\TrayStart.h" />
+		<Unit filename="..\src\source\TrayStart.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
-		<Unit filename="..\Eclipse\source\WavePic.cpp" />
-		<Unit filename="..\Eclipse\source\WavePic.h" />
-		<Unit filename="..\Eclipse\source\language.cpp" />
-		<Unit filename="..\Eclipse\source\language.h" />
-		<Unit filename="..\Eclipse\source\rc\TrayLauncher.exe.Manifest" />
-		<Unit filename="..\Eclipse\source\stdafx.cpp" />
-		<Unit filename="..\Eclipse\source\stdafx.h" />
-		<Unit filename="..\Eclipse\source\stdafxDebug\stdafx.h">
+		<Unit filename="..\src\source\WavePic.cpp" />
+		<Unit filename="..\src\source\WavePic.h" />
+		<Unit filename="..\src\source\language.cpp" />
+		<Unit filename="..\src\source\language.h" />
+		<Unit filename="..\src\source\rc\TrayLauncher.exe.Manifest" />
+		<Unit filename="..\src\source\stdafx.cpp" />
+		<Unit filename="..\src\source\stdafx.h" />
+		<Unit filename="..\src\source\stdafxDebug\stdafx.h">
+			<Option compile="1" />
 			<Option weight="0" />
 			<Option target="Debug" />
 		</Unit>
-		<Unit filename="..\Eclipse\source\stdafxRelease\stdafx.h">
+		<Unit filename="..\src\source\stdafxRelease\stdafx.h">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="..\Eclipse\source\stdafx_real.h" />
+		<Unit filename="..\src\source\stdafx_real.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
