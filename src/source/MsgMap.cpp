@@ -179,7 +179,7 @@ LRESULT  MsgDeviceChange(HWND, UINT, WPARAM, LPARAM);
 LRESULT  MsgRefresh(HWND, UINT, WPARAM, LPARAM);
 
 
-BOOL  CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+BOOL  CALLBACK AboutProc(HWND, UINT, WPARAM, LPARAM);
 
 
 enum MENU_ID_TYPE{BASE = 2000,CMDID_START = BASE,AUTOSTART = BASE,SEPRATER,RELOAD,EDITCMDS,EXIT,ABOUT, OPTION, MCLICK,RUNDLG,
@@ -526,7 +526,7 @@ void ShowAbout()
 {
 	CBLocker locker(IgnoreUser());
 	assert(IgnoreUser());
-	DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, About);
+	DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, AboutProc);
 }
 
 static std::map<int, TSTRING> s_id2LngFN;
@@ -1198,7 +1198,7 @@ int AutoStart(AUTORUN action)
 
 
 // “关于”框的消息处理程序。
-BOOL  CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+BOOL  CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	const UINT uTimerID = 1;
 	static bool bCloseWindow = true;
