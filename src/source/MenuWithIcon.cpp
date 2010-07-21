@@ -21,13 +21,23 @@ unsigned int GetSeparatedString(const TSTRING & inStr, const TSTRING::value_type
 {
 	vStr.clear();
 	TSTRING::size_type iStartPos = 0;
-	TSTRING::size_type iEndPos = inStr.find(ch, iStartPos);
+	TSTRING::size_type iEndPos = TSTRING::npos;
+	/*
+	iEndPos = inStr.find(ch, iStartPos);
 	while (iEndPos != TSTRING::npos) {
 		vStr.push_back(inStr.substr(iStartPos, iEndPos - iStartPos));
 		iStartPos = iEndPos + 1;
 		iEndPos = inStr.find(ch, iStartPos);
 	}
 	vStr.push_back(inStr.substr(iStartPos));
+	/*/
+	do {
+		iEndPos = inStr.find(ch, iStartPos);
+		vStr.push_back(inStr.substr(iStartPos, iEndPos - iStartPos));
+		iStartPos = iEndPos + 1;
+	} while (iEndPos != TSTRING::npos);
+
+	//*/
 	return vStr.size();
 }
 
