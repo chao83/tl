@@ -58,7 +58,7 @@ bool CSettingFile::SaveAs(const TSTRING & strFileName)
 			WriteStringToFile(_T("[") + m_Settings[i].first + _T("]\r\n"), file);
 		}
 		for (StrStrMap::const_iterator iter = m_Settings[i].second.begin(); iter != m_Settings[i].second.end(); ++iter) {
-			WriteStringToFile(iter->first + _T("=") + iter->second + _T("\r\n"), file);
+			WriteStringToFile(iter->first + _T(" = ") + iter->second + _T("\r\n"), file);
 		}
 
 		WriteStringToFile(_T("\r\n"), file);
