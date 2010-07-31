@@ -17,7 +17,7 @@ bool SetLanguageFile(const TCHAR * );
 // SettingFile¡¡¹Ø¼ü×Ö
 typedef const TCHAR *const CSTR;
 CSTR sectionGeneral = _T("general");
-CSTR keyConformExit = _T("conformexit");
+CSTR keyConformExit = _T("confirm_exit");
 CSTR keyCommand = _T("command");
 CSTR keyRunIcon = _T("runicon");
 CSTR keyTrayIcon = _T("trayicon");

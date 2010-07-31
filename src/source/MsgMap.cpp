@@ -276,7 +276,12 @@ void SetLanguage(const TSTRING & strFNLng)
 	g_pSysTray->SetNameByPos(LNG_MENU_POS,_LNG(MENU_Language));
 
 	g_pSysTray->SetName(EDITCMDS,_LNG(MENU_Edit_Cmd));
-	g_pSysTray->SetName(RUNDLG,TSTRING(_LNG(MENU_Run)) + ( bDefault ? _T(" ...  Ctrl+LWin") : _T(" ...") ) );
+	{
+		TSTRING str;
+		Settings().Get(sectionHotkey, keyHKRunDialog, str);
+		g_pSysTray->SetName(RUNDLG,TSTRING(_LNG(MENU_Run)) + (str.empty() ? _T(" ...") : _T(" ...   ") + str) );
+	}
+
 	g_pSysTray->SetName(MCLICK,_LNG(MENU_Use_MClick));
 	g_pSysTray->SetName(AUTOSTART,_LNG(MENU_Start_With_OS));
 	g_pSysTray->SetName(RELOAD,_LNG(MENU_Refresh));
