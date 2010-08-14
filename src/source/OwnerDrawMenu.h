@@ -151,9 +151,10 @@ protected:
 private:
 	COwnerDrawMenu(const COwnerDrawMenu &);//禁止复制构造
 	COwnerDrawMenu & operator = (const COwnerDrawMenu &) ;//禁止赋值
-#ifdef _DEBUG
-	bool IsParentMenu(MENUTYPE hMenu,UINT_PTR uItemID);
-#endif
+
+	// just for design test
+	bool IsParentAndChild(MENUTYPE hMenu,UINT_PTR uItemID);
+
 	int FillRectWithColor(HDC hdc,RECT & rect,COLORREF color);
 	void TransformMenu(MENUTYPE hSubMenu);
 

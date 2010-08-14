@@ -1023,16 +1023,15 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	if (iFoundLast != -1 && strEditLast.empty())
 		iFoundLast = -1;
 
-#ifdef _DEBUG
-	static tString s_strEditLast;
-	if (s_strEditLast != strEditLast) {
-		s_strEditLast = strEditLast;
-	}
-	static int lastMsg, lastW, lastL;
-	lastMsg = message;
-	lastW = wParam;
-	lastL = lParam;
-#endif
+//	static tString s_strEditLast;
+//	if (s_strEditLast != strEditLast) {
+//		s_strEditLast = strEditLast;
+//	}
+//	static int lastMsg, lastW, lastL;
+//	lastMsg = message;
+//	lastW = wParam;
+//	lastL = lParam;
+
 	return FALSE;
 }
 

@@ -105,10 +105,10 @@ LRESULT CALLBACK COwnerDrawMenu::MyWndProc(HWND hWnd, UINT message, WPARAM wPara
 		result = 0;
 	}
 	else {
-#ifdef _DEBUG
-		static std::map<UINT, int> msgRecorder;
-		++msgRecorder[message];
-#endif
+
+//		static std::map<UINT, int> msgRecorder;
+//		++msgRecorder[message];
+
 		result = DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return result;
@@ -495,7 +495,7 @@ int COwnerDrawMenu::FillRectWithColor(HDC hdc,RECT & rect,COLORREF color)
 }
 
 #ifdef _DEBUG
-bool COwnerDrawMenu::IsParentMenu(MENUTYPE hMenu, UINT_PTR uItemID)
+bool COwnerDrawMenu::IsParentAndChild(MENUTYPE hMenu, UINT_PTR uItemID)
 {
 	if(uItemID == (UINT_PTR)-1 || !IsMenu(hMenu))
 		return false;
@@ -505,7 +505,7 @@ bool COwnerDrawMenu::IsParentMenu(MENUTYPE hMenu, UINT_PTR uItemID)
 		for (int i = 0; i < count; ++i)
 		{
 			hSub = GetSubMenu(hMenu,i);
-			if (hSub && ( hSub == (MENUTYPE)uItemID || IsParentMenu(hSub,uItemID) ) )
+			if (hSub && ( hSub == (MENUTYPE)uItemID || IsParentAndChild(hSub,uItemID) ) )
 				return true;
 		}
 	}
@@ -513,7 +513,7 @@ bool COwnerDrawMenu::IsParentMenu(MENUTYPE hMenu, UINT_PTR uItemID)
 		for (int i = 0; i < count; ++i) {
 			hSub = GetSubMenu(hMenu,i);
 			if(hSub) {
-				if(IsParentMenu(hSub,uItemID))
+				if(IsParentAndChild(hSub,uItemID))
 					return true;
 			}
 			else if(GetMenuItemID(hMenu,i) == uItemID)
@@ -836,7 +836,7 @@ LRESULT COwnerDrawMenu::MenuSelect(MENUTYPE hMenu,UINT uItem,UINT uFlags) {
 // 实现，处理用户按键选择菜单项
 LRESULT COwnerDrawMenu::MenuChar_impl(MENUTYPE hMenu,TCHAR ch)
 {
-	assert(hMenu == m_hMenu || IsParentMenu(m_hMenu,(UINT_PTR)hMenu));
+	assert(hMenu == m_hMenu || IsParentAndChild(m_hMenu,(UINT_PTR)hMenu));
 	int itemCount = GetMenuItemCount(hMenu);
 	std::vector<int> vFound;
 	const TCHAR *name;

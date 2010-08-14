@@ -829,29 +829,12 @@ bool AddHotkey(HWND hWnd, int id, UINT fsModifiers, UINT vk)
 }
 
 
-#ifdef _DEBUG
-void _DbgTest()
-{
-	SHFILEINFO sfi = {0};
-
-	SHGetFileInfo(_T("e:\\"), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi),SHGFI_TYPENAME);
-	SHGetFileInfo(_T("e:\\"), FILE_ATTRIBUTE_NORMAL, &sfi, sizeof(sfi),SHGFI_DISPLAYNAME);
-	//const Ptr<int> b = a;
-	return;
-}
-#endif
-
 // 以下是不同消息相应的处理函数 : Msg....(HWND, UINT, WPARAM, LPARAM) ;
 // WM_CREATE
 LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* lParam */)
 {
 	g_hWnd = hWnd;
-	//*
-#ifdef _DEBUG
-	_DbgTest();
-#endif
 
-	// */
 	//for (int i = CMDID_START; i < CMDID_END; ++i) {
 	//	if (IsMenu( (HMENU)i ) ) {
 	//		//TrackPopupMenuEx((HMENU)i, 0, 0, 0, hWnd, NULL);
