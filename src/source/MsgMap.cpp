@@ -1437,6 +1437,12 @@ BOOL  CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_ERASEBKGND: {
 			GetClientRect(hDlg,&rectClient);
+			
+			// do NOT use min MACRO in Visual C++, use std::min
+			#ifdef min
+			#undef min
+			#endif
+
 			int iSmallEdge = std::min(rectClient.right, rectClient.bottom);
 			iSmallEdge -= (iSmallEdge >> 1);
 
