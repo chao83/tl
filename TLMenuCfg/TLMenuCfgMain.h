@@ -38,6 +38,11 @@ class TLMenuCfgDialog: public wxDialog
         void OnInit(wxInitDialogEvent& event);
         void OnTreeMenuSelectionChanged(wxTreeEvent& event);
         void OnbtnSaveClick(wxCommandEvent& event);
+        void OnTreeMenuSelChanging(wxTreeEvent& event);
+        void OntxtTargetText(wxCommandEvent& event);
+        void OntxtNameOrFilterText(wxCommandEvent& event);
+        void OntxtIconText(wxCommandEvent& event);
+        void OnbtnReloadClick(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(TLMenuCfgDialog)
@@ -98,6 +103,12 @@ class TLMenuCfgDialog: public wxDialog
         //*)
 
         DECLARE_EVENT_TABLE()
+
+		bool InfoChgFlg() const { return m_bInfoUnsaved; }
+		void InfoChgFlg(const bool val) { m_bInfoUnsaved = val; }
+		bool ReadItemInfo();
+		bool SaveItemInfo();
+		bool m_bInfoUnsaved;
 };
 
 #endif // TLMENUCFGMAIN_H

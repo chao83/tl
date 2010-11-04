@@ -81,6 +81,7 @@ BEGIN_EVENT_TABLE(TLMenuCfgDialog,wxDialog)
 END_EVENT_TABLE()
 
 TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
+	:m_bInfoUnsaved(false)
 {
 	//(*Initialize(TLMenuCfgDialog)
 	wxBoxSizer* BoxSizer4;
@@ -210,8 +211,13 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Center();
 
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGED,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelectionChanged);
+	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGING,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelChanging);
 	Connect(ID_BITMAPBUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnUpClick);
+	Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtTargetText);
+	Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtNameOrFilterText);
+	Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtIconText);
 	Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnSaveClick);
+	Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnReloadClick);
 	Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnQuit);
 	Connect(wxID_ANY,wxEVT_INIT_DIALOG,(wxObjectEventFunction)&TLMenuCfgDialog::OnInit);
 	//*)
@@ -262,35 +268,113 @@ void TLMenuCfgDialog::OnTreeMenuSelectionChanged(wxTreeEvent& event)
 	{
 		assert(item == m_TreeMenu->GetSelection());
 		// update detail info
-		wxTreeItemData *pData = m_TreeMenu->GetItemData(item);
-
-		if (pData)
-		{
-			assert(dynamic_cast<MenuItemData *> (pData));
-			MenuItemData *p = static_cast<MenuItemData *> (pData);
-			m_txtNameOrFilter->SetValue(p->Name());
-			m_txtTarget->SetValue(p->Target());
-			m_txtIcon->SetValue(p->IconPath());
-
-		}
+		ReadItemInfo();
 	}
 }
 
 void TLMenuCfgDialog::OnbtnSaveClick(wxCommandEvent& event)
 {
-	wxTreeItemId item = m_TreeMenu->GetSelection();
+	if(InfoChgFlg())
+	{
+		SaveItemInfo();
+	}
+}
+
+void TLMenuCfgDialog::OnTreeMenuSelChanging(wxTreeEvent& event)
+{
+	if (InfoChgFlg())
+	{
+		switch(wxMessageBox(_T("Menu_Item_Changed"), _T("Confirm") , wxYES_NO | wxCANCEL))
+		{
+		case wxCANCEL:
+			event.Veto();
+			break;
+		case wxNO:
+			// do Nothing, change item without saving.
+			break;
+		case wxYES:
+			SaveItemInfo();
+			break;
+		default:
+			assert(false);
+		}
+	}
+}
+
+void TLMenuCfgDialog::OntxtTargetText(wxCommandEvent& event)
+{
+	InfoChgFlg(true);
+}
+
+void TLMenuCfgDialog::OntxtNameOrFilterText(wxCommandEvent& event)
+{
+	InfoChgFlg(true);
+}
+
+void TLMenuCfgDialog::OntxtIconText(wxCommandEvent& event)
+{
+	InfoChgFlg(true);
+}
+
+void TLMenuCfgDialog::OnbtnReloadClick(wxCommandEvent& event)
+{
+	if(InfoChgFlg())
+	{
+		ReadItemInfo();
+	}
+}
+
+bool TLMenuCfgDialog::ReadItemInfo()
+{
+	bool ret = false;
+	wxTreeItemId item(m_TreeMenu->GetSelection());
+
 	if (item.IsOk())
 	{
-		wxTreeItemData *pData = m_TreeMenu->GetItemData(item);
+		if (wxTreeItemData *pData = m_TreeMenu->GetItemData(item))
+		{
+			assert(dynamic_cast<MenuItemData*>(pData));
+			MenuItemData *p = static_cast<MenuItemData*>(pData);
+			m_txtNameOrFilter->SetValue(p->Name());
+			m_txtTarget->SetValue(p->Target());
+			m_txtIcon->SetValue(p->IconPath());
+		}
+		else
+		{
+			m_txtNameOrFilter->Clear();
+			m_txtTarget->Clear();
+			m_txtIcon->Clear();
+		}
 
-		if (pData)
+		InfoChgFlg(false);
+		ret = true;
+	}
+
+	return ret;
+}
+
+
+bool TLMenuCfgDialog::SaveItemInfo()
+{
+	assert(InfoChgFlg());
+
+	bool ret = false;
+	wxTreeItemId item = m_TreeMenu->GetSelection();
+
+	if (item.IsOk())
+	{
+		if (wxTreeItemData *pData = m_TreeMenu->GetItemData(item))
 		{
 			assert(dynamic_cast<MenuItemData *> (pData));
 			MenuItemData *p = static_cast<MenuItemData *> (pData);
 			p->Name(m_txtNameOrFilter->GetValue());
 			p->Target(m_txtTarget->GetValue());
 			p->IconPath(m_txtIcon->GetValue());
-		}
 
+			InfoChgFlg(false);
+			ret = true;
+		}
 	}
+
+	return ret;
 }
