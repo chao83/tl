@@ -1,10 +1,10 @@
 /***************************************************************
  * Name:      TLMenuCfgMain.cpp
  * Purpose:   Code for Application Frame
- * Author:     ()
+ * Author:     (lichao)
  * Created:   2010-10-31
- * Copyright:  ()
- * License:
+ * Copyright:  (lichao)
+ * License: GPL 3.0
  **************************************************************/
 
 #include "wx_pch.h"
@@ -260,6 +260,24 @@ void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 	}
 }
 
+void TLMenuCfgDialog::InfoChgFlg(const bool val)
+{
+	if (val != m_bInfoUnsaved)
+	{
+		m_bInfoUnsaved = val;
+
+		if (!val)
+		{
+			wxFont font(m_txtTarget->GetFont());
+			font.SetWeight(wxNORMAL);
+
+			m_txtTarget->SetFont(font);
+			m_txtNameOrFilter->SetFont(font);
+			m_txtIcon->SetFont(font);
+		}
+	}
+}
+
 void TLMenuCfgDialog::OnTreeMenuSelectionChanged(wxTreeEvent& event)
 {
 	wxTreeItemId item = event.GetItem();
@@ -269,6 +287,8 @@ void TLMenuCfgDialog::OnTreeMenuSelectionChanged(wxTreeEvent& event)
 		assert(item == m_TreeMenu->GetSelection());
 		// update detail info
 		ReadItemInfo();
+
+		UpdateFlgs();
 	}
 }
 
@@ -282,7 +302,7 @@ void TLMenuCfgDialog::OnbtnSaveClick(wxCommandEvent& event)
 
 void TLMenuCfgDialog::OnTreeMenuSelChanging(wxTreeEvent& event)
 {
-	if (InfoChgFlg())
+	if (InfoChgFlg() && event.GetOldItem().IsOk())
 	{
 		switch(wxMessageBox(_T("Menu_Item_Changed"), _T("Confirm") , wxYES_NO | wxCANCEL))
 		{
@@ -301,19 +321,84 @@ void TLMenuCfgDialog::OnTreeMenuSelChanging(wxTreeEvent& event)
 	}
 }
 
+void TLMenuCfgDialog::CheckFlg(wxCheckBox* ctrl, const bool val)
+{
+	assert(ctrl);
+	if (ctrl->GetValue() != val)
+	{
+		ctrl->SetValue(val);
+		wxFont font(ctrl->GetFont());
+		font.SetWeight(val ? wxBOLD : wxNORMAL);
+		ctrl->SetFont(font);
+	}
+}
+
 void TLMenuCfgDialog::OntxtTargetText(wxCommandEvent& event)
 {
 	InfoChgFlg(true);
+
+	wxFont font(m_txtTarget->GetFont());
+
+	if (font.GetWeight() != wxBOLD)
+	{
+		font.SetWeight(wxBOLD);
+		m_txtTarget->SetFont(font);
+	}
+
+	UpdateFlgs();
 }
 
 void TLMenuCfgDialog::OntxtNameOrFilterText(wxCommandEvent& event)
 {
 	InfoChgFlg(true);
+
+	wxFont font(m_txtNameOrFilter->GetFont());
+
+	if (font.GetWeight() != wxBOLD)
+	{
+		font.SetWeight(wxBOLD);
+		m_txtNameOrFilter->SetFont(font);
+	}
+
+	UpdateFlgs();
+
 }
 
 void TLMenuCfgDialog::OntxtIconText(wxCommandEvent& event)
 {
 	InfoChgFlg(true);
+
+	wxFont font(m_txtIcon->GetFont());
+
+	if (font.GetWeight() != wxBOLD)
+	{
+		font.SetWeight(wxBOLD);
+		m_txtIcon->SetFont(font);
+	}
+
+	UpdateFlgs();
+}
+
+void TLMenuCfgDialog::UpdateFlgs()
+{
+	wxTreeItemId item = m_TreeMenu->GetSelection();
+
+	CheckFlg(m_flgMenu, item.IsOk() && m_TreeMenu->HasChildren(item));
+
+	CheckFlg(m_flgWildCard, m_txtTarget->GetValue().Right(1) == _T("*"));
+	CheckFlg(m_flgTitle, m_txtTarget->IsEmpty() && !m_txtNameOrFilter->IsEmpty());
+
+	CheckFlg(m_flgSep,
+			!m_flgMenu->GetValue() &&
+			m_txtTarget->IsEmpty() &&
+			m_txtIcon->IsEmpty() &&
+			m_txtNameOrFilter->IsEmpty());
+
+	CheckFlg(m_flgSep,
+			!m_flgMenu->GetValue() &&
+			m_txtTarget->IsEmpty() &&
+			m_txtIcon->IsEmpty() &&
+			m_txtNameOrFilter->IsEmpty());
 }
 
 void TLMenuCfgDialog::OnbtnReloadClick(wxCommandEvent& event)
@@ -356,13 +441,13 @@ bool TLMenuCfgDialog::ReadItemInfo()
 
 bool TLMenuCfgDialog::SaveItemInfo()
 {
-	assert(InfoChgFlg());
-
 	bool ret = false;
 	wxTreeItemId item = m_TreeMenu->GetSelection();
 
 	if (item.IsOk())
 	{
+		assert(InfoChgFlg());
+
 		if (wxTreeItemData *pData = m_TreeMenu->GetItemData(item))
 		{
 			assert(dynamic_cast<MenuItemData *> (pData));

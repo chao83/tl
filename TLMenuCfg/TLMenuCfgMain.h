@@ -1,10 +1,10 @@
 /***************************************************************
  * Name:      TLMenuCfgMain.h
  * Purpose:   Defines Application Frame
- * Author:     ()
+ * Author:     (lichao)
  * Created:   2010-10-31
- * Copyright:  ()
- * License:
+ * Copyright:  (lichao)
+ * License:	GPL 3.0
  **************************************************************/
 
 #ifndef TLMENUCFGMAIN_H
@@ -105,9 +105,12 @@ class TLMenuCfgDialog: public wxDialog
         DECLARE_EVENT_TABLE()
 
 		bool InfoChgFlg() const { return m_bInfoUnsaved; }
-		void InfoChgFlg(const bool val) { m_bInfoUnsaved = val; }
+		void InfoChgFlg(const bool val);
 		bool ReadItemInfo();
 		bool SaveItemInfo();
+		void CheckFlg(wxCheckBox* ctrl, const bool val);
+		void UpdateFlgs();
+
 		bool m_bInfoUnsaved;
 };
 
