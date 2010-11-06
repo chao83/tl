@@ -115,7 +115,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer2->Add(m_search, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer4->Add(BoxSizer2, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
-	m_TreeMenu = new wxTreeCtrl(this, ID_TREECTRL_MENU, wxDefaultPosition, wxSize(198,333), wxTR_DEFAULT_STYLE, wxDefaultValidator, _T("ID_TREECTRL_MENU"));
+	m_TreeMenu = new wxTreeCtrl(this, ID_TREECTRL_MENU, wxDefaultPosition, wxSize(198,333), wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE, wxDefaultValidator, _T("ID_TREECTRL_MENU"));
 	BoxSizer8->Add(m_TreeMenu, 1, wxTOP|wxBOTTOM|wxLEFT|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer5 = new wxBoxSizer(wxVERTICAL);
 	m_btnUp = new wxBitmapButton(this, ID_BITMAPBUTTON1, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_GO_UP")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON1"));
@@ -213,6 +213,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGED,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelectionChanged);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGING,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelChanging);
 	Connect(ID_BITMAPBUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnUpClick);
+	Connect(ID_BITMAPBUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnDownClick);
+	Connect(ID_BITMAPBUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnDelClick);
 	Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtTargetText);
 	Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtNameOrFilterText);
 	Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtIconText);
@@ -240,11 +242,18 @@ void TLMenuCfgDialog::OnAbout(wxCommandEvent& event)
 	wxMessageBox(msg, _("Welcome to..."));
 }
 
-void TLMenuCfgDialog::OnbtnUpClick(wxCommandEvent& event)
-{
-}
 
 namespace {
+
+//! \brief read name, path, and icon path from CItem
+//!
+//! \param mi const CItem& : the menu item to read from
+//! \param strName TSTRING& : save name
+//! \param strPath TSTRING& : save path
+//! \param strIcon TSTRING& : sava icon path
+//! \return void
+//! Called only in this file.
+//!
 void GetMenuStrings(const CItem &mi, TSTRING &strName, TSTRING &strPath, TSTRING &strIcon)
 {
 	TSTRING strSep(_T("|||"));
@@ -264,6 +273,42 @@ void GetMenuStrings(const CItem &mi, TSTRING &strName, TSTRING &strPath, TSTRING
 	}
 }
 
+//! \brief update the display of tree item according to its item data
+//!
+//! \param tree wxTreeCtrl&, the tree ctrl to update
+//! \param id wxTreeItemId, the item to update
+//! \return void
+//!
+//!
+void UpdateDisplayName(wxTreeCtrl &tree, wxTreeItemId id)
+{
+	assert(id.IsOk());
+	MenuItemData * md(static_cast<MenuItemData*>(tree.GetItemData(id)));
+	assert(md && dynamic_cast<MenuItemData*>(tree.GetItemData(id)));
+
+	TSTRING strDisplay(md->Name());
+
+	if (strDisplay.empty())
+	{
+		strDisplay = _T("< ??? >");
+
+		if (md->Target().empty() && md->IconPath().empty())
+		{
+			strDisplay = _T("----------------");
+		}
+	}
+
+	tree.SetItemText(id, strDisplay);
+}
+
+//! \brief transfer menu item info (name,path and icon) to tree item data.
+//!
+//! \param mi const CItem&, menu item to read
+//! \param tree wxTreeCtrl&, ref of the tree
+//! \param id wxTreeItemId, id of the tree item.
+//! \return void
+//! this function deal with a menu item(leaf), not a sub-menu.
+//!
 void MenuDataToTree(const CItem &mi, wxTreeCtrl &tree, wxTreeItemId id)
 {
 	assert(id.IsOk());
@@ -271,8 +316,17 @@ void MenuDataToTree(const CItem &mi, wxTreeCtrl &tree, wxTreeItemId id)
 	GetMenuStrings(mi, strName, strPath, strIcon);
 
 	tree.SetItemData(id, new MenuItemData(strName, strPath, strIcon));
+	UpdateDisplayName(tree, id);
 }
 
+//! \brief transfer sub-menu info (name,path and icon) to tree item data.
+//!
+//! \param mi const CMenuData&, submenu to read
+//! \param tree wxTreeCtrl&, ref of the tree
+//! \param id wxTreeItemId, id of the tree item
+//! \return void
+//! this function will create tree items for children of mi recursively.
+//!
 void MenuDataToTree(const CMenuData &mi, wxTreeCtrl &tree, wxTreeItemId id)
 {
 	assert(id.IsOk());
@@ -282,18 +336,51 @@ void MenuDataToTree(const CMenuData &mi, wxTreeCtrl &tree, wxTreeItemId id)
 	for (unsigned int i = 0; i < mi.Count(); ++i)
 	{
 		wxTreeItemId idsub(tree.AppendItem(id, mi.Item(i)->Name()));
-		if (mi.IsMenu(i))
-		{
-			MenuDataToTree(*mi.Menu(i), tree, idsub);
-		}
-		else
-		{
-			MenuDataToTree(*mi.Item(i), tree, idsub);
-		}
+
+		if (mi.IsMenu(i)) { MenuDataToTree(*mi.Menu(i), tree, idsub); }
+		else { MenuDataToTree(*mi.Item(i), tree, idsub); }
 	}
 
 }
+
+bool MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true)
+{
+	if(!from.IsOk() || !to.IsOk() || tree.HasChildren(from))
+	{
+		return false;
+	}
+
+	wxTreeItemId parent(tree.GetItemParent(to));
+
+	if (!parent)
+	{
+		return false;
+	}
+
+	tree.Freeze(); //disable screen update
+
+	wxTreeItemId pos(before ? tree.GetPrevSibling(to) : to);
+
+	// add a new item, copy 'from' to new item.
+	if (pos)
+	{
+		tree.SelectItem(tree.InsertItem(parent, pos, tree.GetItemText(from), -1, -1, tree.GetItemData(from)));
+	}
+	else
+	{
+		tree.SelectItem(tree.PrependItem(parent, tree.GetItemText(from), -1, -1, tree.GetItemData(from)));
+	}
+
+	// clear old data;
+	tree.SetItemData(from, NULL);
+	tree.Delete(from);
+
+	tree.Thaw();//enable screen update
+
+	return true;
 }
+
+} // end of namespace <unnamed>
 
 void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 {
@@ -508,6 +595,7 @@ bool TLMenuCfgDialog::SaveItemInfo()
 			p->Name(m_txtNameOrFilter->GetValue());
 			p->Target(m_txtTarget->GetValue());
 			p->IconPath(m_txtIcon->GetValue());
+			UpdateDisplayName(*m_TreeMenu, item);
 
 			InfoChgFlg(false);
 			ret = true;
@@ -515,4 +603,39 @@ bool TLMenuCfgDialog::SaveItemInfo()
 	}
 
 	return ret;
+}
+
+void TLMenuCfgDialog::OnbtnUpClick(wxCommandEvent& event)
+{
+	wxTreeItemId item(m_TreeMenu->GetSelection());
+
+	if (item)
+	{
+		MoveItem(*m_TreeMenu, item, m_TreeMenu->GetPrevSibling(item));
+	}
+}
+
+
+void TLMenuCfgDialog::OnbtnDownClick(wxCommandEvent& event)
+{
+	wxTreeItemId item(m_TreeMenu->GetSelection());
+
+	if (item)
+	{
+		MoveItem(*m_TreeMenu, item, m_TreeMenu->GetNextSibling(item), false);
+	}
+}
+
+void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
+{
+	wxTreeItemId item = m_TreeMenu->GetSelection();
+
+	if (item.IsOk())
+	{
+		if (!m_TreeMenu->HasChildren(item) ||
+		        wxMessageBox(_T("DELETE_MENU"), _T("LNG_Confirm"), wxYES_NO) == wxYES)
+		{
+			m_TreeMenu->Delete(item);
+		}
+	}
 }

@@ -45,6 +45,8 @@ class TLMenuCfgDialog: public wxDialog
         void OntxtNameOrFilterText(wxCommandEvent& event);
         void OntxtIconText(wxCommandEvent& event);
         void OnbtnReloadClick(wxCommandEvent& event);
+        void OnbtnDownClick(wxCommandEvent& event);
+        void OnbtnDelClick(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(TLMenuCfgDialog)
@@ -113,7 +115,7 @@ class TLMenuCfgDialog: public wxDialog
 		void CheckFlg(wxCheckBox* ctrl, const bool val);
 		void UpdateFlgs();
 
-		bool m_bInfoUnsaved;
+		bool m_bInfoUnsaved;	//!< if there is unsaved change
 		CMenuData m_menuData;
 };
 
