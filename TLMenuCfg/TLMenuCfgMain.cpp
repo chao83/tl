@@ -214,6 +214,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGING,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelChanging);
 	Connect(ID_BITMAPBUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnUpClick);
 	Connect(ID_BITMAPBUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnDownClick);
+	Connect(ID_BITMAPBUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnNewDirClick);
+	Connect(ID_BITMAPBUTTON5,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnNewItemClick);
 	Connect(ID_BITMAPBUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnDelClick);
 	Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtTargetText);
 	Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtNameOrFilterText);
@@ -343,6 +345,31 @@ void MenuDataToTree(const CMenuData &mi, wxTreeCtrl &tree, wxTreeItemId id)
 
 }
 
+wxTreeItemId InsertItem(wxTreeCtrl &tree, const wxTreeItemId & item, bool before = true, const TSTRING &strName = _T(""))
+{
+	wxTreeItemId id;
+	assert(!id.IsOk());
+
+	if (item.IsOk())
+	{
+		if (wxTreeItemId parent = tree.GetItemParent(item))
+		{
+			wxTreeItemId pos = before ? tree.GetPrevSibling(item) : item;
+
+			if (pos)
+			{
+				id = tree.InsertItem(parent, pos, strName);
+			}
+			else
+			{
+				id = tree.PrependItem(parent, strName);
+			}
+		}
+	}
+
+	return id;
+}
+
 bool MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true)
 {
 	if(!from.IsOk() || !to.IsOk() || tree.HasChildren(from))
@@ -359,17 +386,10 @@ bool MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool b
 
 	tree.Freeze(); //disable screen update
 
-	wxTreeItemId pos(before ? tree.GetPrevSibling(to) : to);
-
-	// add a new item, copy 'from' to new item.
-	if (pos)
-	{
-		tree.SelectItem(tree.InsertItem(parent, pos, tree.GetItemText(from), -1, -1, tree.GetItemData(from)));
-	}
-	else
-	{
-		tree.SelectItem(tree.PrependItem(parent, tree.GetItemText(from), -1, -1, tree.GetItemData(from)));
-	}
+	wxTreeItemId id = InsertItem(tree, to, before);
+	tree.SetItemText(id, tree.GetItemText(from));
+	tree.SetItemData(id, tree.GetItemData(from));
+	tree.SelectItem(id);
 
 	// clear old data;
 	tree.SetItemData(from, NULL);
@@ -384,11 +404,18 @@ bool MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool b
 
 void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 {
-	m_menuData.Load(_T("TLCmd.txt"));
+	m_menuData.Load(_T("a.txt"));
 
 	wxTreeItemId idRoot = m_TreeMenu->AddRoot(m_menuData.Name());
 
 	MenuDataToTree(m_menuData, *m_TreeMenu, idRoot);
+	// if empty, add a demo item;
+	if (!m_TreeMenu->HasChildren(idRoot))
+	{
+		wxTreeItemId demoItem = m_TreeMenu->AppendItem(idRoot, _T(""));
+		m_TreeMenu->SetItemData(demoItem, new MenuItemData(_T("<name>"), _T("<target>"), _T("")));
+		UpdateDisplayName(*m_TreeMenu, demoItem);
+	}
 }
 
 void TLMenuCfgDialog::InfoChgFlg(const bool val)
@@ -632,10 +659,64 @@ void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
 
 	if (item.IsOk())
 	{
-		if (!m_TreeMenu->HasChildren(item) ||
-		        wxMessageBox(_T("DELETE_MENU"), _T("LNG_Confirm"), wxYES_NO) == wxYES)
+		if (m_TreeMenu->GetPrevSibling(item) || m_TreeMenu->GetNextSibling(item))
 		{
-			m_TreeMenu->Delete(item);
+			if (!m_TreeMenu->HasChildren(item) ||
+			        wxMessageBox(_T("DELETE_MENU"), _T("LNG_Confirm"), wxYES_NO) == wxYES)
+			{
+				m_TreeMenu->Delete(item);
+			}
+		}
+		else
+		{
+			// is only child
+			wxMessageBox(_T("Err_Del_Only_Child"));
+		}
+	}
+}
+
+void TLMenuCfgDialog::OnbtnNewDirClick(wxCommandEvent& event)
+{
+	wxTreeItemId item = m_TreeMenu->GetSelection();
+
+	if (item.IsOk())
+	{
+		wxTreeItemId dir = InsertItem(*m_TreeMenu, item);
+
+		if (dir.IsOk())
+		{
+			// add a sub item, to make it a sub-tree
+			wxTreeItemId subItem = m_TreeMenu->AppendItem(dir, _T(""));
+
+			if (subItem.IsOk())
+			{
+				m_TreeMenu->SetItemData(dir, new MenuItemData(_T("<name>"), _T(""), _T("")));
+				UpdateDisplayName(*m_TreeMenu, dir);
+				m_TreeMenu->SetItemData(subItem, new MenuItemData(_T("<name>"), _T("<Target>"), _T("")));
+				UpdateDisplayName(*m_TreeMenu, subItem);
+				m_TreeMenu->SelectItem(dir);
+			}
+			else
+			{
+				m_TreeMenu->Delete(dir);
+			}
+		}
+	}
+}
+
+void TLMenuCfgDialog::OnbtnNewItemClick(wxCommandEvent& event)
+{
+	wxTreeItemId item = m_TreeMenu->GetSelection();
+
+	if (item.IsOk())
+	{
+		wxTreeItemId add = InsertItem(*m_TreeMenu, item);
+
+		if (add.IsOk())
+		{
+			m_TreeMenu->SetItemData(add, new MenuItemData(_T("<name>"), _T("<target>"), _T("")));
+			UpdateDisplayName(*m_TreeMenu, add);
+			m_TreeMenu->SelectItem(add);
 		}
 	}
 }

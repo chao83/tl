@@ -47,6 +47,8 @@ class TLMenuCfgDialog: public wxDialog
         void OnbtnReloadClick(wxCommandEvent& event);
         void OnbtnDownClick(wxCommandEvent& event);
         void OnbtnDelClick(wxCommandEvent& event);
+        void OnbtnNewDirClick(wxCommandEvent& event);
+        void OnbtnNewItemClick(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(TLMenuCfgDialog)

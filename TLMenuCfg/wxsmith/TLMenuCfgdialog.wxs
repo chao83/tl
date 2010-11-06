@@ -71,6 +71,7 @@
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON4" variable="m_btnNewDir" member="yes">
 													<bitmap stock_id="wxART_NEW_DIR" />
 													<default>1</default>
+													<handler function="OnbtnNewDirClick" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
@@ -80,6 +81,7 @@
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON5" variable="m_btnNewItem" member="yes">
 													<bitmap stock_id="wxART_NEW" />
 													<default>1</default>
+													<handler function="OnbtnNewItemClick" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
