@@ -22,6 +22,8 @@
 #include <wx/dialog.h>
 //*)
 
+#include "MenuData.h"
+
 class TLMenuCfgDialog: public wxDialog
 {
     public:
@@ -74,6 +76,7 @@ class TLMenuCfgDialog: public wxDialog
         //*)
 
         //(*Declarations(TLMenuCfgDialog)
+        wxBitmapButton* m_btnFindTarget;
         wxBitmapButton* m_btnDown;
         wxBitmapButton* m_btnNewDir;
         wxStaticText* StaticText2;
@@ -82,10 +85,8 @@ class TLMenuCfgDialog: public wxDialog
         wxButton* m_btnSave;
         wxBitmapButton* BitmapButton2;
         wxBitmapButton* m_btnUp;
-        wxStaticText* StaticText1;
         wxStaticText* StaticText3;
         wxBitmapButton* m_btnNewItem;
-        wxBitmapButton* BitmapButton1;
         wxTreeCtrl* m_TreeMenu;
         wxTextCtrl* m_txtTarget;
         wxButton* m_btnOK;
@@ -94,6 +95,7 @@ class TLMenuCfgDialog: public wxDialog
         wxCheckBox* m_flgTitle;
         wxBoxSizer* BoxSizer1;
         wxCheckBox* m_flgWildCard;
+        wxStaticText* m_stcTarget;
         wxTextCtrl* m_txtIcon;
         wxStaticText* StaticText4;
         wxButton* m_btnApply;
@@ -112,6 +114,7 @@ class TLMenuCfgDialog: public wxDialog
 		void UpdateFlgs();
 
 		bool m_bInfoUnsaved;
+		CMenuData m_menuData;
 };
 
 #endif // TLMENUCFGMAIN_H

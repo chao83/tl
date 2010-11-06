@@ -65,6 +65,8 @@
 			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DWX_PRECOMP" />
 			<Add directory=".\include" />
+			<Add directory="..\src\source" />
+			<Add directory="..\src\include" />
 			<Add directory="Q:\wxWidgets-2.8.11\include" />
 			<Add directory="Q:\wxWidgets-2.8.11\contrib\include" />
 		</Compiler>
@@ -101,6 +103,10 @@
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="wxsmith\TLMenuCfgdialog.wxs" />
+		<Unit filename="..\src\source\FileStrFnc.cpp" />
+		<Unit filename="..\src\source\FileStrFnc.h" />
+		<Unit filename="..\src\source\MenuData.cpp" />
+		<Unit filename="..\src\source\MenuData.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

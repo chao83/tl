@@ -81,7 +81,7 @@ BEGIN_EVENT_TABLE(TLMenuCfgDialog,wxDialog)
 END_EVENT_TABLE()
 
 TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
-	:m_bInfoUnsaved(false)
+	:m_bInfoUnsaved(false), m_menuData(_T("root"))
 {
 	//(*Initialize(TLMenuCfgDialog)
 	wxBoxSizer* BoxSizer4;
@@ -148,8 +148,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer7->Add(BoxSizer9, 0, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 6);
 	BoxSizer11 = new wxBoxSizer(wxVERTICAL);
 	BoxSizer10 = new wxBoxSizer(wxHORIZONTAL);
-	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Target"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
-	BoxSizer10->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_stcTarget = new wxStaticText(this, ID_STATICTEXT1, _("Target"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
+	BoxSizer10->Add(m_stcTarget, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	m_flgWildCard = new wxCheckBox(this, ID_CHECKBOX1, _("IsWildCard (*Mode)"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX1"));
 	m_flgWildCard->SetValue(false);
 	m_flgWildCard->Disable();
@@ -158,9 +158,9 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer17 = new wxBoxSizer(wxHORIZONTAL);
 	m_txtTarget = new wxTextCtrl(this, ID_TEXTCTRL1, _("Text"), wxDefaultPosition, wxSize(456,24), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
 	BoxSizer17->Add(m_txtTarget, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BitmapButton1 = new wxBitmapButton(this, ID_BITMAPBUTTON6, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON6"));
-	BitmapButton1->SetDefault();
-	BoxSizer17->Add(BitmapButton1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_btnFindTarget = new wxBitmapButton(this, ID_BITMAPBUTTON6, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON6"));
+	m_btnFindTarget->SetDefault();
+	BoxSizer17->Add(m_btnFindTarget, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer11->Add(BoxSizer17, 1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer7->Add(BoxSizer11, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer13 = new wxBoxSizer(wxVERTICAL);
@@ -244,20 +244,64 @@ void TLMenuCfgDialog::OnbtnUpClick(wxCommandEvent& event)
 {
 }
 
+namespace {
+void GetMenuStrings(const CItem &mi, TSTRING &strName, TSTRING &strPath, TSTRING &strIcon)
+{
+	TSTRING strSep(_T("|||"));
+	strName = mi.Name();
+	strPath = (mi.Path());
+	TSTRING::size_type sepPos = strPath.find(strSep);
+
+	if (TSTRING::npos != sepPos)
+	{
+		strIcon = ns_file_str_ops::StripSpaces( strPath.substr(sepPos + strSep.length()) );
+		strPath = ns_file_str_ops::StripSpaces( strPath.substr(0, sepPos) );
+
+		if (!strIcon.empty() && '\"' == strIcon[0]) {
+			TSTRING::size_type pos = strIcon.find('\"', 1);
+			strIcon = strIcon.substr(1, pos == TSTRING::npos ? pos : pos - 1);
+		}
+	}
+}
+
+void MenuDataToTree(const CItem &mi, wxTreeCtrl &tree, wxTreeItemId id)
+{
+	assert(id.IsOk());
+	TSTRING strName, strPath, strIcon;
+	GetMenuStrings(mi, strName, strPath, strIcon);
+
+	tree.SetItemData(id, new MenuItemData(strName, strPath, strIcon));
+}
+
+void MenuDataToTree(const CMenuData &mi, wxTreeCtrl &tree, wxTreeItemId id)
+{
+	assert(id.IsOk());
+
+	tree.SetItemData(id, new MenuItemData(mi.Name(), _T(""), mi.Icon()));
+
+	for (unsigned int i = 0; i < mi.Count(); ++i)
+	{
+		wxTreeItemId idsub(tree.AppendItem(id, mi.Item(i)->Name()));
+		if (mi.IsMenu(i))
+		{
+			MenuDataToTree(*mi.Menu(i), tree, idsub);
+		}
+		else
+		{
+			MenuDataToTree(*mi.Item(i), tree, idsub);
+		}
+	}
+
+}
+}
+
 void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 {
-	wxTreeItemId idRoot = m_TreeMenu->AddRoot(_T("Root"));
+	m_menuData.Load(_T("TLCmd.txt"));
 
-	for (int i = 0; i < 10; ++i)
-	{
-		wxTreeItemId item = m_TreeMenu->AppendItem(idRoot, wxString::Format(_T("Item %d"), i+1));
-		m_TreeMenu->SetItemData(item, new MenuItemData(	wxString::Format(_T("Name %d"), i+1),
-		                        wxString::Format(_T("Target %d"), i+1),
+	wxTreeItemId idRoot = m_TreeMenu->AddRoot(m_menuData.Name());
 
-		                        wxString::Format(_T("Icon %d"), i+1)
-		                                              ));
-
-	}
+	MenuDataToTree(m_menuData, *m_TreeMenu, idRoot);
 }
 
 void TLMenuCfgDialog::InfoChgFlg(const bool val)
@@ -324,6 +368,7 @@ void TLMenuCfgDialog::OnTreeMenuSelChanging(wxTreeEvent& event)
 void TLMenuCfgDialog::CheckFlg(wxCheckBox* ctrl, const bool val)
 {
 	assert(ctrl);
+
 	if (ctrl->GetValue() != val)
 	{
 		ctrl->SetValue(val);
@@ -382,23 +427,31 @@ void TLMenuCfgDialog::OntxtIconText(wxCommandEvent& event)
 void TLMenuCfgDialog::UpdateFlgs()
 {
 	wxTreeItemId item = m_TreeMenu->GetSelection();
+	const bool isMenu = item.IsOk() && m_TreeMenu->HasChildren(item);
+	const bool isItem = !isMenu;
 
-	CheckFlg(m_flgMenu, item.IsOk() && m_TreeMenu->HasChildren(item));
+	CheckFlg(m_flgMenu, isMenu);
 
-	CheckFlg(m_flgWildCard, m_txtTarget->GetValue().Right(1) == _T("*"));
-	CheckFlg(m_flgTitle, m_txtTarget->IsEmpty() && !m_txtNameOrFilter->IsEmpty());
-
-	CheckFlg(m_flgSep,
-			!m_flgMenu->GetValue() &&
-			m_txtTarget->IsEmpty() &&
-			m_txtIcon->IsEmpty() &&
-			m_txtNameOrFilter->IsEmpty());
+	CheckFlg(m_flgWildCard, isItem && m_txtTarget->GetValue().Right(1) == _T("*"));
+	CheckFlg(m_flgTitle, isItem && m_txtTarget->IsEmpty() && !m_txtNameOrFilter->IsEmpty());
 
 	CheckFlg(m_flgSep,
-			!m_flgMenu->GetValue() &&
-			m_txtTarget->IsEmpty() &&
-			m_txtIcon->IsEmpty() &&
-			m_txtNameOrFilter->IsEmpty());
+	         isItem &&
+	         m_txtTarget->IsEmpty() &&
+	         m_txtIcon->IsEmpty() &&
+	         m_txtNameOrFilter->IsEmpty());
+
+	CheckFlg(m_flgSep,
+	         isItem &&
+	         m_txtTarget->IsEmpty() &&
+	         m_txtIcon->IsEmpty() &&
+	         m_txtNameOrFilter->IsEmpty());
+
+	// target editable only for items, Not for submenus.
+	m_stcTarget->Enable(isItem);
+	m_txtTarget->Enable(isItem);
+	m_btnFindTarget->Enable(isItem);
+
 }
 
 void TLMenuCfgDialog::OnbtnReloadClick(wxCommandEvent& event)

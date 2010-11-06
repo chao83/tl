@@ -138,7 +138,7 @@
 									<object class="sizeritem">
 										<object class="wxBoxSizer" variable="BoxSizer10" member="no">
 											<object class="sizeritem">
-												<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticText1" member="yes">
+												<object class="wxStaticText" name="ID_STATICTEXT1" variable="m_stcTarget" member="yes">
 													<label>Target</label>
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -171,7 +171,7 @@
 												<option>1</option>
 											</object>
 											<object class="sizeritem">
-												<object class="wxBitmapButton" name="ID_BITMAPBUTTON6" variable="BitmapButton1" member="yes">
+												<object class="wxBitmapButton" name="ID_BITMAPBUTTON6" variable="m_btnFindTarget" member="yes">
 													<bitmap stock_id="wxART_FIND" />
 													<default>1</default>
 												</object>
