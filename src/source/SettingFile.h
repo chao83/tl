@@ -36,4 +36,26 @@ public:
 	void Clear();
 };
 
+// SettingFile¡¡¹Ø¼ü×Ö
+typedef const TCHAR *const CSTR;
+CSTR sectionGeneral = _T("general");
+CSTR keyConformExit = _T("confirm_exit");
+CSTR keyCommand = _T("command");
+CSTR keyRunIcon = _T("runicon");
+CSTR keyTrayIcon = _T("trayicon");
+CSTR keyLanguage = _T("language");
+CSTR keyShowHidden = _T("showhidden");
+CSTR keyMClick = _T("midclick");
+CSTR keySkin = _T("skin");
+CSTR keyShowOpenHere = _T("ShowOpenHere");
+CSTR sectionHistory = _T("history");
+CSTR sectionColor = _T("color");
+
+CSTR sectionHotkey = _T("hotkey");
+CSTR keyHKMenu = _T("ShowMenu");
+CSTR keyHKMenuAtMouse = _T("ShowMenuAtMouse");
+CSTR keyHKContextMenu = _T("ShowContextMenu");
+CSTR keyHKContextMenu_alt = _T("ShowContextMenu_alt");
+CSTR keyHKRunDialog = _T("RunDialog");
+
 #endif

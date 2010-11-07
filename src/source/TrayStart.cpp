@@ -10,6 +10,7 @@
 #include "MsgMap.h"
 #include "TrayStart.h"
 #include "language.h"
+#include "SettingFile.h"
 //#define MAX_LOADSTRING 100
 
 // 全局变量:
@@ -38,6 +39,18 @@ ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK ProcMessage(HWND, UINT, WPARAM, LPARAM);
 
+CSettingFile & Settings();
+
+void InitLanguage()
+{
+	Settings().AddSection(sectionGeneral);
+	TSTRING strLanguage;
+	if (! Settings().Get(sectionGeneral, keyLanguage, strLanguage)) {
+		strLanguage.clear();
+		Settings().Set(sectionGeneral, keyLanguage, strLanguage,true);
+	}
+	SetLanguageFile(strLanguage.c_str());
+}
 
 void MustBeFirstInstance(const TCHAR * pTitle = NULL)
 {

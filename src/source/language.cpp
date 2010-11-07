@@ -5,11 +5,6 @@
 #include "FileStrFnc.h"
 #include "language.h"
 
-class Language;
-
-CSettingFile & Settings();
-
-
 
 ///////////////////////////////////////////////////////////////////
 //////////////
@@ -150,17 +145,6 @@ Language & MainLng()
 	return g_mainlng_impl;
 }
 
-
-void InitLanguage()
-{
-	Settings().AddSection(sectionGeneral);
-	TSTRING strLanguage;
-	if (! Settings().Get(sectionGeneral, keyLanguage, strLanguage)) {
-		strLanguage.clear();
-		Settings().Set(sectionGeneral, keyLanguage, strLanguage,true);
-	}
-	SetLanguageFile(strLanguage.c_str());
-}
 
 const TCHAR * GetLang(const TCHAR * strSrc)
 {
