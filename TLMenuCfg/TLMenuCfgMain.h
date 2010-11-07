@@ -134,6 +134,9 @@ class TLMenuCfgDialog: public wxDialog
 		int m_indexUnknown;
 		int m_indexFolder;
 		int m_indexFolderOpen;
+		int m_indexSep;
+		int m_indexTitle;
+		int m_indexWildCard;
 };
 
 #endif // TLMENUCFGMAIN_H

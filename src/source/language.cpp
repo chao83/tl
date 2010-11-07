@@ -149,7 +149,8 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("BTN_IsWildCard"),						_T("Wildcard mode"),
 
 	_T("STC_Target"),							_T("Target Path:"),
-	_T("STC_DispNameOrFilter"),					_T("Display Name:"),
+	_T("STC_DispNameOrFilter_Name"),			_T("Display Name:"),
+	_T("STC_DispNameOrFilter_Filter"),			_T("Filter:"),
 	_T("STC_IconPath"),							_T("Use a custom icon:"),
 
 	_T("STR_DisplayName"),						_T("[Display Name]"),

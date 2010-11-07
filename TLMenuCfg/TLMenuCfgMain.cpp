@@ -110,7 +110,10 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_iconlist(20, 20, 128),
 	m_indexUnknown(-1),
 	m_indexFolder(-1),
-	m_indexFolderOpen(-1)
+	m_indexFolderOpen(-1),
+	m_indexSep(-1),
+	m_indexTitle(-1),
+	m_indexWildCard(-1)
 {
 	//(*Initialize(TLMenuCfgDialog)
 	wxBoxSizer* BoxSizer4;
@@ -274,7 +277,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_flgWildCard->SetLabel(_LNG(BTN_IsWildCard));
 
 	m_stcTarget->SetLabel(_LNG(STC_Target));
-	m_stcNameFilter->SetLabel(_LNG(STC_DispNameOrFilter));
+	m_stcNameFilter->SetLabel(_LNG(STC_DispNameOrFilter_Name));
 	m_stcCustomizeIcon->SetLabel(_LNG(STC_IconPath));
 }
 
@@ -590,6 +593,11 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item)
 
 	if (tree.GetImageList())
 	{
+		if (itemData->Target().Right(1) == _T("*"))
+		{
+			m_TreeMenu->SetItemImage(item, m_indexWildCard);
+			return;
+		}
 		// disable loadicon error msg;
 		wxLogNull logNo;
 
@@ -601,7 +609,10 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item)
 			if (oldIndex == noImage ||
 				oldIndex == m_indexFolder ||
 				oldIndex == m_indexFolderOpen ||
-				oldIndex == m_indexUnknown)
+				oldIndex == m_indexUnknown ||
+				oldIndex == m_indexSep ||
+				oldIndex == m_indexTitle ||
+				oldIndex == m_indexWildCard)
 			{
 				tree.SetItemImage(item, tree.GetImageList()->Add(icon));
 			}
@@ -619,10 +630,12 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item)
 		}
 		else
 		{
-			// use icon for none separaters
-			if (!itemData->IconPath().empty() ||
-					!itemData->Target().empty() ||
-					!itemData->Name().empty())
+			// No icon for separator and title
+			if (itemData->IconPath().empty() && itemData->Target().empty() )
+			{
+				tree.SetItemImage(item, itemData->Name().empty() ? m_indexSep : m_indexTitle);
+			}
+			else
 			{
 				tree.SetItemImage(item, m_indexUnknown);
 			}
@@ -744,6 +757,7 @@ void TLMenuCfgDialog::UpdateFlgs()
 	wxTreeItemId item = m_TreeMenu->GetSelection();
 	const bool isMenu = item.IsOk() && m_TreeMenu->HasChildren(item);
 	const bool isItem = !isMenu;
+	const bool oldWildCard = m_flgWildCard->GetValue();
 
 	CheckFlg(m_flgMenu, isMenu);
 
@@ -755,12 +769,12 @@ void TLMenuCfgDialog::UpdateFlgs()
 	         m_txtTarget->IsEmpty() &&
 	         m_txtIcon->IsEmpty() &&
 	         m_txtNameOrFilter->IsEmpty());
-
-	CheckFlg(m_flgSep,
-	         isItem &&
-	         m_txtTarget->IsEmpty() &&
-	         m_txtIcon->IsEmpty() &&
-	         m_txtNameOrFilter->IsEmpty());
+	if (oldWildCard != m_flgWildCard->GetValue())
+	{
+		m_stcNameFilter->SetLabel((oldWildCard) ?
+									_LNG(STC_DispNameOrFilter_Name):
+									_LNG(STC_DispNameOrFilter_Filter));
+	}
 
 	// target editable only for items, Not for submenus.
 	m_stcTarget->Enable(isItem);
