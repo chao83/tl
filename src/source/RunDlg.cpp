@@ -25,8 +25,9 @@ std::vector<TSTRING> & StrHis()
 	return vStrHis;
 };
 
-//! 判断字符串是否以 给定的字符串结尾。
+//! import some functions.
 using ns_file_str_ops::IsStrEndWith;
+using ns_file_str_ops::GetCmdAndParam;
 
 //! 按照指定的字符(ch)分割输入字符串(inStr)，输出到指定向量(vStr). 空字符串也有效。
 unsigned int GetSeparatedString(const TSTRING & inStr, const TSTRING::value_type ch, std::vector<TSTRING> & vStr);
@@ -116,48 +117,6 @@ void InitHistory(const std::vector<TSTRING>& vStrHis)
 {
 	for (std::vector<TSTRING>::const_reverse_iterator ri = vStrHis.rbegin(); ri != vStrHis.rend(); ++ri) {
 		AddToHis(StrHis(), *ri, HISTORYSIZE);
-	}
-}
-
-
-//! 分析出命令和参数
-void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& strParam)
-{
-	TSTRING strCmdParam(const_strCmdParam);
-	strCmd = g_strEmpty;
-	strParam = g_strEmpty;
-
-	//去掉引导空白
-	if (strCmdParam.length() && (_istspace(*strCmdParam.begin()) || _istspace(*strCmdParam.rbegin()) )) {
-		strCmdParam = ns_file_str_ops::StripSpaces(strCmdParam);
-	}
-
-	if( ! strCmdParam.empty()) {
-		TSTRING::size_type pos;
-		if(strCmdParam[0] == '\"') {
-			if ((pos = strCmdParam.find('\"',1)) != TSTRING::npos) {
-				strCmd = strCmdParam.substr(1,pos - 1);
-				strParam = strCmdParam.substr(pos);
-				strParam = strParam.substr(1);
-			}
-			else if (strCmdParam.length() > 1) {
-				strCmd = strCmdParam.substr(1);
-			}
-		}
-		else {
-			pos = strCmdParam.find(' ');
-			strCmd = strCmdParam.substr(0,pos);
-			if(pos != TSTRING::npos) {
-				strParam = strCmdParam.substr(pos);
-			}
-		}
-
-		if (strCmd.length() && (_istspace(*strCmd.begin()) || _istspace(*strCmd.rbegin()) )) {
-			strCmd = ns_file_str_ops::StripSpaces(strCmd);
-		}
-		if (strParam.length() && (_istspace(*strParam.begin()) || _istspace(*strParam.rbegin()) ) ){
-			strParam = ns_file_str_ops::StripSpaces(strParam);
-		}
 	}
 }
 

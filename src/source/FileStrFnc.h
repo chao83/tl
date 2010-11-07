@@ -125,6 +125,8 @@ namespace  ns_file_str_ops
 
 	bool GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILETIME *pSTAccess,  FILETIME *pSTWrite);
 
+	//! 分析出命令和参数
+	void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& strParam);
 };
 
 #endif //LCH_FILE_STR_FNC_H

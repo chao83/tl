@@ -8,7 +8,7 @@ namespace ns_file_str_ops {
 //! \param file FILE *文件指针，输出。
 //! \param strLine TSTRING 类型 保存结果。
 //! \return 读到文件末尾返回false； 否则返回 true 。
-bool GetLine(FILE * file, TSTRING &strLine) 
+bool GetLine(FILE * file, TSTRING &strLine)
 {
 
 #ifdef UNICODE
@@ -132,12 +132,55 @@ bool IsStrEndWith(const TSTRING & strSrc, const TSTRING & strMatchThis, bool bMa
 bool GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILETIME *pSTAccess,  FILETIME *pSTWrite) {
 	bool r = false;
 	HANDLE hFile = CreateFile(szFN, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-	if (INVALID_HANDLE_VALUE != hFile) {		
+	if (INVALID_HANDLE_VALUE != hFile) {
 		r = !!GetFileTime(hFile, pSTCreate, pSTAccess, pSTWrite);
 		CloseHandle(hFile);
 	}
 	return r;
 
 }
+
+
+
+void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& strParam)
+{
+	TSTRING strCmdParam(const_strCmdParam);
+	strCmd.clear();
+	strParam.clear();
+
+	//去掉引导空白
+	if (strCmdParam.length() && (_istspace(*strCmdParam.begin()) || _istspace(*strCmdParam.rbegin()) )) {
+		strCmdParam = ns_file_str_ops::StripSpaces(strCmdParam);
+	}
+
+	if( ! strCmdParam.empty()) {
+		TSTRING::size_type pos;
+		if(strCmdParam[0] == '\"') {
+			if ((pos = strCmdParam.find('\"',1)) != TSTRING::npos) {
+				strCmd = strCmdParam.substr(1,pos - 1);
+				strParam = strCmdParam.substr(pos);
+				strParam = strParam.substr(1);
+			}
+			else if (strCmdParam.length() > 1) {
+				strCmd = strCmdParam.substr(1);
+			}
+		}
+		else {
+			pos = strCmdParam.find(' ');
+			strCmd = strCmdParam.substr(0,pos);
+			if(pos != TSTRING::npos) {
+				strParam = strCmdParam.substr(pos);
+			}
+		}
+
+		if (strCmd.length() && (_istspace(*strCmd.begin()) || _istspace(*strCmd.rbegin()) )) {
+			strCmd = ns_file_str_ops::StripSpaces(strCmd);
+		}
+		if (strParam.length() && (_istspace(*strParam.begin()) || _istspace(*strParam.rbegin()) ) ){
+			strParam = ns_file_str_ops::StripSpaces(strParam);
+		}
+	}
+}
+
 
 }

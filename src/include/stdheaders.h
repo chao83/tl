@@ -11,15 +11,8 @@
 #include <auto_handle.h>
 #include <cassert>
 
-template<bool _Unicode> class CharSetType { public : typedef std::wstring tString; };
-template <> class CharSetType<false> { public : typedef std::string tString; };
-template <> class CharSetType<true> { public : typedef std::wstring tString; };
 
-#ifdef UNICODE
-	//wukong::MustBeTrue<sizeof(*_T("")) == sizeof(wchar_t)>::result;
-#endif
-
-typedef CharSetType<sizeof(*_T("")) == sizeof(wchar_t)>::tString TSTRING;
+typedef wukong::StringType<sizeof(*_T("")) == sizeof(wchar_t)>::ResultType TSTRING;
 typedef TSTRING tString, TString;
 
 #endif // LCH_STD_HEADRE_H
