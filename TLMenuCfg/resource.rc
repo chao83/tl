@@ -2,6 +2,6 @@ aaaa ICON "wx/msw/std.ico"
 
 #include "wx/msw/wx.rc"
 
-IDI_UNKONWN ICON "../src/source/rc/unknown.ico"
+IDI_UNKNOWN ICON "../src/source/rc/unknown.ico"
 IDI_FOLDER ICON "../src/source/rc/close.ico"
 IDI_FOLDER_OPEN ICON "../src/source/rc/open.ico"

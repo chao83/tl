@@ -55,7 +55,6 @@
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
-												<option>1</option>
 											</object>
 											<object class="sizeritem">
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON3" variable="m_btnDown" member="yes">
@@ -65,7 +64,6 @@
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
-												<option>1</option>
 											</object>
 											<object class="sizeritem">
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON4" variable="m_btnNewDir" member="yes">
@@ -75,7 +73,6 @@
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
-												<option>1</option>
 											</object>
 											<object class="sizeritem">
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON5" variable="m_btnNewItem" member="yes">
@@ -85,7 +82,12 @@
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
+											</object>
+											<object class="spacer">
+												<flag>wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
 												<option>1</option>
+												<size>20,23</size>
 											</object>
 											<object class="sizeritem">
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON2" variable="m_btnDel" member="yes">
@@ -95,10 +97,9 @@
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
-												<option>1</option>
 											</object>
 										</object>
-										<flag>wxTOP|wxBOTTOM|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL</flag>
+										<flag>wxTOP|wxBOTTOM|wxEXPAND|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL</flag>
 										<border>5</border>
 									</object>
 								</object>
@@ -323,6 +324,8 @@
 									<object class="sizeritem">
 										<object class="wxButton" name="ID_BUTTON7" variable="m_btnApply" member="yes">
 											<label>Apply</label>
+											<enabled>0</enabled>
+											<handler function="OnbtnApplyClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -331,6 +334,7 @@
 									<object class="sizeritem">
 										<object class="wxButton" name="ID_BUTTON6" variable="m_btnCancel" member="yes">
 											<label>Cancel</label>
+											<handler function="OnbtnCancelClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>

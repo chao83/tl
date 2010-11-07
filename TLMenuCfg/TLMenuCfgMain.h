@@ -49,6 +49,8 @@ class TLMenuCfgDialog: public wxDialog
         void OnbtnDelClick(wxCommandEvent& event);
         void OnbtnNewDirClick(wxCommandEvent& event);
         void OnbtnNewItemClick(wxCommandEvent& event);
+        void OnbtnApplyClick(wxCommandEvent& event);
+        void OnbtnCancelClick(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(TLMenuCfgDialog)
@@ -112,14 +114,26 @@ class TLMenuCfgDialog: public wxDialog
 
 		bool InfoChgFlg() const { return m_bInfoUnsaved; }
 		void InfoChgFlg(const bool val);
+		bool MenuChgFlg() const { return m_bMenuChanged; }
+		void MenuChgFlg(const bool val);
+		void UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item);
+		void MenuDataToTree(const CItem &mi, wxTreeCtrl &tree, wxTreeItemId id);
+		void MenuDataToTree(const CMenuData &mi, wxTreeCtrl &tree, wxTreeItemId id);
+		wxTreeItemId InsertItem(wxTreeCtrl &tree, const wxTreeItemId & item, bool before = true, const TSTRING &strName = _T(""));
+		bool MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true);
+
 		bool ReadItemInfo();
 		bool SaveItemInfo();
 		void CheckFlg(wxCheckBox* ctrl, const bool val);
 		void UpdateFlgs();
 
-		bool m_bInfoUnsaved;	//!< if there is unsaved change
+		bool m_bInfoUnsaved;	//!< if there is an unsaved change in current item.
+		bool m_bMenuChanged;	//!< if there is a saved change in any item.
 		CMenuData m_menuData;
 		wxImageList m_iconlist;
+		int m_indexUnknown;
+		int m_indexFolder;
+		int m_indexFolderOpen;
 };
 
 #endif // TLMENUCFGMAIN_H
