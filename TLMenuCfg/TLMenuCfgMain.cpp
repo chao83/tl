@@ -195,8 +195,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer7->Add(BoxSizer11, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer13 = new wxBoxSizer(wxVERTICAL);
 	BoxSizer12 = new wxBoxSizer(wxHORIZONTAL);
-	StaticText3 = new wxStaticText(this, ID_STATICTEXT3, _("Name / Filter"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
-	BoxSizer12->Add(StaticText3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_stcNameFilter = new wxStaticText(this, ID_STATICTEXT3, _("Name / Filter"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
+	BoxSizer12->Add(m_stcNameFilter, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	m_flgTitle = new wxCheckBox(this, ID_CHECKBOX2, _("IsTitle"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOX2"));
 	m_flgTitle->SetValue(false);
 	m_flgTitle->Disable();
@@ -209,8 +209,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer7->Add(BoxSizer13, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer15 = new wxBoxSizer(wxVERTICAL);
 	BoxSizer14 = new wxBoxSizer(wxHORIZONTAL);
-	StaticText4 = new wxStaticText(this, ID_STATICTEXT4, _("Customize Icon"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
-	BoxSizer14->Add(StaticText4, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_stcCustomizeIcon = new wxStaticText(this, ID_STATICTEXT4, _("Customize Icon"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
+	BoxSizer14->Add(m_stcCustomizeIcon, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer15->Add(BoxSizer14, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer19 = new wxBoxSizer(wxHORIZONTAL);
 	m_txtIcon = new wxTextCtrl(this, ID_TEXTCTRL3, _("Text"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL3"));
@@ -259,6 +259,23 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(wxID_ANY,wxEVT_INIT_DIALOG,(wxObjectEventFunction)&TLMenuCfgDialog::OnInit);
 	//*)
 	InitLanguage();
+
+	// update language
+	SetTitle(_LNG(STR_DlgTitle));
+	m_btnOK->SetLabel(_LNG(BTN_OK));
+	m_btnCancel->SetLabel(_LNG(BTN_Cancel));
+	m_btnApply->SetLabel(_LNG(BTN_Apply));
+	m_btnSave->SetLabel(_LNG(BTN_Save));
+	m_btnReload->SetLabel(_LNG(BTN_Reload));
+
+	m_flgMenu->SetLabel(_LNG(BTN_IsMenu));
+	m_flgSep->SetLabel(_LNG(BTN_IsSep));
+	m_flgTitle->SetLabel(_LNG(BTN_IsTitle));
+	m_flgWildCard->SetLabel(_LNG(BTN_IsWildCard));
+
+	m_stcTarget->SetLabel(_LNG(STC_Target));
+	m_stcNameFilter->SetLabel(_LNG(STC_DispNameOrFilter));
+	m_stcCustomizeIcon->SetLabel(_LNG(STC_IconPath));
 }
 
 TLMenuCfgDialog::~TLMenuCfgDialog()

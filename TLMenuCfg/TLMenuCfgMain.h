@@ -86,12 +86,12 @@ class TLMenuCfgDialog: public wxDialog
         wxBitmapButton* m_btnDown;
         wxBitmapButton* m_btnNewDir;
         wxStaticText* StaticText2;
+        wxStaticText* m_stcCustomizeIcon;
         wxBitmapButton* m_btnDel;
         wxSearchCtrl* m_search;
         wxButton* m_btnSave;
         wxBitmapButton* BitmapButton2;
         wxBitmapButton* m_btnUp;
-        wxStaticText* StaticText3;
         wxBitmapButton* m_btnNewItem;
         wxTreeCtrl* m_TreeMenu;
         wxTextCtrl* m_txtTarget;
@@ -101,9 +101,9 @@ class TLMenuCfgDialog: public wxDialog
         wxCheckBox* m_flgTitle;
         wxBoxSizer* BoxSizer1;
         wxCheckBox* m_flgWildCard;
+        wxStaticText* m_stcNameFilter;
         wxStaticText* m_stcTarget;
         wxTextCtrl* m_txtIcon;
-        wxStaticText* StaticText4;
         wxButton* m_btnApply;
         wxButton* m_btnReload;
         wxTextCtrl* m_txtNameOrFilter;
