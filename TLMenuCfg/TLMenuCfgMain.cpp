@@ -601,7 +601,9 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item)
 		// disable loadicon error msg;
 		wxLogNull logNo;
 
-		wxIcon icon(GetFileIcon(itemData->IconPath().empty() ? itemData->Target() : itemData->IconPath()));
+		// Target may have parameters,
+		// more try only for target, NOT for iconpath.
+		wxIcon icon(GetFileIcon(itemData->IconPath().empty() ? itemData->Target() : itemData->IconPath(), itemData->IconPath().empty()));
 
 		const int oldIndex = tree.GetItemImage(item);
 		if (icon.IsOk())
