@@ -13,6 +13,8 @@
 #include <wx/filename.h>
 #include <wx/mimetype.h>
 #include "MenuItemData.h"
+#include "language.h"
+#include "SettingFile.h"
 
 //(*InternalHeaders(TLMenuCfgDialog)
 #include <wx/artprov.h>
@@ -21,6 +23,25 @@
 #include <wx/image.h>
 #include <wx/string.h>
 //*)
+
+
+CSettingFile & Settings()
+{
+	static CSettingFile settings(_T("file.ini"));
+	return settings;
+}
+
+void InitLanguage()
+{
+	Settings().AddSection(sectionGeneral);
+	TSTRING strLanguage;
+	if (! Settings().Get(sectionGeneral, keyLanguage, strLanguage)) {
+		strLanguage.clear();
+		Settings().Set(sectionGeneral, keyLanguage, strLanguage,true);
+	}
+	SetLanguageFile(strLanguage.c_str());
+}
+
 
 //helper functions
 enum wxbuildinfoformat {
@@ -237,6 +258,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(ID_BUTTON6,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnCancelClick);
 	Connect(wxID_ANY,wxEVT_INIT_DIALOG,(wxObjectEventFunction)&TLMenuCfgDialog::OnInit);
 	//*)
+	InitLanguage();
 }
 
 TLMenuCfgDialog::~TLMenuCfgDialog()
@@ -473,7 +495,7 @@ void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 	if (!m_TreeMenu->HasChildren(idRoot))
 	{
 		wxTreeItemId demoItem = m_TreeMenu->AppendItem(idRoot, _T(""));
-		m_TreeMenu->SetItemData(demoItem, new MenuItemData(_T("<name>"), _T("<target>"), _T("")));
+		m_TreeMenu->SetItemData(demoItem, new MenuItemData(_LNG(STR_DisplayName), _LNG(STR_PathToTarget), _T("")));
 		UpdateItemDisplay(*m_TreeMenu, demoItem);
 	}
 
@@ -881,9 +903,9 @@ void TLMenuCfgDialog::OnbtnNewDirClick(wxCommandEvent& event)
 
 			if (subItem.IsOk())
 			{
-				m_TreeMenu->SetItemData(dir, new MenuItemData(_T("<name>"), _T(""), _T("")));
+				m_TreeMenu->SetItemData(dir, new MenuItemData(_LNG(STR_DisplayName), _T(""), _T("")));
 				UpdateItemDisplay(*m_TreeMenu, dir);
-				m_TreeMenu->SetItemData(subItem, new MenuItemData(_T("<name>"), _T("<Target>"), _T("")));
+				m_TreeMenu->SetItemData(subItem, new MenuItemData(_LNG(STR_DisplayName), _LNG(STR_PathToTarget), _T("")));
 				UpdateItemDisplay(*m_TreeMenu, subItem);
 				m_TreeMenu->SelectItem(dir);
 				MenuChgFlg(true);
@@ -906,7 +928,7 @@ void TLMenuCfgDialog::OnbtnNewItemClick(wxCommandEvent& event)
 
 		if (add.IsOk())
 		{
-			m_TreeMenu->SetItemData(add, new MenuItemData(_T("<name>"), _T("<target>"), _T("")));
+			m_TreeMenu->SetItemData(add, new MenuItemData(_LNG(STR_DisplayName), _LNG(STR_PathToTarget), _T("")));
 			UpdateItemDisplay(*m_TreeMenu, add);
 			m_TreeMenu->SelectItem(add);
 			MenuChgFlg(true);

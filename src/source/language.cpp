@@ -133,16 +133,21 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("STR_Empty"),							_T("Empty"),
 	_T("STR_Settings"),							_T("Settings"),
 	_T("STR_Refreshing"),						_T("Refreshing..."),
+
+	// Menu Editor GUI
+	_T("STR_DisplayName"),						_T("[Display Name]"),
+	_T("STR_PathToTarget"),						_T("[Path To Target]"),
+
 	_T("")
 
 };
 
 
-static Language g_mainlng_impl(g_strEnglishLngArray);
 // globla functions
 Language & MainLng()
 {
-	return g_mainlng_impl;
+	static Language s_mainlng(g_strEnglishLngArray);
+	return s_mainlng;
 }
 
 

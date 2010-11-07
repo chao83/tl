@@ -109,6 +109,10 @@
 		<Unit filename="..\src\source\FileStrFnc.h" />
 		<Unit filename="..\src\source\MenuData.cpp" />
 		<Unit filename="..\src\source\MenuData.h" />
+		<Unit filename="..\src\source\SettingFile.cpp" />
+		<Unit filename="..\src\source\SettingFile.h" />
+		<Unit filename="..\src\source\language.cpp" />
+		<Unit filename="..\src\source\language.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
