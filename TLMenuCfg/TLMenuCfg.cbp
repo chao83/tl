@@ -75,6 +75,8 @@
 		</ResourceCompiler>
 		<Linker>
 			<Add option="-mthreads" />
+			<Add option="-static-libstdc++" />
+			<Add option="-static" />
 			<Add library="libkernel32.a" />
 			<Add library="libuser32.a" />
 			<Add library="libgdi32.a" />

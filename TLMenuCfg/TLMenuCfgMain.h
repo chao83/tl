@@ -119,6 +119,7 @@ class TLMenuCfgDialog: public wxDialog
 
 		bool m_bInfoUnsaved;	//!< if there is unsaved change
 		CMenuData m_menuData;
+		wxImageList m_iconlist;
 };
 
 #endif // TLMENUCFGMAIN_H
