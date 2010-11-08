@@ -51,6 +51,8 @@ class TLMenuCfgDialog: public wxDialog
         void OnbtnNewItemClick(wxCommandEvent& event);
         void OnbtnApplyClick(wxCommandEvent& event);
         void OnbtnCancelClick(wxCommandEvent& event);
+        void OnbtnFindTargetClick(wxCommandEvent& event);
+        void OnBitmapButton2Click(wxCommandEvent& event);
         //*)
 
         //(*Identifiers(TLMenuCfgDialog)

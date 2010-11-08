@@ -169,6 +169,7 @@
 											<object class="sizeritem">
 												<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="m_txtTarget" member="yes">
 													<value>Text</value>
+													<maxlength>512</maxlength>
 													<size>456,24</size>
 													<handler function="OntxtTargetText" entry="EVT_TEXT" />
 												</object>
@@ -180,6 +181,7 @@
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON6" variable="m_btnFindTarget" member="yes">
 													<bitmap stock_id="wxART_FIND" />
 													<default>1</default>
+													<handler function="OnbtnFindTargetClick" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
@@ -224,6 +226,7 @@
 											<object class="sizeritem">
 												<object class="wxTextCtrl" name="ID_TEXTCTRL2" variable="m_txtNameOrFilter" member="yes">
 													<value>Text</value>
+													<maxlength>128</maxlength>
 													<handler function="OntxtNameOrFilterText" entry="EVT_TEXT" />
 												</object>
 												<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -261,6 +264,7 @@
 											<object class="sizeritem">
 												<object class="wxTextCtrl" name="ID_TEXTCTRL3" variable="m_txtIcon" member="yes">
 													<value>Text</value>
+													<maxlength>256</maxlength>
 													<handler function="OntxtIconText" entry="EVT_TEXT" />
 												</object>
 												<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -270,6 +274,7 @@
 											<object class="sizeritem">
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON7" variable="BitmapButton2" member="yes">
 													<bitmap stock_id="wxART_FIND" />
+													<handler function="OnBitmapButton2Click" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>

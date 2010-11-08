@@ -12,6 +12,7 @@
 #include <wx/msgdlg.h>
 #include <wx/filename.h>
 #include <wx/mimetype.h>
+#include <wx/dnd.h>
 #include "MenuItemData.h"
 #include "language.h"
 #include "SettingFile.h"
@@ -190,6 +191,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer11->Add(BoxSizer10, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer17 = new wxBoxSizer(wxHORIZONTAL);
 	m_txtTarget = new wxTextCtrl(this, ID_TEXTCTRL1, _("Text"), wxDefaultPosition, wxSize(456,24), 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+	m_txtTarget->SetMaxLength(512);
 	BoxSizer17->Add(m_txtTarget, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	m_btnFindTarget = new wxBitmapButton(this, ID_BITMAPBUTTON6, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON6"));
 	m_btnFindTarget->SetDefault();
@@ -207,6 +209,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer13->Add(BoxSizer12, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer18 = new wxBoxSizer(wxHORIZONTAL);
 	m_txtNameOrFilter = new wxTextCtrl(this, ID_TEXTCTRL2, _("Text"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL2"));
+	m_txtNameOrFilter->SetMaxLength(128);
 	BoxSizer18->Add(m_txtNameOrFilter, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer13->Add(BoxSizer18, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer7->Add(BoxSizer13, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -217,6 +220,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer15->Add(BoxSizer14, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer19 = new wxBoxSizer(wxHORIZONTAL);
 	m_txtIcon = new wxTextCtrl(this, ID_TEXTCTRL3, _("Text"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL3"));
+	m_txtIcon->SetMaxLength(256);
 	BoxSizer19->Add(m_txtIcon, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BitmapButton2 = new wxBitmapButton(this, ID_BITMAPBUTTON7, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON7"));
 	BoxSizer19->Add(BitmapButton2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -252,8 +256,10 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(ID_BITMAPBUTTON5,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnNewItemClick);
 	Connect(ID_BITMAPBUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnDelClick);
 	Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtTargetText);
+	Connect(ID_BITMAPBUTTON6,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnFindTargetClick);
 	Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtNameOrFilterText);
 	Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtIconText);
+	Connect(ID_BITMAPBUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnBitmapButton2Click);
 	Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnSaveClick);
 	Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnReloadClick);
 	Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnQuit);
@@ -301,6 +307,24 @@ void TLMenuCfgDialog::OnAbout(wxCommandEvent& event)
 
 
 namespace {
+
+class MyFileDropTarget : public wxFileDropTarget
+{
+public:
+	MyFileDropTarget(wxTextCtrl *pEdit):m_pEdit(pEdit){}
+
+private:
+	virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString & filenames)
+	{
+		if (m_pEdit && filenames.Count())
+		{
+			m_pEdit->SetValue(filenames[0]);
+			return true;
+		}
+		return false;
+	}
+	wxTextCtrl *m_pEdit;
+};
 
 //! \brief read name, path, and icon path from CItem
 //!
@@ -520,6 +544,9 @@ void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 	}
 
 	m_TreeMenu->SelectItem(m_TreeMenu->GetFirstVisibleItem());
+
+	m_txtTarget->SetDropTarget(new MyFileDropTarget(m_txtTarget));
+	m_txtIcon->SetDropTarget(new MyFileDropTarget(m_txtIcon));
 }
 
 void TLMenuCfgDialog::InfoChgFlg(const bool val)
@@ -678,7 +705,7 @@ void TLMenuCfgDialog::OnTreeMenuSelChanging(wxTreeEvent& event)
 {
 	if (InfoChgFlg() && event.GetOldItem().IsOk())
 	{
-		switch(wxMessageBox(_T("Menu_Item_Changed"), _T("Confirm") , wxYES_NO | wxCANCEL))
+		switch(wxMessageBox(_LNG(_TODO_Menu_Item_Changed), _LNG(_TODO_Confirm) , wxYES_NO | wxCANCEL))
 		{
 		case wxCANCEL:
 			event.Veto();
@@ -895,7 +922,7 @@ void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
 		if (m_TreeMenu->GetPrevSibling(item) || m_TreeMenu->GetNextSibling(item))
 		{
 			if (!m_TreeMenu->HasChildren(item) ||
-			        wxMessageBox(_T("DELETE_MENU"), _T("LNG_Confirm"), wxYES_NO) == wxYES)
+			        wxMessageBox(_LNG(_TODO_DELETE_MENU), _LNG(_TODO_LNG_Confirm), wxYES_NO) == wxYES)
 			{
 
 				/*
@@ -916,7 +943,7 @@ void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
 		else
 		{
 			// is only child
-			wxMessageBox(_T("Err_Del_Only_Child"));
+			wxMessageBox(_LNG(_TODO_Err_Del_Only_Child));
 		}
 	}
 }
@@ -981,8 +1008,26 @@ void TLMenuCfgDialog::OnbtnApplyClick(wxCommandEvent& event)
 void TLMenuCfgDialog::OnbtnCancelClick(wxCommandEvent& event)
 {
 	if ( ( !InfoChgFlg() && !MenuChgFlg() ) ||
-	        wxYES == wxMessageBox(_T("Exit_Without_Save"), _T("Confirm"), wxYES_NO))
+	        wxYES == wxMessageBox(_LNG(_TODO_Exit_Without_Save), _LNG(_TODO_Confirm), wxYES_NO))
 	{
 		Close();
+	}
+}
+
+void TLMenuCfgDialog::OnbtnFindTargetClick(wxCommandEvent& event)
+{
+	wxString filename(wxFileSelectorEx(_LNG(_TODO_Choose_Target)));
+	if ( !filename.empty() )
+	{
+		m_txtTarget->SetValue(filename);
+	}
+}
+
+void TLMenuCfgDialog::OnBitmapButton2Click(wxCommandEvent& event)
+{
+	wxString filename(wxFileSelector(_LNG(_TODO_Choose_Icon)));
+	if ( !filename.empty() )
+	{
+		m_txtIcon->SetValue(filename);
 	}
 }
