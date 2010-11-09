@@ -98,7 +98,6 @@ const long TLMenuCfgDialog::ID_BUTTON3 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON4 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON2 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON7 = wxNewId();
-const long TLMenuCfgDialog::ID_BUTTON6 = wxNewId();
 //*)
 
 BEGIN_EVENT_TABLE(TLMenuCfgDialog,wxDialog)
@@ -242,8 +241,6 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_btnApply = new wxButton(this, ID_BUTTON7, _("Apply"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON7"));
 	m_btnApply->Disable();
 	BoxSizer6->Add(m_btnApply, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	m_btnCancel = new wxButton(this, ID_BUTTON6, _("Cancel"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON6"));
-	BoxSizer6->Add(m_btnCancel, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer7->Add(BoxSizer6, 0, wxALIGN_RIGHT|wxALIGN_BOTTOM, 5);
 	BoxSizer3->Add(BoxSizer7, 1, wxTOP|wxBOTTOM|wxRIGHT|wxEXPAND|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
 	BoxSizer1->Add(BoxSizer3, 1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -267,15 +264,14 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnReloadClick);
 	Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnQuit);
 	Connect(ID_BUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnApplyClick);
-	Connect(ID_BUTTON6,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnCancelClick);
 	Connect(wxID_ANY,wxEVT_INIT_DIALOG,(wxObjectEventFunction)&TLMenuCfgDialog::OnInit);
+	Connect(wxID_ANY,wxEVT_CLOSE_WINDOW,(wxObjectEventFunction)&TLMenuCfgDialog::OnClose);
 	//*)
 	InitLanguage();
 
 	// update language
 	SetTitle(_LNG(STR_DlgTitle));
 	m_btnOK->SetLabel(_LNG(BTN_OK));
-	m_btnCancel->SetLabel(_LNG(BTN_Cancel));
 	m_btnApply->SetLabel(_LNG(BTN_Apply));
 	m_btnSave->SetLabel(_LNG(BTN_Save));
 	m_btnReload->SetLabel(_LNG(BTN_Reload));
@@ -298,7 +294,6 @@ TLMenuCfgDialog::~TLMenuCfgDialog()
 
 void TLMenuCfgDialog::OnQuit(wxCommandEvent& event)
 {
-	//SaveToFile();
 	Close();
 }
 
@@ -698,6 +693,14 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item, con
 		{
 			strDisplay = _T("----------------");
 		}
+		else if(itemData->Target() == _T("\\\\**"))
+		{
+			strDisplay = _LNG(MyComputer);
+		}
+		else if(itemData->Target().Right(1) == _T("*"))
+		{
+			strDisplay = _T("[* * *]");
+		}
 	}
 
 	tree.SetItemText(item, strDisplay);
@@ -1087,6 +1090,11 @@ void TLMenuCfgDialog::OnbtnNewItemClick(wxCommandEvent& event)
 
 void TLMenuCfgDialog::OnbtnApplyClick(wxCommandEvent& event)
 {
+	SaveToFile();
+}
+
+bool TLMenuCfgDialog::SaveToFile()
+{
 	if (m_bMenuChanged)
 	{
 		// save menu to file
@@ -1095,17 +1103,11 @@ void TLMenuCfgDialog::OnbtnApplyClick(wxCommandEvent& event)
 		TreeToMenuData(*m_TreeMenu, m_TreeMenu->GetRootItem(), menu);
 		menu.SaveAs(m_fileName);
 		MenuChgFlg(false);
+		return true;
 	}
+	return false;
 }
 
-void TLMenuCfgDialog::OnbtnCancelClick(wxCommandEvent& event)
-{
-	if ( ( !InfoChgFlg() && !MenuChgFlg() ) ||
-	        wxYES == wxMessageBox(_LNG(_TODO_Exit_Without_Save), _LNG(_TODO_Confirm), wxYES_NO))
-	{
-		Close();
-	}
-}
 
 void TLMenuCfgDialog::OnbtnFindTargetClick(wxCommandEvent& event)
 {
@@ -1156,4 +1158,26 @@ void TLMenuCfgDialog::TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId 
 			TreeToMenuData(tree, id, *menu.Menu(menu.Count()-1));
 		}
 	}
+}
+
+void TLMenuCfgDialog::OnClose(wxCloseEvent& event)
+{
+	if ( event.CanVeto() && (InfoChgFlg() || MenuChgFlg()) )
+	{
+		const int ans = wxMessageBox(_LNG(_TODO_Exit_Ask_Save), _LNG(_TODO_Confirm), wxYES_NO | wxCANCEL);
+		if (ans == wxCANCEL)
+		{
+			return;
+		}
+		else if (ans == wxYES)
+		{
+			if (InfoChgFlg())
+			{
+				SaveItemInfo();
+			}
+
+			SaveToFile();
+		}
+	}
+	EndModal(0);
 }

@@ -50,9 +50,9 @@ class TLMenuCfgDialog: public wxDialog
         void OnbtnNewDirClick(wxCommandEvent& event);
         void OnbtnNewItemClick(wxCommandEvent& event);
         void OnbtnApplyClick(wxCommandEvent& event);
-        void OnbtnCancelClick(wxCommandEvent& event);
         void OnbtnFindTargetClick(wxCommandEvent& event);
         void OnBitmapButton2Click(wxCommandEvent& event);
+        void OnClose(wxCloseEvent& event);
         //*)
 
         //(*Identifiers(TLMenuCfgDialog)
@@ -80,7 +80,6 @@ class TLMenuCfgDialog: public wxDialog
         static const long ID_BUTTON4;
         static const long ID_BUTTON2;
         static const long ID_BUTTON7;
-        static const long ID_BUTTON6;
         //*)
 
         //(*Declarations(TLMenuCfgDialog)
@@ -99,7 +98,6 @@ class TLMenuCfgDialog: public wxDialog
         wxTextCtrl* m_txtTarget;
         wxButton* m_btnOK;
         wxCheckBox* m_flgSep;
-        wxButton* m_btnCancel;
         wxCheckBox* m_flgTitle;
         wxBoxSizer* BoxSizer1;
         wxCheckBox* m_flgWildCard;
@@ -122,6 +120,7 @@ class TLMenuCfgDialog: public wxDialog
 		void MenuDataToTree(const CItem &mi, wxTreeCtrl &tree, wxTreeItemId id);
 		void MenuDataToTree(const CMenuData &mi, wxTreeCtrl &tree, wxTreeItemId id);
 		void TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId idRoot, CMenuData &menu);
+		bool SaveToFile();
 		wxTreeItemId InsertItem(wxTreeCtrl &tree, const wxTreeItemId & item, bool before = true, const TSTRING &strName = _T(""));
 		bool MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true);
 		wxTreeItemId CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true);
