@@ -118,12 +118,13 @@ class TLMenuCfgDialog: public wxDialog
 		void InfoChgFlg(const bool val);
 		bool MenuChgFlg() const { return m_bMenuChanged; }
 		void MenuChgFlg(const bool val);
-		void UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item);
+		void UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item, const bool refreshImage = true);
 		void MenuDataToTree(const CItem &mi, wxTreeCtrl &tree, wxTreeItemId id);
 		void MenuDataToTree(const CMenuData &mi, wxTreeCtrl &tree, wxTreeItemId id);
+		void TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId idRoot, CMenuData &menu);
 		wxTreeItemId InsertItem(wxTreeCtrl &tree, const wxTreeItemId & item, bool before = true, const TSTRING &strName = _T(""));
 		bool MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true);
-
+		wxTreeItemId CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true);
 		bool ReadItemInfo();
 		bool SaveItemInfo();
 		void CheckFlg(wxCheckBox* ctrl, const bool val);
@@ -139,6 +140,8 @@ class TLMenuCfgDialog: public wxDialog
 		int m_indexSep;
 		int m_indexTitle;
 		int m_indexWildCard;
+
+		TSTRING m_fileName;
 };
 
 #endif // TLMENUCFGMAIN_H

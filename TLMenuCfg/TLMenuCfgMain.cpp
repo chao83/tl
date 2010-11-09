@@ -28,18 +28,20 @@
 
 CSettingFile & Settings()
 {
-	static CSettingFile settings(_T("file.ini"));
+	static CSettingFile settings(_T("TL.ini"));
 	return settings;
 }
 
 void InitLanguage()
 {
-	Settings().AddSection(sectionGeneral);
 	TSTRING strLanguage;
+
 	if (! Settings().Get(sectionGeneral, keyLanguage, strLanguage)) {
-		strLanguage.clear();
-		Settings().Set(sectionGeneral, keyLanguage, strLanguage,true);
+		//Settings().AddSection(sectionGeneral);
+		//strLanguage.clear();
+		//Settings().Set(sectionGeneral, keyLanguage, strLanguage,true);
 	}
+
 	SetLanguageFile(strLanguage.c_str());
 }
 
@@ -106,15 +108,16 @@ END_EVENT_TABLE()
 
 TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	:m_bInfoUnsaved(false),
-	m_bMenuChanged(false),
-	m_menuData(_T("root")),
-	m_iconlist(20, 20, 128),
-	m_indexUnknown(-1),
-	m_indexFolder(-1),
-	m_indexFolderOpen(-1),
-	m_indexSep(-1),
-	m_indexTitle(-1),
-	m_indexWildCard(-1)
+	 m_bMenuChanged(false),
+	 m_menuData(_T("root")),
+	 m_iconlist(20, 20, 128),
+	 m_indexUnknown(-1),
+	 m_indexFolder(-1),
+	 m_indexFolderOpen(-1),
+	 m_indexSep(-1),
+	 m_indexTitle(-1),
+	 m_indexWildCard(-1),
+	 m_fileName(_T("TLCmd.txt"))
 {
 	//(*Initialize(TLMenuCfgDialog)
 	wxBoxSizer* BoxSizer4;
@@ -311,7 +314,7 @@ namespace {
 class MyFileDropTarget : public wxFileDropTarget
 {
 public:
-	MyFileDropTarget(wxTextCtrl *pEdit):m_pEdit(pEdit){}
+	MyFileDropTarget(wxTextCtrl *pEdit):m_pEdit(pEdit) {}
 
 private:
 	virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString & filenames)
@@ -321,6 +324,7 @@ private:
 			m_pEdit->SetValue(filenames[0]);
 			return true;
 		}
+
 		return false;
 	}
 	wxTextCtrl *m_pEdit;
@@ -492,7 +496,7 @@ wxTreeItemId TLMenuCfgDialog::InsertItem(wxTreeCtrl &tree, const wxTreeItemId & 
 
 bool TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before)
 {
-	if(!from.IsOk() || !to.IsOk() || tree.HasChildren(from))
+	if(!from.IsOk() || !to.IsOk() || from == to)
 	{
 		return false;
 	}
@@ -504,21 +508,96 @@ bool TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId
 		return false;
 	}
 
-	tree.Freeze(); //disable screen update
+	bool bNeedFreezeAndUnfreeze = !tree.IsFrozen();
 
-	wxTreeItemId id = InsertItem(tree, to, before);
-	//tree.SetItemText(id, tree.GetItemText(from));
-	tree.SetItemData(id, tree.GetItemData(from));
-	UpdateItemDisplay(tree, id);
-	tree.SelectItem(id);
+	if (bNeedFreezeAndUnfreeze)
+	{
+		tree.Freeze(); //disable screen update
+	}
 
-	// clear old data;
-	tree.SetItemData(from, NULL);
-	tree.Delete(from);
+	wxTreeItemId item = CopyItem(tree, from, to, before);
 
-	tree.Thaw();//enable screen update
+	if(item.IsOk())
+	{
+		// clear old data;
+		tree.Delete(from);
+
+		tree.SelectItem(item);
+	}
+
+	if (bNeedFreezeAndUnfreeze)
+	{
+		tree.Thaw();//enable screen update
+	}
 
 	return true;
+}
+
+wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before)
+{
+	wxTreeItemId item;
+
+	if(!from.IsOk() || !to.IsOk())
+	{
+		return item;
+	}
+
+	wxTreeItemId parent(tree.GetItemParent(to));
+
+	if (!parent)
+	{
+		return item;
+	}
+
+	bool bNeedFreezeAndUnfreeze = !tree.IsFrozen();
+
+	if (bNeedFreezeAndUnfreeze)
+	{
+		tree.Freeze(); //disable screen update
+	}
+
+	item = InsertItem(tree, to, before);
+
+	if (!item.IsOk())
+	{
+		return item;
+	}
+
+	//tree.SetItemText(id, tree.GetItemText(from));
+
+	if (MenuItemData *pData = static_cast<MenuItemData *>(tree.GetItemData(from)))
+	{
+		tree.SetItemData(item, new MenuItemData(*pData));
+		tree.SetItemImage(item, tree.GetItemImage(from));
+		tree.SetItemText(item, tree.GetItemText(from));
+	}
+
+	//UpdateItemDisplay(tree, item);//, false);
+
+	if (tree.HasChildren(from))
+	{
+		wxTreeItemId tmpItem = tree.AppendItem(item, _T(""));
+		wxTreeItemIdValue cookie = &item;
+
+		for (wxTreeItemId id = tree.GetFirstChild(from, cookie); id.IsOk(); id = tree.GetNextChild(from, cookie))
+		{
+			CopyItem(tree, id, tmpItem, true);
+		}
+
+		tree.Delete(tmpItem);
+
+		if (!tree.IsExpanded(from))
+		{
+			tree.Collapse(item);
+		}
+	}
+
+	if (bNeedFreezeAndUnfreeze)
+	{
+		tree.Thaw();//enable screen update
+	}
+
+	return item;
 }
 
 
@@ -529,7 +608,7 @@ void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 	m_indexFolderOpen = m_iconlist.Add(wxICON(IDI_FOLDER_OPEN));
 	m_indexUnknown = m_iconlist.Add(wxICON(IDI_UNKNOWN));
 
-	m_menuData.Load(_T("TLCmd.txt"));
+	m_menuData.Load(m_fileName);
 
 	wxTreeItemId idRoot = m_TreeMenu->AddRoot(m_menuData.Name());
 
@@ -596,7 +675,7 @@ void TLMenuCfgDialog::MenuChgFlg(const bool val)
 //! \return void
 //!
 //!
-void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item)
+void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item, const bool refreshImage)
 {
 	assert(item.IsOk());
 	MenuItemData * itemData(static_cast<MenuItemData*>(tree.GetItemData(item)));
@@ -618,13 +697,14 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item)
 
 	const int noImage = -1;
 
-	if (tree.GetImageList())
+	if (tree.GetImageList() && refreshImage)
 	{
 		if (itemData->Target().Right(1) == _T("*"))
 		{
 			m_TreeMenu->SetItemImage(item, m_indexWildCard);
 			return;
 		}
+
 		// disable loadicon error msg;
 		wxLogNull logNo;
 
@@ -633,15 +713,16 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item)
 		wxIcon icon(GetFileIcon(itemData->IconPath().empty() ? itemData->Target() : itemData->IconPath(), itemData->IconPath().empty()));
 
 		const int oldIndex = tree.GetItemImage(item);
+
 		if (icon.IsOk())
 		{
 			if (oldIndex == noImage ||
-				oldIndex == m_indexFolder ||
-				oldIndex == m_indexFolderOpen ||
-				oldIndex == m_indexUnknown ||
-				oldIndex == m_indexSep ||
-				oldIndex == m_indexTitle ||
-				oldIndex == m_indexWildCard)
+			        oldIndex == m_indexFolder ||
+			        oldIndex == m_indexFolderOpen ||
+			        oldIndex == m_indexUnknown ||
+			        oldIndex == m_indexSep ||
+			        oldIndex == m_indexTitle ||
+			        oldIndex == m_indexWildCard)
 			{
 				tree.SetItemImage(item, tree.GetImageList()->Add(icon));
 			}
@@ -798,11 +879,12 @@ void TLMenuCfgDialog::UpdateFlgs()
 	         m_txtTarget->IsEmpty() &&
 	         m_txtIcon->IsEmpty() &&
 	         m_txtNameOrFilter->IsEmpty());
+
 	if (oldWildCard != m_flgWildCard->GetValue())
 	{
 		m_stcNameFilter->SetLabel((oldWildCard) ?
-									_LNG(STC_DispNameOrFilter_Name):
-									_LNG(STC_DispNameOrFilter_Filter));
+		                          _LNG(STC_DispNameOrFilter_Name):
+		                          _LNG(STC_DispNameOrFilter_Filter));
 	}
 
 	// target editable only for items, Not for submenus.
@@ -1001,6 +1083,10 @@ void TLMenuCfgDialog::OnbtnApplyClick(wxCommandEvent& event)
 	if (m_bMenuChanged)
 	{
 		// save menu to file
+		CMenuData &menu = m_menuData;
+		menu.Clear();
+		TreeToMenuData(*m_TreeMenu, m_TreeMenu->GetRootItem(), menu);
+		menu.SaveAs(m_fileName);
 		MenuChgFlg(false);
 	}
 }
@@ -1017,6 +1103,7 @@ void TLMenuCfgDialog::OnbtnCancelClick(wxCommandEvent& event)
 void TLMenuCfgDialog::OnbtnFindTargetClick(wxCommandEvent& event)
 {
 	wxString filename(wxFileSelectorEx(_LNG(_TODO_Choose_Target)));
+
 	if ( !filename.empty() )
 	{
 		m_txtTarget->SetValue(filename);
@@ -1026,8 +1113,40 @@ void TLMenuCfgDialog::OnbtnFindTargetClick(wxCommandEvent& event)
 void TLMenuCfgDialog::OnBitmapButton2Click(wxCommandEvent& event)
 {
 	wxString filename(wxFileSelector(_LNG(_TODO_Choose_Icon)));
+
 	if ( !filename.empty() )
 	{
 		m_txtIcon->SetValue(filename);
+	}
+}
+
+
+void TLMenuCfgDialog::TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId item, CMenuData &menu)
+{
+	if (!item.IsOk())
+	{
+		return;
+	}
+	MenuItemData *p = static_cast<MenuItemData*>(tree.GetItemData(item));
+	assert(p);
+	menu.Name(p->Name().c_str());
+	menu.Path(p->IconPath().c_str());
+
+	wxTreeItemId vcookie = item;
+	wxTreeItemIdValue cookie = &vcookie;
+	for (wxTreeItemId id = tree.GetFirstChild(item, cookie); id.IsOk(); id = tree.GetNextChild(item, cookie))
+	{
+		if (!tree.HasChildren(id))
+		{
+			MenuItemData *p = static_cast<MenuItemData*>(tree.GetItemData(id));
+			assert(p);
+			menu.AddItem(menu.Count(), p->Name().c_str(), p->Target().c_str(), p->IconPath().c_str());
+		}
+		else
+		{
+			menu.AddMenu(menu.Count(), _T(""), _T(""), _T(""));
+			assert(menu.Menu(menu.Count()-1));
+			TreeToMenuData(tree, id, *menu.Menu(menu.Count()-1));
+		}
 	}
 }
