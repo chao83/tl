@@ -549,7 +549,8 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 		return item;
 	}
 
-	bool bNeedFreezeAndUnfreeze = !tree.IsFrozen();
+	const bool bFromExpanded = tree.IsExpanded(from);
+	const bool bNeedFreezeAndUnfreeze = !tree.IsFrozen();
 
 	if (bNeedFreezeAndUnfreeze)
 	{
@@ -576,6 +577,8 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 
 	if (tree.HasChildren(from))
 	{
+		tree.SetItemImage(item, tree.GetItemImage(from, wxTreeItemIcon_Expanded), wxTreeItemIcon_Expanded);
+
 		wxTreeItemId tmpItem = tree.AppendItem(item, _T(""));
 		wxTreeItemIdValue cookie = &item;
 
@@ -586,7 +589,11 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 
 		tree.Delete(tmpItem);
 
-		if (!tree.IsExpanded(from))
+		if (bFromExpanded)
+		{
+			tree.Expand(item);
+		}
+		else
 		{
 			tree.Collapse(item);
 		}
