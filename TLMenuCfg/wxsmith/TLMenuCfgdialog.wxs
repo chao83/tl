@@ -39,6 +39,8 @@
 										<object class="wxTreeCtrl" name="ID_TREECTRL_MENU" variable="m_TreeMenu" member="yes">
 											<size>198,372</size>
 											<style>wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE</style>
+											<handler function="OnTreeMenuBeginDrag" entry="EVT_TREE_BEGIN_DRAG" />
+											<handler function="OnTreeMenuEndDrag" entry="EVT_TREE_END_DRAG" />
 											<handler function="OnTreeMenuSelectionChanged" entry="EVT_TREE_SEL_CHANGED" />
 											<handler function="OnTreeMenuSelChanging" entry="EVT_TREE_SEL_CHANGING" />
 										</object>

@@ -53,6 +53,8 @@ class TLMenuCfgDialog: public wxDialog
         void OnbtnFindTargetClick(wxCommandEvent& event);
         void OnBitmapButton2Click(wxCommandEvent& event);
         void OnClose(wxCloseEvent& event);
+        void OnTreeMenuBeginDrag(wxTreeEvent& event);
+        void OnTreeMenuEndDrag(wxTreeEvent& event);
         //*)
 
         //(*Identifiers(TLMenuCfgDialog)
@@ -139,6 +141,7 @@ class TLMenuCfgDialog: public wxDialog
 		int m_indexSep;
 		int m_indexTitle;
 		int m_indexWildCard;
+		wxTreeItemId m_dragSrc;
 
 		TSTRING m_fileName;
 };

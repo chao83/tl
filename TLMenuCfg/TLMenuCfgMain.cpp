@@ -25,7 +25,6 @@
 #include <wx/string.h>
 //*)
 
-
 CSettingFile & Settings()
 {
 	static CSettingFile settings(_T("TL.ini"));
@@ -248,6 +247,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer1->SetSizeHints(this);
 	Center();
 
+	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_BEGIN_DRAG,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuBeginDrag);
+	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_END_DRAG,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuEndDrag);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGED,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelectionChanged);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGING,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelChanging);
 	Connect(ID_BITMAPBUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnUpClick);
@@ -491,14 +492,12 @@ wxTreeItemId TLMenuCfgDialog::InsertItem(wxTreeCtrl &tree, const wxTreeItemId & 
 
 bool TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before)
 {
-	if(!from.IsOk() || !to.IsOk() || from == to)
+	if(!from.IsOk() || !to.IsOk() || from == to || !tree.GetItemParent(to).IsOk())
 	{
 		return false;
 	}
-
-	wxTreeItemId parent(tree.GetItemParent(to));
-
-	if (!parent)
+	if (before && tree.GetPrevSibling(to) == from ||
+		!before && tree.GetPrevSibling(from) == to)
 	{
 		return false;
 	}
@@ -532,17 +531,21 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 {
 	wxTreeItemId item;
 
-	if(!from.IsOk() || !to.IsOk())
+	if(!from.IsOk() || !to.IsOk() || !tree.GetItemParent(to).IsOk())
 	{
 		return item;
 	}
 
-	wxTreeItemId parent(tree.GetItemParent(to));
-
-	if (!parent)
+	wxTreeItemId upItem = to;
+	while (upItem.IsOk())
 	{
-		return item;
+		if (upItem == m_dragSrc)
+		{
+			return item;
+		}
+		upItem = m_TreeMenu->GetItemParent(upItem);
 	}
+
 
 	const bool bFromExpanded = tree.IsExpanded(from);
 	const bool bNeedFreezeAndUnfreeze = !tree.IsFrozen();
@@ -1180,4 +1183,19 @@ void TLMenuCfgDialog::OnClose(wxCloseEvent& event)
 		}
 	}
 	EndModal(0);
+}
+
+void TLMenuCfgDialog::OnTreeMenuBeginDrag(wxTreeEvent& event)
+{
+	m_dragSrc = event.GetItem();
+	if (m_dragSrc.IsOk())
+	{
+		event.Allow();
+	}
+}
+
+void TLMenuCfgDialog::OnTreeMenuEndDrag(wxTreeEvent& event)
+{
+	assert(m_dragSrc.IsOk());
+	MoveItem(*m_TreeMenu, m_dragSrc, event.GetItem());
 }
