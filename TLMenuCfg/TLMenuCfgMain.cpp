@@ -272,7 +272,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 
 	// update language
 	SetTitle(_LNG(STR_DlgTitle));
-	m_btnOK->SetLabel(_LNG(BTN_OK));
+	m_btnOK->SetLabel(_LNG(BTN_Close));
 	m_btnApply->SetLabel(_LNG(BTN_Apply));
 	m_btnSave->SetLabel(_LNG(BTN_Save));
 	m_btnReload->SetLabel(_LNG(BTN_Reload));
@@ -706,7 +706,7 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item, con
 		}
 		else if(itemData->Target() == _T("\\\\**"))
 		{
-			strDisplay = _LNG(MyComputer);
+			strDisplay = _LNG(STR_MyComputer);
 		}
 		else if(itemData->Target().Right(1) == _T("*"))
 		{
