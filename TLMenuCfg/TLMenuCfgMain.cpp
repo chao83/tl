@@ -283,7 +283,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_flgWildCard->SetLabel(_LNG(BTN_IsWildCard));
 
 	m_stcTarget->SetLabel(_LNG(STC_Target));
-	m_stcNameFilter->SetLabel(_LNG(STC_DispNameOrFilter_Name));
+	m_stcNameFilter->SetLabel(_LNG(STC_DispName));
 	m_stcCustomizeIcon->SetLabel(_LNG(STC_IconPath));
 }
 
@@ -496,8 +496,8 @@ bool TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId
 	{
 		return false;
 	}
-	if (before && tree.GetPrevSibling(to) == from ||
-		!before && tree.GetPrevSibling(from) == to)
+	if ((before && tree.GetPrevSibling(to) == from) ||
+		(!before && tree.GetPrevSibling(from) == to))
 	{
 		return false;
 	}
@@ -517,6 +517,8 @@ bool TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId
 		tree.Delete(from);
 
 		tree.SelectItem(item);
+
+		//MenuChgFlg(true);
 	}
 
 	if (bNeedFreezeAndUnfreeze)
@@ -559,8 +561,14 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 
 	if (!item.IsOk())
 	{
+		if (bNeedFreezeAndUnfreeze)
+		{
+			tree.Thaw();//enable screen update
+		}
 		return item;
 	}
+
+	MenuChgFlg(true);
 
 	//tree.SetItemText(id, tree.GetItemText(from));
 
@@ -896,8 +904,8 @@ void TLMenuCfgDialog::UpdateFlgs()
 	if (oldWildCard != m_flgWildCard->GetValue())
 	{
 		m_stcNameFilter->SetLabel((oldWildCard) ?
-		                          _LNG(STC_DispNameOrFilter_Name):
-		                          _LNG(STC_DispNameOrFilter_Filter));
+		                          _LNG(STC_DispName):
+		                          _LNG(STC_Filter));
 	}
 
 	// target editable only for items, Not for submenus.
@@ -990,22 +998,14 @@ bool TLMenuCfgDialog::SaveItemInfo()
 void TLMenuCfgDialog::OnbtnUpClick(wxCommandEvent& event)
 {
 	wxTreeItemId item(m_TreeMenu->GetSelection());
-
-	if (item.IsOk() && MoveItem(*m_TreeMenu, item, m_TreeMenu->GetPrevSibling(item)))
-	{
-		MenuChgFlg(true);
-	}
+	MoveItem(*m_TreeMenu, item, m_TreeMenu->GetPrevSibling(item));
 }
 
 
 void TLMenuCfgDialog::OnbtnDownClick(wxCommandEvent& event)
 {
 	wxTreeItemId item(m_TreeMenu->GetSelection());
-
-	if (item.IsOk() && MoveItem(*m_TreeMenu, item, m_TreeMenu->GetNextSibling(item), false))
-	{
-		MenuChgFlg(true);
-	}
+	MoveItem(*m_TreeMenu, item, m_TreeMenu->GetNextSibling(item), false);
 }
 
 void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
