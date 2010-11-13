@@ -15,6 +15,7 @@
 #include <wx/treectrl.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
+#include <wx/menu.h>
 #include <wx/textctrl.h>
 #include <wx/checkbox.h>
 #include <wx/bmpbuttn.h>
@@ -55,7 +56,9 @@ class TLMenuCfgDialog: public wxDialog
         void OnClose(wxCloseEvent& event);
         void OnTreeMenuBeginDrag(wxTreeEvent& event);
         void OnTreeMenuEndDrag(wxTreeEvent& event);
+        void OnKeyDown(wxKeyEvent& event);
         //*)
+        void OnHotKey(wxCommandEvent& event);
 
         //(*Identifiers(TLMenuCfgDialog)
         static const long ID_STATICTEXT2;
@@ -88,6 +91,7 @@ class TLMenuCfgDialog: public wxDialog
         wxBitmapButton* m_btnFindTarget;
         wxBitmapButton* m_btnDown;
         wxBitmapButton* m_btnNewDir;
+        wxMenu m_dlgMenu;
         wxStaticText* StaticText2;
         wxStaticText* m_stcCustomizeIcon;
         wxBitmapButton* m_btnDel;
@@ -124,14 +128,20 @@ class TLMenuCfgDialog: public wxDialog
 		void TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId idRoot, CMenuData &menu);
 		bool SaveToFile();
 		wxTreeItemId InsertItem(wxTreeCtrl &tree, const wxTreeItemId & item, bool before = true, const TSTRING &strName = _T(""));
-		bool MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true);
+		wxTreeItemId MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true);
 		wxTreeItemId CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before = true);
 		bool ReadItemInfo();
 		bool SaveItemInfo();
 		void CheckFlg(wxCheckBox* ctrl, const bool val);
 		void UpdateFlgs();
+		enum E_MoveDirection {e_up, e_down};
+		bool Move(const wxTreeItemId from, const wxTreeItemId to, const E_MoveDirection);
 
 		bool m_bInfoUnsaved;	//!< if there is an unsaved change in current item.
+		bool m_bTargetChanged;
+		bool m_bNameFilterChanged;
+		bool m_bIconChanged;
+
 		bool m_bMenuChanged;	//!< if there is a saved change in any item.
 		CMenuData m_menuData;
 		wxImageList m_iconlist;

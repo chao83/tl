@@ -354,5 +354,6 @@
 				<option>1</option>
 			</object>
 		</object>
+		<object class="wxMenu" variable="m_dlgMenu" member="yes" />
 	</object>
 </wxsmith>

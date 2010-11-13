@@ -25,6 +25,8 @@
 #include <wx/string.h>
 //*)
 
+#define STC_ASSERT(expr) { typedef int Arr[(expr)?1:-1]; }
+
 CSettingFile & Settings()
 {
 	static CSettingFile settings(_T("TL.ini"));
@@ -98,6 +100,9 @@ const long TLMenuCfgDialog::ID_BUTTON4 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON2 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON7 = wxNewId();
 //*)
+
+const long ID_SAVE_OR_APPLY = wxNewId();
+const long ID_DELETE_ITEM = wxNewId();
 
 BEGIN_EVENT_TABLE(TLMenuCfgDialog,wxDialog)
 	//(*EventTable(TLMenuCfgDialog)
@@ -268,7 +273,11 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(wxID_ANY,wxEVT_INIT_DIALOG,(wxObjectEventFunction)&TLMenuCfgDialog::OnInit);
 	Connect(wxID_ANY,wxEVT_CLOSE_WINDOW,(wxObjectEventFunction)&TLMenuCfgDialog::OnClose);
 	//*)
+
 	InitLanguage();
+
+	Connect(ID_SAVE_OR_APPLY, wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&TLMenuCfgDialog::OnHotKey);
+	Connect(ID_DELETE_ITEM, wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&TLMenuCfgDialog::OnHotKey);
 
 	// update language
 	SetTitle(_LNG(STR_DlgTitle));
@@ -285,6 +294,42 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_stcTarget->SetLabel(_LNG(STC_Target));
 	m_stcNameFilter->SetLabel(_LNG(STC_DispName));
 	m_stcCustomizeIcon->SetLabel(_LNG(STC_IconPath));
+
+	// use menu for hotkeys like Ctrl-S, not displayed.
+	const int acc [] =
+	{
+		// flg1, key1, cmd1,
+		// flg2, key2, cmd2,
+		// ...
+
+		//wxACCEL_NORMAL, WXK_DELETE, ID_DELETE_ITEM,
+		wxACCEL_CTRL, 'S', ID_SAVE_OR_APPLY
+	};
+	STC_ASSERT((sizeof(acc) / sizeof(acc[0])) % 3 == 0);
+	const int NItems = sizeof(acc) / sizeof(acc[0]) / 3;
+
+	if (NItems > 0)
+	{
+		wxAcceleratorEntry entries[NItems];
+
+		for (int i = 0; i < NItems; ++i)
+		{
+			const int index = 3*i;
+			m_dlgMenu.Append(acc[index + 2]);
+			entries[0].Set(acc[index], acc[index + 1], acc[index + 2]);
+		}
+
+		wxAcceleratorTable accel(NItems, entries);
+		this->SetAcceleratorTable(accel);
+	}
+
+//	m_dlgMenu.Append(ID_SAVE_OR_APPLY);
+//
+//	wxAcceleratorEntry entries[NItems];
+//	entries[0].Set(wxACCEL_CTRL,  (int) 'S', ID_SAVE_OR_APPLY);
+//	wxAcceleratorTable accel(NItems, entries);
+//	this->SetAcceleratorTable(accel);
+
 }
 
 TLMenuCfgDialog::~TLMenuCfgDialog()
@@ -490,16 +535,19 @@ wxTreeItemId TLMenuCfgDialog::InsertItem(wxTreeCtrl &tree, const wxTreeItemId & 
 	return id;
 }
 
-bool TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before)
+wxTreeItemId TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before)
 {
+	wxTreeItemId no;
+
 	if(!from.IsOk() || !to.IsOk() || from == to || !tree.GetItemParent(to).IsOk())
 	{
-		return false;
+		return no;
 	}
+
 	if ((before && tree.GetPrevSibling(to) == from) ||
-		(!before && tree.GetPrevSibling(from) == to))
+	        (!before && tree.GetPrevSibling(from) == to))
 	{
-		return false;
+		return no;
 	}
 
 	bool bNeedFreezeAndUnfreeze = !tree.IsFrozen();
@@ -516,8 +564,6 @@ bool TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId
 		// clear old data;
 		tree.Delete(from);
 
-		tree.SelectItem(item);
-
 		//MenuChgFlg(true);
 	}
 
@@ -526,7 +572,7 @@ bool TLMenuCfgDialog::MoveItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId
 		tree.Thaw();//enable screen update
 	}
 
-	return true;
+	return item;
 }
 
 wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTreeItemId to, const bool before)
@@ -539,17 +585,20 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 	}
 
 	wxTreeItemId upItem = to;
+
 	while (upItem.IsOk())
 	{
 		if (upItem == m_dragSrc)
 		{
 			return item;
 		}
+
 		upItem = m_TreeMenu->GetItemParent(upItem);
 	}
 
 
 	const bool bFromExpanded = tree.IsExpanded(from);
+
 	const bool bNeedFreezeAndUnfreeze = !tree.IsFrozen();
 
 	if (bNeedFreezeAndUnfreeze)
@@ -565,6 +614,7 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 		{
 			tree.Thaw();//enable screen update
 		}
+
 		return item;
 	}
 
@@ -649,6 +699,9 @@ void TLMenuCfgDialog::InfoChgFlg(const bool val)
 
 		if (!val)
 		{
+			m_bTargetChanged = false;
+			m_bNameFilterChanged = false;
+			m_bIconChanged = false;
 			wxFont font(m_txtTarget->GetFont());
 			font.SetWeight(wxNORMAL);
 
@@ -839,6 +892,7 @@ void TLMenuCfgDialog::CheckFlg(wxCheckBox* ctrl, const bool val)
 
 void TLMenuCfgDialog::OntxtTargetText(wxCommandEvent& event)
 {
+	m_bTargetChanged = true;
 	InfoChgFlg(true);
 
 	wxFont font(m_txtTarget->GetFont());
@@ -854,6 +908,18 @@ void TLMenuCfgDialog::OntxtTargetText(wxCommandEvent& event)
 
 void TLMenuCfgDialog::OntxtNameOrFilterText(wxCommandEvent& event)
 {
+	wxString str(event.GetString());
+
+	if (str.find_first_of(_T("<>")) != wxString::npos)
+	{
+		wxMessageBox(_LNG(STR_Invalid_NameOrFilter));
+		str.Replace(_T("<"), _T(""));
+		str.Replace(_T(">"), _T(""));
+		m_txtNameOrFilter->ChangeValue(str);
+		return;
+	}
+
+	m_bNameFilterChanged = true;
 	InfoChgFlg(true);
 
 	wxFont font(m_txtNameOrFilter->GetFont());
@@ -870,6 +936,7 @@ void TLMenuCfgDialog::OntxtNameOrFilterText(wxCommandEvent& event)
 
 void TLMenuCfgDialog::OntxtIconText(wxCommandEvent& event)
 {
+	m_bIconChanged = true;
 	InfoChgFlg(true);
 
 	wxFont font(m_txtIcon->GetFont());
@@ -995,17 +1062,65 @@ bool TLMenuCfgDialog::SaveItemInfo()
 	return ret;
 }
 
+bool TLMenuCfgDialog::Move(const wxTreeItemId from, const wxTreeItemId to, const E_MoveDirection direction)
+{
+	wxTreeItemId ret;
+
+	if (!from.IsOk() || !to.IsOk())
+	{
+		return ret;
+	}
+
+	const bool isFromSel = (from == m_TreeMenu->GetSelection());
+
+	wxString strTar, strName, strIcon;
+
+	const bool tar = m_bTargetChanged;
+
+	const bool name = m_bNameFilterChanged;
+
+	const bool icon = m_bIconChanged;
+
+	if (isFromSel)
+	{
+		if(tar)	{ strTar = m_txtTarget->GetValue(); }
+
+		if(name) { strName = m_txtNameOrFilter->GetValue(); }
+
+		if(icon) { strIcon = m_txtIcon->GetValue(); }
+	}
+
+	if (direction == e_up)
+	{
+		ret = MoveItem(*m_TreeMenu, from, to, true);
+	}
+	else
+	{
+		ret = MoveItem(*m_TreeMenu, from, to, false);
+	}
+
+	if (ret && isFromSel)
+	{
+		m_TreeMenu->SelectItem(ret);
+
+		if (tar) { m_txtTarget->SetValue(strTar); }
+
+		if (name) { m_txtNameOrFilter->SetValue(strName); }
+
+		if (icon) { m_txtIcon->SetValue(strIcon); }
+	}
+
+	return ret;
+}
 void TLMenuCfgDialog::OnbtnUpClick(wxCommandEvent& event)
 {
-	wxTreeItemId item(m_TreeMenu->GetSelection());
-	MoveItem(*m_TreeMenu, item, m_TreeMenu->GetPrevSibling(item));
+	Move(m_TreeMenu->GetSelection(), m_TreeMenu->GetPrevSibling(m_TreeMenu->GetSelection()), e_up);
 }
 
 
 void TLMenuCfgDialog::OnbtnDownClick(wxCommandEvent& event)
 {
-	wxTreeItemId item(m_TreeMenu->GetSelection());
-	MoveItem(*m_TreeMenu, item, m_TreeMenu->GetNextSibling(item), false);
+	Move(m_TreeMenu->GetSelection(), m_TreeMenu->GetNextSibling(m_TreeMenu->GetSelection()), e_down);
 }
 
 void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
@@ -1108,6 +1223,7 @@ bool TLMenuCfgDialog::SaveToFile()
 		MenuChgFlg(false);
 		return true;
 	}
+
 	return false;
 }
 
@@ -1139,6 +1255,7 @@ void TLMenuCfgDialog::TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId 
 	{
 		return;
 	}
+
 	MenuItemData *p = static_cast<MenuItemData*>(tree.GetItemData(item));
 	assert(p);
 	menu.Name(p->Name().c_str());
@@ -1146,6 +1263,7 @@ void TLMenuCfgDialog::TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId 
 
 	wxTreeItemId vcookie = item;
 	wxTreeItemIdValue cookie = &vcookie;
+
 	for (wxTreeItemId id = tree.GetFirstChild(item, cookie); id.IsOk(); id = tree.GetNextChild(item, cookie))
 	{
 		if (!tree.HasChildren(id))
@@ -1168,6 +1286,7 @@ void TLMenuCfgDialog::OnClose(wxCloseEvent& event)
 	if ( event.CanVeto() && (InfoChgFlg() || MenuChgFlg()) )
 	{
 		const int ans = wxMessageBox(_LNG(_TODO_Exit_Ask_Save), _LNG(_TODO_Confirm), wxYES_NO | wxCANCEL);
+
 		if (ans == wxCANCEL)
 		{
 			return;
@@ -1182,12 +1301,14 @@ void TLMenuCfgDialog::OnClose(wxCloseEvent& event)
 			SaveToFile();
 		}
 	}
+
 	EndModal(0);
 }
 
 void TLMenuCfgDialog::OnTreeMenuBeginDrag(wxTreeEvent& event)
 {
 	m_dragSrc = event.GetItem();
+
 	if (m_dragSrc.IsOk())
 	{
 		event.Allow();
@@ -1197,5 +1318,27 @@ void TLMenuCfgDialog::OnTreeMenuBeginDrag(wxTreeEvent& event)
 void TLMenuCfgDialog::OnTreeMenuEndDrag(wxTreeEvent& event)
 {
 	assert(m_dragSrc.IsOk());
-	MoveItem(*m_TreeMenu, m_dragSrc, event.GetItem());
+	Move(m_dragSrc, event.GetItem(), e_up);
+}
+
+
+void TLMenuCfgDialog::OnHotKey(wxCommandEvent& event)
+{
+	const int id (event.GetId());
+
+	if (1 || id == ID_SAVE_OR_APPLY)
+	{
+		if (InfoChgFlg())
+		{
+			SaveItemInfo();
+		}
+		else if (MenuChgFlg())
+		{
+			SaveToFile();
+		}
+	}
+	else if (id == ID_DELETE_ITEM)
+	{
+	}
+
 }
