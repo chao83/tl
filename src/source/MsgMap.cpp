@@ -626,6 +626,7 @@ int MyProcessCommand(HWND hWnd, int id)
 		return 0;
 		//break;
 	case EDITCMDS:
+		Settings().Save();
 		if(	!ShellSuccess(ShellExecute(NULL, _T("open"), _T(".\\TLMenuCfg.exe"), g_fileName.c_str(), NULL,SW_SHOW)) &&
 			!ShellSuccess(ShellExecute(NULL,NULL,g_fileName.c_str(),NULL,NULL,SW_SHOW))) {
 			//÷¥––√¸¡Ó ß∞‹
