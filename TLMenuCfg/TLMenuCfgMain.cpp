@@ -228,8 +228,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_txtIcon = new wxTextCtrl(this, ID_TEXTCTRL3, _("Text"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL3"));
 	m_txtIcon->SetMaxLength(256);
 	BoxSizer19->Add(m_txtIcon, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BitmapButton2 = new wxBitmapButton(this, ID_BITMAPBUTTON7, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON7"));
-	BoxSizer19->Add(BitmapButton2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_btnFindIcon = new wxBitmapButton(this, ID_BITMAPBUTTON7, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON7"));
+	BoxSizer19->Add(m_btnFindIcon, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer15->Add(BoxSizer19, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer7->Add(BoxSizer15, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer16 = new wxBoxSizer(wxHORIZONTAL);
@@ -960,9 +960,12 @@ void TLMenuCfgDialog::UpdateFlgs()
 
 	if (oldWildCard != m_flgWildCard->GetValue())
 	{
-		m_stcNameFilter->SetLabel((oldWildCard) ?
-		                          _LNG(STC_DispName):
-		                          _LNG(STC_Filter));
+		bool isWildCard = m_flgWildCard->GetValue();
+		m_stcNameFilter->SetLabel( isWildCard?
+		                          _LNG(STC_Filter):
+		                          _LNG(STC_DispName));
+		m_txtIcon->Enable( ! isWildCard);
+		m_btnFindIcon->Enable( ! isWildCard);
 	}
 
 	// target editable only for items, Not for submenus.
@@ -1026,7 +1029,16 @@ bool TLMenuCfgDialog::SaveItemInfo()
 			using ns_file_str_ops::StripSpaces;
 			p->Name(m_txtNameOrFilter->GetValue().Trim(true).Trim(false));
 			p->Target(m_txtTarget->GetValue().Trim(true).Trim(false));
-			p->IconPath(m_txtIcon->GetValue().Trim(true).Trim(false));
+
+			if (p->Target().Right(1) == _T("*"))
+			{
+				// wildcard, no custome icon
+				p->IconPath(_T(""));
+			}
+			else
+			{
+				p->IconPath(m_txtIcon->GetValue().Trim(true).Trim(false));
+			}
 
 			/* removi image affects following images' indices.
 			// NOTE: Calling Remove(-1) will remove all images from list;

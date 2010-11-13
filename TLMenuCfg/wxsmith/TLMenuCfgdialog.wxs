@@ -275,7 +275,7 @@
 												<option>1</option>
 											</object>
 											<object class="sizeritem">
-												<object class="wxBitmapButton" name="ID_BITMAPBUTTON7" variable="BitmapButton2" member="yes">
+												<object class="wxBitmapButton" name="ID_BITMAPBUTTON7" variable="m_btnFindIcon" member="yes">
 													<bitmap stock_id="wxART_FIND" />
 													<handler function="OnBitmapButton2Click" entry="EVT_BUTTON" />
 												</object>

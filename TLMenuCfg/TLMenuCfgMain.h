@@ -97,9 +97,9 @@ class TLMenuCfgDialog: public wxDialog
         wxBitmapButton* m_btnDel;
         wxSearchCtrl* m_search;
         wxButton* m_btnSave;
-        wxBitmapButton* BitmapButton2;
         wxBitmapButton* m_btnUp;
         wxBitmapButton* m_btnNewItem;
+        wxBitmapButton* m_btnFindIcon;
         wxTreeCtrl* m_TreeMenu;
         wxTextCtrl* m_txtTarget;
         wxButton* m_btnOK;
