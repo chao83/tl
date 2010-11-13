@@ -860,19 +860,9 @@ void TLMenuCfgDialog::OnTreeMenuSelChanging(wxTreeEvent& event)
 {
 	if (InfoChgFlg() && event.GetOldItem().IsOk())
 	{
-		switch(wxMessageBox(_LNG(_TODO_Menu_Item_Changed), _LNG(_TODO_Confirm) , wxYES_NO | wxCANCEL))
+		if (!AllowChangeSel())
 		{
-		case wxCANCEL:
 			event.Veto();
-			break;
-		case wxNO:
-			// do Nothing, change item without saving.
-			break;
-		case wxYES:
-			SaveItemInfo();
-			break;
-		default:
-			assert(false);
 		}
 	}
 }
@@ -1160,6 +1150,8 @@ void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
 
 void TLMenuCfgDialog::OnbtnNewDirClick(wxCommandEvent& event)
 {
+	if(!AllowChangeSel())
+		return;
 	wxTreeItemId item = m_TreeMenu->GetSelection();
 
 	if (item.IsOk())
@@ -1190,6 +1182,8 @@ void TLMenuCfgDialog::OnbtnNewDirClick(wxCommandEvent& event)
 
 void TLMenuCfgDialog::OnbtnNewItemClick(wxCommandEvent& event)
 {
+	if(!AllowChangeSel())
+		return;
 	wxTreeItemId item = m_TreeMenu->GetSelection();
 
 	if (item.IsOk())
@@ -1340,5 +1334,29 @@ void TLMenuCfgDialog::OnHotKey(wxCommandEvent& event)
 	else if (id == ID_DELETE_ITEM)
 	{
 	}
+}
 
+bool TLMenuCfgDialog::AllowChangeSel()
+{
+	bool bAllow = true;
+
+	if (InfoChgFlg())
+	{
+		switch(wxMessageBox(_LNG(_TODO_Menu_Item_Changed), _LNG(_TODO_Confirm) , wxYES_NO | wxCANCEL))
+		{
+		case wxYES:
+			SaveItemInfo();
+			break;
+		case wxNO:
+			// do Nothing, change item without saving.
+			ReadItemInfo();
+			break;
+		case wxCANCEL:
+			bAllow = false;
+			break;
+		default:
+			assert(false);
+		}
+	}
+	return bAllow;
 }
