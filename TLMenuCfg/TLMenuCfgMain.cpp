@@ -668,10 +668,34 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 
 void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 {
+	SetIcon(wxICON(IDI_APP_TLMC));
 	m_TreeMenu->SetImageList(&m_iconlist);
+
 	m_indexFolder = m_iconlist.Add(wxICON(IDI_FOLDER));
 	m_indexFolderOpen = m_iconlist.Add(wxICON(IDI_FOLDER_OPEN));
 	m_indexUnknown = m_iconlist.Add(wxICON(IDI_UNKNOWN));
+
+	TSTRING strSkin;
+
+	if(Settings().Get(sectionGeneral, keySkin, strSkin)) {
+		strSkin = _T(".\\skin\\") + strSkin + _T("\\icons\\");
+		wxIcon icon;
+
+		if (icon.LoadFile(strSkin + _T("close.ico"), wxBITMAP_TYPE_ICO))
+		{
+			m_indexFolder = m_iconlist.Add(icon);
+		}
+
+		if (icon.LoadFile(strSkin + _T("open.ico"), wxBITMAP_TYPE_ICO))
+		{
+			m_indexFolderOpen = m_iconlist.Add(icon);
+		}
+
+		if (icon.LoadFile(strSkin + _T("unknown.ico"), wxBITMAP_TYPE_ICO))
+		{
+			m_indexUnknown = m_iconlist.Add(icon);
+		}
+	}
 
 	m_menuData.Load(m_fileName);
 
@@ -963,18 +987,21 @@ void TLMenuCfgDialog::UpdateFlgs()
 	if (oldWildCard != m_flgWildCard->GetValue())
 	{
 		m_stcNameFilter->SetLabel( m_flgWildCard->GetValue()?
-		                          _LNG(STC_Filter):
-		                          _LNG(STC_DispName));
+		                           _LNG(STC_Filter):
+		                           _LNG(STC_DispName));
 	}
 
 	const bool enableIcon = isMenu || (!m_flgWildCard->GetValue() && !m_txtTarget->IsEmpty());
 
 	m_txtIcon->Enable( enableIcon );
+
 	m_btnFindIcon->Enable( enableIcon );
 
 	// target editable only for items, Not for submenus.
 	m_stcTarget->Enable(isItem);
+
 	m_txtTarget->Enable(isItem);
+
 	m_btnFindTarget->Enable(isItem);
 
 }
@@ -1171,6 +1198,7 @@ void TLMenuCfgDialog::OnbtnNewDirClick(wxCommandEvent& event)
 {
 	if(!AllowChangeSel())
 		return;
+
 	wxTreeItemId item = m_TreeMenu->GetSelection();
 
 	if (item.IsOk())
@@ -1203,6 +1231,7 @@ void TLMenuCfgDialog::OnbtnNewItemClick(wxCommandEvent& event)
 {
 	if(!AllowChangeSel())
 		return;
+
 	wxTreeItemId item = m_TreeMenu->GetSelection();
 
 	if (item.IsOk())
@@ -1377,5 +1406,6 @@ bool TLMenuCfgDialog::AllowChangeSel()
 			assert(false);
 		}
 	}
+
 	return bAllow;
 }
