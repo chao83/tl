@@ -928,7 +928,7 @@ void TLMenuCfgDialog::OntxtNameOrFilterText(wxCommandEvent& event)
 
 	if (str.find_first_of(_T("<>")) != wxString::npos)
 	{
-		wxMessageBox(_LNG(STR_Invalid_NameOrFilter));
+		wxMessageBox(_LNG(STR_Invalid_NameOrFilter), _T("TrayLauncher"));
 		str.Replace(_T("<"), _T(""));
 		str.Replace(_T(">"), _T(""));
 		m_txtNameOrFilter->ChangeValue(str);
@@ -1168,7 +1168,7 @@ void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
 		if (m_TreeMenu->GetPrevSibling(item) || m_TreeMenu->GetNextSibling(item))
 		{
 			if (!m_TreeMenu->HasChildren(item) ||
-			        wxMessageBox(_LNG(_TODO_DELETE_MENU), _LNG(_TODO_LNG_Confirm), wxYES_NO) == wxYES)
+			        wxMessageBox(_LNG(STR_Ask_Delete_Menu), _LNG(STR_Confirm), wxYES_NO) == wxYES)
 			{
 
 				/*
@@ -1189,7 +1189,7 @@ void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
 		else
 		{
 			// is only child
-			wxMessageBox(_LNG(_TODO_Err_Del_Only_Child));
+			wxMessageBox(_LNG(STR_Err_Del_Only_Child), _LNG(STR_Failed));
 		}
 	}
 }
@@ -1272,7 +1272,7 @@ bool TLMenuCfgDialog::SaveToFile()
 
 void TLMenuCfgDialog::OnbtnFindTargetClick(wxCommandEvent& event)
 {
-	wxString filename(wxFileSelectorEx(_LNG(_TODO_Choose_Target)));
+	wxString filename(wxFileSelectorEx(_LNG(STR_Choose_Target)));
 
 	if ( !filename.empty() )
 	{
@@ -1282,7 +1282,7 @@ void TLMenuCfgDialog::OnbtnFindTargetClick(wxCommandEvent& event)
 
 void TLMenuCfgDialog::OnBitmapButton2Click(wxCommandEvent& event)
 {
-	wxString filename(wxFileSelector(_LNG(_TODO_Choose_Icon)));
+	wxString filename(wxFileSelector(_LNG(STR_Choose_Icon)));
 
 	if ( !filename.empty() )
 	{
@@ -1327,7 +1327,7 @@ void TLMenuCfgDialog::OnClose(wxCloseEvent& event)
 {
 	if ( event.CanVeto() && (InfoChgFlg() || MenuChgFlg()) )
 	{
-		const int ans = wxMessageBox(_LNG(_TODO_Exit_Ask_Save), _LNG(_TODO_Confirm), wxYES_NO | wxCANCEL);
+		const int ans = wxMessageBox(_LNG(STR_Exit_Ask_Save), _LNG(STR_Confirm), wxYES_NO | wxCANCEL);
 
 		if (ans == wxCANCEL)
 		{
@@ -1390,7 +1390,7 @@ bool TLMenuCfgDialog::AllowChangeSel()
 
 	if (InfoChgFlg())
 	{
-		switch(wxMessageBox(_LNG(_TODO_Menu_Item_Changed), _LNG(_TODO_Confirm) , wxYES_NO | wxCANCEL))
+		switch(wxMessageBox(_LNG(STR_Ask_Save_Item_Info), _LNG(STR_Confirm) , wxYES_NO | wxCANCEL))
 		{
 		case wxYES:
 			SaveItemInfo();
