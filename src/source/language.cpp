@@ -140,6 +140,7 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("BTN_OK"),								_T("OK"),
 	_T("BTN_Cancel"),							_T("Cancel"),
 	_T("BTN_Apply"),							_T("Apply"),
+	_T("BTN_Close"),							_T("Close"),
 	_T("BTN_Save"),								_T("Save"),
 	_T("BTN_Reload"),							_T("Reload"),
 
@@ -148,11 +149,13 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("BTN_IsTitle"),							_T("As Title"),
 	_T("BTN_IsWildCard"),						_T("Wildcard mode"),
 
+	_T("STC_Menu"),								_T("Commands:"),
 	_T("STC_Target"),							_T("Target Path:"),
-	_T("STC_DispNameOrFilter_Name"),			_T("Display Name:"),
-	_T("STC_DispNameOrFilter_Filter"),			_T("Filter:"),
+	_T("STC_DispName"),							_T("Display Name:"),
+	_T("STC_Filter"),							_T("Filter:"),
 	_T("STC_IconPath"),							_T("Use a custom icon:"),
 
+	_T("STR_MyComputer"),						_T("*Computer*"),
 	_T("STR_DisplayName"),						_T("[Display Name]"),
 	_T("STR_PathToTarget"),						_T("[Path To Target]"),
 

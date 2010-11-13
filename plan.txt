@@ -1,4 +1,11 @@
-功能 (features)
+==Plan==
+(features)
 	Run 对话框 的下拉列表也显示图标; (icons for run dialog dropdown list)
 	不画图标， (optional : no icons for menu items)
+
+==Working on==
 	可视编辑，(a visual editor)
+
+
+==Finished==
+	2010-11-13	关于对话框链接到网站主页。 about dialog links to project web page.

@@ -626,10 +626,10 @@ int MyProcessCommand(HWND hWnd, int id)
 		return 0;
 		//break;
 	case EDITCMDS:
-
-		if(!ShellSuccess(ShellExecute(NULL,NULL,g_fileName.c_str(),NULL,NULL,SW_SHOW))) {
+		if(	!ShellSuccess(ShellExecute(NULL, _T("open"), _T(".\\TLMenuCfg.exe"), g_fileName.c_str(), NULL,SW_SHOW)) &&
+			!ShellSuccess(ShellExecute(NULL,NULL,g_fileName.c_str(),NULL,NULL,SW_SHOW))) {
 			//÷¥––√¸¡Ó ß∞‹
-			if(ShellSuccess(ShellExecute(NULL,_T("open"),_T("notepad.exe"),g_fileName.c_str(),NULL,SW_SHOW)))
+			if(ShellSuccess(ShellExecute(NULL, _T("open"), _T("notepad.exe"), g_fileName.c_str(),NULL,SW_SHOW)))
 				break;
 
 			MessageBox(NULL,_LNG(STR_Failed_open_create_cmd_file),NULL,MB_ICONERROR);
@@ -1433,11 +1433,19 @@ BOOL  CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		//else go on , no break here
 	case WM_COMMAND:
 		EndDialog(hDlg, LOWORD(wParam));
+		if (LOWORD(wParam) == IDC_WEB && STN_CLICKED == HIWORD(wParam))
+		{
+			const int maxchar = 256;
+			TCHAR sz[maxchar] = {0};
+			GetDlgItemText(hDlg, IDC_WEB, sz, maxchar);
+			TSTRING str(sz);
+			ExecuteEx(str.substr(str.find(_T("http://"))));
+		}
 		bResult = TRUE;
 		break;
 	case WM_ERASEBKGND: {
 			GetClientRect(hDlg,&rectClient);
-			
+
 			// do NOT use min MACRO in Visual C++, use std::min
 			#ifdef min
 			#undef min

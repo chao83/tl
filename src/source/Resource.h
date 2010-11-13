@@ -24,6 +24,9 @@
 #define IDC_EDT_PATH					133
 #define IDC_IMG_ICON					134
 #define IDI_LNG						135
+#define IDC_EMAIL				1001
+#define IDC_X					1002
+#define IDC_WEB					1003
 #define IDC_STATIC					  -1
 
 
