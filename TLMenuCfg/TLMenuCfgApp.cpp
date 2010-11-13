@@ -1,10 +1,10 @@
 /***************************************************************
  * Name:      TLMenuCfgApp.cpp
  * Purpose:   Code for Application Class
- * Author:     ()
+ * Author:     (lichao)
  * Created:   2010-10-31
- * Copyright:  ()
- * License:
+ * Copyright:  (lichao)
+ * License: GPL 3.0
  **************************************************************/
 
 #include "wx_pch.h"

@@ -56,7 +56,6 @@ class TLMenuCfgDialog: public wxDialog
         void OnClose(wxCloseEvent& event);
         void OnTreeMenuBeginDrag(wxTreeEvent& event);
         void OnTreeMenuEndDrag(wxTreeEvent& event);
-        void OnKeyDown(wxKeyEvent& event);
         //*)
         void OnHotKey(wxCommandEvent& event);
 
@@ -92,7 +91,7 @@ class TLMenuCfgDialog: public wxDialog
         wxBitmapButton* m_btnDown;
         wxBitmapButton* m_btnNewDir;
         wxMenu m_dlgMenu;
-        wxStaticText* StaticText2;
+        wxButton* m_btnClose;
         wxStaticText* m_stcCustomizeIcon;
         wxBitmapButton* m_btnDel;
         wxSearchCtrl* m_search;
@@ -102,7 +101,6 @@ class TLMenuCfgDialog: public wxDialog
         wxBitmapButton* m_btnFindIcon;
         wxTreeCtrl* m_TreeMenu;
         wxTextCtrl* m_txtTarget;
-        wxButton* m_btnOK;
         wxCheckBox* m_flgSep;
         wxCheckBox* m_flgTitle;
         wxBoxSizer* BoxSizer1;
@@ -110,6 +108,7 @@ class TLMenuCfgDialog: public wxDialog
         wxStaticText* m_stcNameFilter;
         wxStaticText* m_stcTarget;
         wxTextCtrl* m_txtIcon;
+        wxStaticText* m_stcMenu;
         wxButton* m_btnApply;
         wxButton* m_btnReload;
         wxTextCtrl* m_txtNameOrFilter;

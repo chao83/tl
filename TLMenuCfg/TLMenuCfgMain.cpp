@@ -148,11 +148,12 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer3 = new wxBoxSizer(wxHORIZONTAL);
 	BoxSizer4 = new wxBoxSizer(wxVERTICAL);
 	BoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
-	StaticText2 = new wxStaticText(this, ID_STATICTEXT2, _("\"Menu\""), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
-	BoxSizer2->Add(StaticText2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	m_search = new wxSearchCtrl(this, ID_SEARCHCTRL1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_SEARCHCTRL1"));
-	BoxSizer2->Add(m_search, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer4->Add(BoxSizer2, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_stcMenu = new wxStaticText(this, ID_STATICTEXT2, _("\"Menu\""), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
+	BoxSizer2->Add(m_stcMenu, 1, wxLEFT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_search = new wxSearchCtrl(this, ID_SEARCHCTRL1, wxEmptyString, wxDefaultPosition, wxSize(85,22), 0, wxDefaultValidator, _T("ID_SEARCHCTRL1"));
+	m_search->Hide();
+	BoxSizer2->Add(m_search, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer4->Add(BoxSizer2, 0, wxTOP|wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
 	m_TreeMenu = new wxTreeCtrl(this, ID_TREECTRL_MENU, wxDefaultPosition, wxSize(198,372), wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE, wxDefaultValidator, _T("ID_TREECTRL_MENU"));
 	BoxSizer8->Add(m_TreeMenu, 1, wxTOP|wxBOTTOM|wxLEFT|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -185,7 +186,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_flgSep->SetValue(false);
 	m_flgSep->Disable();
 	BoxSizer9->Add(m_flgSep, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer7->Add(BoxSizer9, 0, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 6);
+	BoxSizer7->Add(BoxSizer9, 0, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer11 = new wxBoxSizer(wxVERTICAL);
 	BoxSizer10 = new wxBoxSizer(wxHORIZONTAL);
 	m_stcTarget = new wxStaticText(this, ID_STATICTEXT1, _("Target"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
@@ -240,8 +241,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer7->Add(BoxSizer16, 0, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer7->Add(-1,-1,1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer6 = new wxBoxSizer(wxHORIZONTAL);
-	m_btnOK = new wxButton(this, ID_BUTTON2, _("OK"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
-	BoxSizer6->Add(m_btnOK, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 4);
+	m_btnClose = new wxButton(this, ID_BUTTON2, _("Close"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
+	BoxSizer6->Add(m_btnClose, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 4);
 	m_btnApply = new wxButton(this, ID_BUTTON7, _("Apply"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON7"));
 	m_btnApply->Disable();
 	BoxSizer6->Add(m_btnApply, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -281,7 +282,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 
 	// update language
 	SetTitle(_LNG(STR_DlgTitle));
-	m_btnOK->SetLabel(_LNG(BTN_Close));
+	m_stcMenu->SetLabel(_LNG(STC_Menu));
+	m_btnClose->SetLabel(_LNG(BTN_Close));
 	m_btnApply->SetLabel(_LNG(BTN_Apply));
 	m_btnSave->SetLabel(_LNG(BTN_Save));
 	m_btnReload->SetLabel(_LNG(BTN_Reload));
@@ -960,13 +962,15 @@ void TLMenuCfgDialog::UpdateFlgs()
 
 	if (oldWildCard != m_flgWildCard->GetValue())
 	{
-		bool isWildCard = m_flgWildCard->GetValue();
-		m_stcNameFilter->SetLabel( isWildCard?
+		m_stcNameFilter->SetLabel( m_flgWildCard->GetValue()?
 		                          _LNG(STC_Filter):
 		                          _LNG(STC_DispName));
-		m_txtIcon->Enable( ! isWildCard);
-		m_btnFindIcon->Enable( ! isWildCard);
 	}
+
+	const bool enableIcon = isMenu || (!m_flgWildCard->GetValue() && !m_txtTarget->IsEmpty());
+
+	m_txtIcon->Enable( enableIcon );
+	m_btnFindIcon->Enable( enableIcon );
 
 	// target editable only for items, Not for submenus.
 	m_stcTarget->Enable(isItem);
@@ -1030,14 +1034,17 @@ bool TLMenuCfgDialog::SaveItemInfo()
 			p->Name(m_txtNameOrFilter->GetValue().Trim(true).Trim(false));
 			p->Target(m_txtTarget->GetValue().Trim(true).Trim(false));
 
-			if (p->Target().Right(1) == _T("*"))
+			const bool enableIcon = m_flgMenu->GetValue() || (!m_flgWildCard->GetValue() && !m_txtTarget->IsEmpty());
+
+			if (enableIcon)
 			{
-				// wildcard, no custome icon
-				p->IconPath(_T(""));
+				p->IconPath(m_txtIcon->GetValue().Trim(true).Trim(false));
 			}
 			else
 			{
-				p->IconPath(m_txtIcon->GetValue().Trim(true).Trim(false));
+				// wildcard or title, no custome icon
+				assert(!m_txtIcon->IsEnabled());
+				p->IconPath(_T(""));
 			}
 
 			/* removi image affects following images' indices.
