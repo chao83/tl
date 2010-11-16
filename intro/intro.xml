@@ -63,11 +63,13 @@
     <para><important>
         <para>Upgrade tip: Do NOT overwrite your own command file or setting
         file.</para>
-      </important>To Install, just unzip the files to an empty folder and run
-    traylauncher.exe (or traystart.exe for old version).</para>
+      </important>To Install and use, just unzip the files to an empty folder
+    and run
+    <application><filename>traylauncher.exe</filename></application>.</para>
 
     <para>To Un install, disable autostart (<emphasis>un check</emphasis> the
-    "Start With Windows" on the context menu), and delete the folder.</para>
+    <guimenuitem>Start With Windows</guimenuitem> on the context menu), and
+    delete the folder.</para>
   </section>
 
   <section>
@@ -97,7 +99,7 @@
         </keycombo> and <keycombo>
           <keycap>Ctrl</keycap>
 
-          <keycap>winked</keycap>
+          <keycap>win key</keycap>
         </keycombo>.</para>
 
       <tip>
@@ -315,18 +317,18 @@ item3 = notepad.exe
         <literallayout>notepad&amp;Three = "C:\windows\notepad.exe"</literallayout>
       </example>
 
-      <para>The letter "T" will be <ulink url="???">underlined</ulink> on the
-      menu, to indicate that it's the index letter. <tip>
+      <para>The letter "T" will be underlined on the menu, to indicate that
+      it's the index letter. <tip>
           <para>If you want to write the letter "&amp;" itself, use
           "&amp;&amp;" instead.</para>
-        </tip> </para>
+        </tip></para>
     </section>
 
     <section>
       <title>Using the '<emphasis>*</emphasis>'</title>
 
       <para>you can add multiple items at once with "*"; there are now 4 types
-      of usage: *.*, * , ** and *+*. Here are some examples: </para>
+      of usage: *.*, * , ** and *+*. Here are some examples:</para>
 
       <example>
         <title>wild card mode</title>
@@ -343,31 +345,31 @@ a*=c:\windows\* ;add every file and folder that begins with "a" in c:\windows\ .
  = \\** ; A special mode to explore My Computer.</literallayout>
       </example>
 
-      <para>The difference between ** and *+* mode : </para>
+      <para>The difference between ** and *+* mode :</para>
 
       <itemizedlist>
         <listitem>
           <para>when you use *+* mode, the menu is built at once and no more
-          (if you don't Refresh), </para>
+          (if you don't Refresh),</para>
         </listitem>
 
         <listitem>
           <para>and when you use **, the sub menus are built each time you
-          explore them. </para>
+          explore them.</para>
         </listitem>
       </itemizedlist>
 
       <important>
         <para>Use the *+* mode carefully, it may take minutes to build the
-        menu when there are too many files. </para>
+        menu when there are too many files.</para>
 
         <para>The ** mode is recommended for large number of items.</para>
 
         <para>The *+* mode is better for small number of items as the items
-        will be indexed when you use the run dialog. </para>
+        will be indexed when you use the run dialog.</para>
 
         <para>Do NOT use any spaces beside "|" when using multiple wild cards,
-        they count. </para>
+        they count.</para>
       </important>
     </section>
 
@@ -376,7 +378,7 @@ a*=c:\windows\* ;add every file and folder that begins with "a" in c:\windows\ .
 
       <para>Title is just some text displayed on the menu. To add a Title, you
       just need to write the text, and that's it. For example, add the
-      following line to the command file: </para>
+      following line to the command file:</para>
 
       <example>
         <title>title</title>
@@ -385,9 +387,9 @@ a*=c:\windows\* ;add every file and folder that begins with "a" in c:\windows\ .
       </example>
 
       <para>You will see the text on the menu, but it will be grayed, and
-      nothing will happen when you click on it. </para>
+      nothing will happen when you click on it.</para>
 
-      <para>You can use titles to display some instructions. </para>
+      <para>You can use titles to display some instructions.</para>
     </section>
 
     <section>
@@ -395,18 +397,18 @@ a*=c:\windows\* ;add every file and folder that begins with "a" in c:\windows\ .
 
       <para>A single dot, "." means the current directory, that is the one
       where you put TrayLauncher.exe, while ".." means the parent directory of
-      the current directory. </para>
+      the current directory.</para>
     </section>
 
     <section>
       <title>Separator and empty line</title>
 
       <para>An empty line means a separator. So, don't use that if you don't
-      need any separator. </para>
+      need any separator.</para>
 
       <para>To make your file more readable, you can use a line that contains
       only a ";", and the hole line will be treated as a comment and
-      TrayLauncher will simply ignore it. </para>
+      TrayLauncher will simply ignore it.</para>
     </section>
   </section>
 
@@ -420,33 +422,33 @@ a*=c:\windows\* ;add every file and folder that begins with "a" in c:\windows\ .
       </keycombo> to launch the run dialog.</para>
 
     <para>As you type, TrayLauncher will automatically search the menu items
-    and your system for executable or files that match your input. </para>
+    and your system for executable or files that match your input.</para>
 
     <para>After you enter a command and run it, the run dialog will
-    automatically disappear if there is no error. </para>
+    automatically disappear if there is no error.</para>
 
     <para>It remembers the latest 50 correct commands and your last input. To
     clear the history list, enter <userinput>-clear</userinput> or
-    <userinput>:clear</userinput> in the edit box and run it. </para>
+    <userinput>:clear</userinput> in the edit box and run it.</para>
 
     <note>
       <para>Since v1.8.6 the run dialog can also be launched from the context
-      menu. </para>
+      menu.</para>
     </note>
   </section>
 
   <section>
     <title>Multilingual</title>
 
-    <para>Since V1.8, you should use the <filename>TL.ini</filename> setting
-    file to specify the language file. </para>
+    <para>Since V1.8, you could use the <filename>TL.ini</filename> setting
+    file to specify the language file.</para>
 
     <para>A language file is just another UNICODE text file, you can edit it
-    if you like. </para>
+    if you like.</para>
 
     <tip>
       <para>Since v1.8.5, you can choose language in the context menu. No need
-      to edit the setting file manually. </para>
+      to edit the setting file manually.</para>
     </tip>
   </section>
 
@@ -457,15 +459,15 @@ a*=c:\windows\* ;add every file and folder that begins with "a" in c:\windows\ .
 
     <para>A skin is just a set of bitmap files in a folder inside the
     <filename>skin</filename> folder; you can create your own skin as you
-    wish. </para>
+    wish.</para>
 
-    <para>Since V1.9.6 some menu icons can also be changed together with skin
-    change. </para>
+    <para>Since V1.9.6 some menu icons can also be customized together in a
+    skin.</para>
 
     <para>Put the icons in the "icons" folder within a skin folder, and when
-    the skin is selected, the icons within it are used automatically. </para>
+    the skin is selected, the icons within it are used automatically.</para>
 
-    <para>The icons should be named as follow: </para>
+    <para>The icons should be named as follow:</para>
 
     <literallayout>about.ico
 autostart.ico
@@ -491,7 +493,7 @@ unknown.ico</literallayout>
     <title>Setting file</title>
 
     <para>Since V1.8 Traylauncher has got a setting file, you can edit this
-    file to set a few settings; more settings may be added later. </para>
+    file to set a few settings; more settings may be added later.</para>
 
     <para>Here is a sample setting file:</para>
 
