@@ -403,6 +403,8 @@ void GetMenuStrings(const CItem &mi, TSTRING &strName, TSTRING &strPath, TSTRING
 
 wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 {
+	// disable loadicon error msg;
+	wxLogNull logNo;
 
 	wxIcon icon(path, wxBITMAP_TYPE_ICO);
 
@@ -677,7 +679,10 @@ void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 
 	TSTRING strSkin;
 
-	if(Settings().Get(sectionGeneral, keySkin, strSkin)) {
+	if(Settings().Get(sectionGeneral, keySkin, strSkin) && !strSkin.empty()) {
+		// disable loadicon error msg;
+		wxLogNull logNo;
+
 		strSkin = _T(".\\skin\\") + strSkin + _T("\\icons\\");
 		wxIcon icon;
 
@@ -804,9 +809,6 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item, con
 			m_TreeMenu->SetItemImage(item, m_indexWildCard);
 			return;
 		}
-
-		// disable loadicon error msg;
-		wxLogNull logNo;
 
 		// Target may have parameters,
 		// more try only for target, NOT for iconpath.
