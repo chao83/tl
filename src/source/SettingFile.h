@@ -48,6 +48,7 @@ CSTR keyShowHidden = _T("showhidden");
 CSTR keyMClick = _T("midclick");
 CSTR keySkin = _T("skin");
 CSTR keyShowOpenHere = _T("ShowOpenHere");
+CSTR keyDisableSysMenu = _T("nosysmenu");
 CSTR sectionHistory = _T("history");
 CSTR sectionColor = _T("color");
 

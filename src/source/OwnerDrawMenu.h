@@ -12,7 +12,17 @@ typedef HICON ICONTYPE;
 typedef HWND WINDOWTYPE;
 
 //! 图标 自动指针
-class IconTypeDestroyer{public : static void Free(ICONTYPE &hIcon) {DestroyIcon(hIcon); hIcon = NULL;}  };
+class IconTypeDestroyer{
+public :
+	static void Free(ICONTYPE &hIcon)
+	{
+		if (hIcon)
+		{
+			DestroyIcon(hIcon);
+			hIcon = NULL;
+		}
+	}
+};
 typedef auto_handle<HICON, IconTypeDestroyer, 0, false>  HIcon;
 
 //! 自绘菜单类
@@ -108,6 +118,8 @@ protected:
 	class CNoNullIconMap
 	{
 	public:
+		CNoNullIconMap(){}
+		~CNoNullIconMap() { Clear(); }
 		bool Add(const CKey & key, const CValue & value) {
 			// @todo: value == map[key] ???
 			Remove(key);
@@ -141,6 +153,8 @@ protected:
 	private:
 		typedef std::map<CKey,CValue> CMap;
 		CMap m_map;
+		CNoNullIconMap(const CNoNullIconMap &);
+		CNoNullIconMap & operator = (const CNoNullIconMap &);
 	};
 	typedef CNoNullIconMap<IDTYPE,HICON> CIdIconMap;
 	typedef CNoNullIconMap<MENUTYPE,HICON> CMenuIconMap;

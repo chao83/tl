@@ -82,6 +82,8 @@ bool SwitchHook(bool bSet = false, bool bOn = true)
 	return g_hook.Get() && static_cast<bool>(*g_hook);
 }
 const HINSTANCE ThisHinstGet();
+int MyProcessCommand(HWND hWnd, int id);
+
 //extern TCHAR g_lpCmdLine[MAX_PATH];
 extern const TCHAR *szWindowClass;
 
@@ -541,7 +543,9 @@ void ShowMenu(const POINT * p = NULL, bool bLast = false)
 		}
 	}
 }
-void UpdataRunDlgCheck()
+
+
+void UpdateRunDlgCheck()
 {
 	if ( GHdlgRun() && IsWindowVisible( GHdlgRun() ) ) {
 		CheckMenuItem(g_pSysTray->Menu(),RUNDLG, MF_BYCOMMAND | MF_CHECKED );
@@ -549,6 +553,42 @@ void UpdataRunDlgCheck()
 		CheckMenuItem(g_pSysTray->Menu(),RUNDLG, MF_BYCOMMAND | MF_UNCHECKED );
 	}
 }
+
+bool StringMeansTrue(const TSTRING &str)
+{
+	return 	str == _T("true") ||
+			str == _T("TRUE") ||
+			str == _T("True") ||
+			str == _T("1");
+}
+
+void ShowSysMenu(HWND hWnd, const POINT * p = NULL)
+{
+	if (IgnoreUser())
+	{
+		return;
+	}
+	TSTRING strValue;
+	if (Settings().Get(sectionGeneral, keyDisableSysMenu, strValue) &&
+		StringMeansTrue(strValue) )
+	{
+		return;
+	}
+	POINT point = {0,0};
+	if (p)
+	{
+		point = *p;
+	}
+	else
+	{
+		GetCursorPos(&point);
+	}
+
+	UpdateRunDlgCheck();
+	MyProcessCommand(hWnd, g_pSysTray->Display(point.x, point.y));
+}
+
+
 //显示运行对话框
 void ShowRunDlg()
 {
@@ -746,14 +786,12 @@ LRESULT  MsgRefresh(HWND, UINT, WPARAM, LPARAM)
 //! 处理鼠标中键点击的通知
 LRESULT  MsgMidClick(HWND hWnd, UINT, WPARAM bDown, LPARAM)
 {
-	if(bDown || (GetKeyState(VK_LBUTTON)&0x8000) ) {
-		if (!IgnoreUser()) {
-			POINT point = {0,0};
-			GetCursorPos(&point);
-			UpdataRunDlgCheck();
-			MyProcessCommand(hWnd, g_pSysTray->Display(point.x,point.y));
-		}
-	} else {
+	if(bDown || (GetKeyState(VK_LBUTTON)&0x8000) )
+	{
+		ShowSysMenu(hWnd);
+	}
+	else
+	{
 		Sleep(100);
 		ShowMenu();
 	}
@@ -1097,21 +1135,18 @@ LRESULT MsgHotKey(HWND hWnd, UINT /*message*/, WPARAM wParam, LPARAM /*lParam*/)
 	if(IgnoreUser() || wParam < HOTKEYBEGIN || wParam >= HOTKEYEND) {
 		;
 	} else {
-		POINT point;
+		POINT point = {0,0};
 
 		switch (wParam) {
 		case HOTKEYMIDCLICK:
 			ShowMenu();
 			break;
 		case HOTKEYPOPMENU://左键菜单
-			point.x = 0;
-			point.y = 0;
 			ShowMenu(&point);
 			break;
 		case HOTKEYPOPSYSMENU://右键菜单
 		case HOTKEYPOPSYSMENU_ALTER:
-			UpdataRunDlgCheck();
-			MyProcessCommand(hWnd, g_pSysTray->Display(0, 0));
+			ShowSysMenu(hWnd, &point);
 			break;
 		case HOTKEYPOPEXECUTE://显示运行对话框
 			ShowRunDlg();
@@ -1195,10 +1230,8 @@ LRESULT  MsgIconNotify(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM lP
 
 			if (bRBtnDown) {
 				bRBtnDown = false;
-				POINT point = {0,0};
-				GetCursorPos(&point);
-				UpdataRunDlgCheck();
-				MyProcessCommand(hWnd, g_pSysTray->Display(point.x, point.y));
+
+				ShowSysMenu(hWnd);
 			}
 
 			break;
