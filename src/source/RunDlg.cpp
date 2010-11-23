@@ -6,7 +6,6 @@
 //
 
 #include <commctrl.h>
-#include <shellapi.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 #include "resource.h"
@@ -46,10 +45,6 @@ HWND & GHdlgRun()
 }
 
 
-bool ShellSuccess(const HINSTANCE hInst)
-{
-	return reinterpret_cast<int>(hInst) > 32;
-}
 
 int QuoteString(TSTRING &str, const TSTRING::value_type ch = '\"', bool bProcessEmptyString = false)
 {
@@ -127,18 +122,6 @@ void SetHint(HWND hDlg, ICONTYPE hIcon, const TCHAR *pHint)
 	if (reinterpret_cast<LRESULT>(hIcon) != SendMessage(GetDlgItem(hDlg, IDC_IMG_ICON),STM_GETICON, reinterpret_cast<WPARAM>(hIcon),0))
 		SendMessage(GetDlgItem(hDlg, IDC_IMG_ICON),STM_SETICON, reinterpret_cast<WPARAM>(hIcon),0);
 	SetDlgItemText(hDlg, IDC_EDT_PATH, pHint);
-}
-
-//! 根据后缀名判断文件是否为可执行文件.
-bool IsPathExe(const TSTRING & path) {
-
-	return  IsStrEndWith(path,_T(".exe"),false) ||
-			IsStrEndWith(path,_T(".cmd"),false) ||
-			IsStrEndWith(path,_T(".bat"),false) ||
-			IsStrEndWith(path,_T(".pif"),false) ||
-			IsStrEndWith(path,_T(".scr"),false) ||
-			IsStrEndWith(path,_T(".com"),false) ||
-			IsStrEndWith(path,_T(".scf"),false);
 }
 
 
@@ -418,55 +401,6 @@ int MyGetDlgItemTextBeforeCursor(HWND hDlg,int id,TSTRING& str)
 	return static_cast<int>(str.length());
 }
 
-//! 运行命令行
-bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL)
-{
-	// 分析出 路径，参数，目录
-	TSTRING strCmd,strParam;
-	GetCmdAndParam(strToBeExecuted, strCmd, strParam);
-	TSTRING strDir;
-	TSTRING::size_type pos = strCmd.find_last_of('\\');
-	if (strCmd.npos != pos) {
-		strDir = strCmd.substr(0,pos);
-	}
-	return ShellSuccess(ShellExecute(NULL,pOpr,strCmd.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
-}
-
-//! 运行命令行
-bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, HWND hwnd = NULL)
-{
-	TSTRING strCmd,strParam;
-	GetCmdAndParam(strToBeExecuted, strCmd, strParam);
-	TSTRING strDir;
-	const TSTRING::size_type posDirEnd = strCmd.find_last_of('\\');
-	if (strCmd.npos != posDirEnd) {
-		strDir = strCmd.substr(0, posDirEnd);
-	}
-
-	SHELLEXECUTEINFO sei = {0};
-	sei.cbSize = sizeof(SHELLEXECUTEINFO);
-	sei.hwnd = hwnd;
-	sei.fMask = SEE_MASK_INVOKEIDLIST|SEE_MASK_FLAG_NO_UI;
-	sei.lpVerb = pOpr;
-	sei.lpFile = strCmd.c_str();
-	if (IsPathExe(strCmd)) {
-		// 扩展 \"  - > \"\"\"
-		TSTRING::size_type pos = strParam.find('\"');
-		while (pos != strParam.npos) {
-			strParam.insert(strParam.begin() + pos, '\"');
-			strParam.insert(strParam.begin() + pos, '\"');
-			pos += 3;
-			pos = strParam.find('\"', pos);
-		}
-		sei.lpParameters = strParam.c_str();
-	}
-	else
-		sei.lpParameters = NULL;
-	sei.lpDirectory = strDir.c_str();
-	sei.nShow = SW_SHOWNORMAL;
-	ShellExecuteEx(&sei);
-	return ShellSuccess(sei.hInstApp);
-}
 
 //! 创建tooltip
 HWND WINAPI CreateTT(HWND hwndOwner, HWND hwndTool)
@@ -754,12 +688,12 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						bool bSuccessShell = false;
 						TCHAR pathFound[MAX_PATH] = {0};
 						if(GetDlgItemText(hDlg,IDC_EDT_PATH,pathFound,MAX_PATH)>0 && *pathFound) {
-							bSuccessShell = Execute(pathFound);
+							bSuccessShell = ns_file_str_ops::Execute(pathFound);
 						}
-						bSuccessShell = bSuccessShell || Execute(szCommand);
+						//bSuccessShell = bSuccessShell || Execute(szCommand);
 						if (!bSuccessShell) {
 							//执行命令失败
-							MessageBox(hDlg,szCommand, _LNG(Failed To Execute:),MB_ICONERROR);
+							MessageBox(hDlg,szCommand, _LNG(STR_Failed_To_Exec),MB_ICONERROR);
 							ShowWindow(hDlg, SW_SHOW); //运行失败， 重新显示窗口
 							SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
 							SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
@@ -959,14 +893,14 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					bool bSuccessShell = false;
 					TCHAR pathFound[MAX_PATH] = {0};
 					if(GetDlgItemText(hDlg,IDC_EDT_PATH,pathFound,MAX_PATH)>0 && *pathFound) {
-						bSuccessShell = ExecuteEx(pathFound, _T("properties"), GHdlgRun());
+						bSuccessShell = ns_file_str_ops::ExecuteEx(pathFound, _T("properties"), GHdlgRun());
 					}
-					if (!bSuccessShell) {
-						bSuccessShell = ExecuteEx(szCommand,_T("properties"), GHdlgRun());
-					}
+//					if (!bSuccessShell) {
+//						bSuccessShell = ExecuteEx(szCommand,_T("properties"), GHdlgRun());
+//					}
 					if (!bSuccessShell) {
 						//执行命令失败
-						MessageBox(hDlg,szCommand, _LNG(Failed To Execute:), MB_ICONERROR);
+						MessageBox(hDlg,szCommand, _LNG(STR_Failed_To_Exec), MB_ICONERROR);
 						SendMessage(GetDlgItem(hDlg, IDC_CBORUN), CB_SETEDITSEL, 0, MAKELONG(0,-1));
 						SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
 						return TRUE;

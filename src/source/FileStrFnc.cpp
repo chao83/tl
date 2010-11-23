@@ -1,5 +1,6 @@
 
 #include "FileStrFnc.h"
+#include <shellapi.h>
 
 namespace ns_file_str_ops {
 
@@ -182,5 +183,85 @@ void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& 
 	}
 }
 
+
+//! 根据后缀名判断文件是否为可执行文件.
+bool IsPathExe(const TSTRING & path) {
+
+	return  IsStrEndWith(path,_T(".exe"),false) ||
+			IsStrEndWith(path,_T(".cmd"),false) ||
+			IsStrEndWith(path,_T(".bat"),false) ||
+			IsStrEndWith(path,_T(".pif"),false) ||
+			IsStrEndWith(path,_T(".scr"),false) ||
+			IsStrEndWith(path,_T(".com"),false) ||
+			IsStrEndWith(path,_T(".scf"),false);
+}
+
+
+
+//! 运行命令行
+bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr, const bool bExpandEnv)
+{
+	// 先展开环境变量
+	const int N = 512;
+	std::vector<TCHAR> buf(N);
+	if (bExpandEnv && ExpandEnvironmentStrings(strToBeExecuted.c_str(), &buf[0], N) && TSTRING(strToBeExecuted) != &buf[0])
+	{
+		return Execute(&buf[0], pOpr, false);
+	}
+
+	// 分析出 路径，参数，目录
+	TSTRING strCmd,strParam;
+	GetCmdAndParam(strToBeExecuted, strCmd, strParam);
+	TSTRING strDir;
+	TSTRING::size_type pos = strCmd.find_last_of('\\');
+	if (strCmd.npos != pos) {
+		strDir = strCmd.substr(0,pos);
+	}
+	return ns_file_str_ops::ShellSuccess(ShellExecute(NULL,pOpr,strCmd.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
+}
+
+//! 运行命令行
+bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr, HWND hwnd, bool bExpandEnv)
+{
+	// 先展开环境变量
+	const int N = 512;
+	std::vector<TCHAR> buf(N);
+	if (bExpandEnv && ExpandEnvironmentStrings(strToBeExecuted.c_str(), &buf[0], N) && TSTRING(strToBeExecuted) != &buf[0])
+	{
+		return ExecuteEx(&buf[0], pOpr, hwnd, false);
+	}
+
+	TSTRING strCmd,strParam;
+	GetCmdAndParam(strToBeExecuted, strCmd, strParam);
+	TSTRING strDir;
+	const TSTRING::size_type posDirEnd = strCmd.find_last_of('\\');
+	if (strCmd.npos != posDirEnd) {
+		strDir = strCmd.substr(0, posDirEnd);
+	}
+
+	SHELLEXECUTEINFO sei = {0};
+	sei.cbSize = sizeof(SHELLEXECUTEINFO);
+	sei.hwnd = hwnd;
+	sei.fMask = SEE_MASK_INVOKEIDLIST|SEE_MASK_FLAG_NO_UI;
+	sei.lpVerb = pOpr;
+	sei.lpFile = strCmd.c_str();
+	if (IsPathExe(strCmd)) {
+		// 扩展 \"  - > \"\"\"
+		TSTRING::size_type pos = strParam.find('\"');
+		while (pos != strParam.npos) {
+			strParam.insert(strParam.begin() + pos, '\"');
+			strParam.insert(strParam.begin() + pos, '\"');
+			pos += 3;
+			pos = strParam.find('\"', pos);
+		}
+		sei.lpParameters = strParam.c_str();
+	}
+	else
+		sei.lpParameters = NULL;
+	sei.lpDirectory = strDir.c_str();
+	sei.nShow = SW_SHOWNORMAL;
+	ShellExecuteEx(&sei);
+	return ShellSuccess(sei.hInstApp);
+}
 
 }

@@ -453,6 +453,26 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 	bool result (true);
 
 	const TCHAR * pCmd = Cmd(nSysID);
+	if (pCmd && *pCmd)
+	{
+		TSTRING strCmdLine(pCmd);
+		strCmdLine = _T("\"") + strCmdLine + _T("\"");
+		const TCHAR *pParam = Param(nSysID);
+		if (pParam && *pParam)
+		{
+			strCmdLine += _T(" ");
+			strCmdLine += pParam;
+		}
+
+		if (!ns_file_str_ops::Execute(strCmdLine))
+		{
+			//执行命令失败
+			EnableMenuItem(Menu(),nSysID,MF_BYCOMMAND | MF_GRAYED);
+			MessageBox(NULL, Cmd(nSysID), _LNG(STR_Failed), MB_ICONERROR);
+			result = false;
+		}
+	}
+/*
 	if (pCmd && *pCmd) {
 		Arr<TCHAR> pEnough;
 		TCHAR path[MAX_PATH] ={0};
@@ -484,6 +504,7 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 			result = false;
 		}
 	}
+//*/
 	return result;
 }
 /*
@@ -781,6 +802,15 @@ ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, 
 
 		}
 		// 现在还没有图标，可能：文件根本不存在
+	}
+	{
+		// 尝试展开环境变量
+		const int N = 512;
+		std::vector<TCHAR> buf(N);
+		if (ExpandEnvironmentStrings(strPath.c_str(), &buf[0], N) && strPath != &buf[0])
+		{
+			hIcon = GetIcon(&buf[0], needIcon, iconIndex, bIcon32);
+		}
 	}
 // */
 	return hIcon;

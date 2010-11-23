@@ -8,7 +8,7 @@ const UINT UM_UPDATEHINT = WM_USER + 2;
 
 BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
-bool ShellSuccess(HINSTANCE hInst);
+using ns_file_str_ops::ShellSuccess;
 
 class CToolTip
 {

@@ -127,6 +127,19 @@ namespace  ns_file_str_ops
 
 	//! 分析出命令和参数
 	void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& strParam);
+
+
+	inline bool ShellSuccess(const HINSTANCE hInst)
+	{
+		return reinterpret_cast<int>(hInst) > 32;
+	}
+
+	//! 运行命令行
+	bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, const bool bExpandEnv = true);
+
+	//! 运行命令行
+	bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, HWND hwnd = NULL, bool bExpandEnv = true);
+
 };
 
 #endif //LCH_FILE_STR_FNC_H

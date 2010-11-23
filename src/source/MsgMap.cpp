@@ -165,8 +165,6 @@ Ptr<COwnerDrawMenu> g_pSysTray;
 Ptr<CMenuWithIcon> g_pTray;
 Ptr<CHotkey> g_pHotkey;
 
-bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, HWND = NULL);
-
 
 CMsgMap & TheMsgMap()
 {
@@ -1473,7 +1471,7 @@ BOOL  CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			TCHAR sz[maxchar] = {0};
 			GetDlgItemText(hDlg, IDC_WEB, sz, maxchar);
 			TSTRING str(sz);
-			ExecuteEx(str.substr(str.find(_T("http://"))));
+			ns_file_str_ops::ExecuteEx(str.substr(str.find(_T("http://"))));
 		}
 		bResult = TRUE;
 		break;
