@@ -5,6 +5,9 @@
 
 ==Working on==
 	可视编辑，(a visual editor)
+	展开环境变量（图标/命令）
+	支持设置线程优先级
+	更新文档，介绍配置文件选项
 
 
 ==Finished==
