@@ -407,6 +407,18 @@ void GetMenuStrings(const CItem &mi, TSTRING &strName, TSTRING &strPath, TSTRING
 	}
 }
 
+const wxString ExpandEnvString(const wxString & path)
+{
+	wxString str;
+	const int N = 512;
+	std::vector<TCHAR> buf(N+1);
+	if (ExpandEnvironmentStrings(path.c_str(), &buf[0], N))
+	{
+		str = &buf[0];
+	}
+	return str;
+}
+
 wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 {
 	// disable loadicon error msg;
@@ -456,6 +468,16 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 				delete p;
 			}
 
+		}
+	}
+
+	// try expand evirenment variables
+	if (!icon.IsOk() && path.find('%') != wxString::npos)
+	{
+		wxString expath(ExpandEnvString(path));
+		if (!expath.empty() && expath != path)
+		{
+			icon = GetFileIcon(expath, moreTry);
 		}
 	}
 
