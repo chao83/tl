@@ -280,8 +280,14 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(ID_SAVE_OR_APPLY, wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&TLMenuCfgDialog::OnHotKey);
 	Connect(ID_DELETE_ITEM, wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&TLMenuCfgDialog::OnHotKey);
 
+	TSTRING strFileName;
+	if (Settings().Get(sectionGeneral, keyCommand, strFileName) && !strFileName.empty())
+	{
+		m_fileName = strFileName;
+	}
+
 	// update language
-	SetTitle(_LNG(STR_DlgTitle));
+	SetTitle(_LNG(STR_DlgTitle) + (_T("  -  [ ") + m_fileName + _T(" ]")) );
 	m_stcMenu->SetLabel(_LNG(STC_Menu));
 	m_btnClose->SetLabel(_LNG(BTN_Close));
 	m_btnApply->SetLabel(_LNG(BTN_Apply));
