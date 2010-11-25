@@ -363,20 +363,25 @@ namespace {
 class MyFileDropTarget : public wxFileDropTarget
 {
 public:
-	MyFileDropTarget(wxTextCtrl *pEdit):m_pEdit(pEdit) {}
+	MyFileDropTarget(wxTextCtrl *pEdit, const wxString & pre = _T(""), const wxString &post = _T(""))
+	:m_pEdit(pEdit),
+	m_prefix(pre),
+	m_postfix(post) {}
 
 private:
 	virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString & filenames)
 	{
 		if (m_pEdit && filenames.Count())
 		{
-			m_pEdit->SetValue(filenames[0]);
+			m_pEdit->SetValue(m_prefix + filenames[0] + m_postfix);
 			return true;
 		}
 
 		return false;
 	}
 	wxTextCtrl *m_pEdit;
+	wxString m_prefix;
+	wxString m_postfix;
 };
 
 //! \brief read name, path, and icon path from CItem
@@ -746,7 +751,7 @@ void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 
 	m_TreeMenu->SelectItem(m_TreeMenu->GetFirstVisibleItem());
 
-	m_txtTarget->SetDropTarget(new MyFileDropTarget(m_txtTarget));
+	m_txtTarget->SetDropTarget(new MyFileDropTarget(m_txtTarget, _T("\""), _T("\"")));
 	m_txtIcon->SetDropTarget(new MyFileDropTarget(m_txtIcon));
 }
 
