@@ -11,7 +11,7 @@
       <surname>Chao</surname>
     </author>
 
-    <pubdate>2010-11-14</pubdate>
+    <pubdate>2010-11-25</pubdate>
   </articleinfo>
 
   <section>
@@ -495,6 +495,131 @@ unknown.ico</literallayout>
     <para>Since V1.8 Traylauncher has got a setting file, you can edit this
     file to set a few settings; more settings may be added later.</para>
 
+    <para>The setting file is divided into sections, and each section has some
+    key-value pairs. </para>
+
+    <para>A key is a setting option, while a value is the what you set for
+    that option. Here are some of the keys and their values in general
+    section:</para>
+
+    <table>
+      <title>general settings</title>
+
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry align="center">key</entry>
+
+            <entry align="center">description</entry>
+
+            <entry align="center">available values</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry>command</entry>
+
+            <entry>specify a command file</entry>
+
+            <entry>should be a valid path to a text file.</entry>
+          </row>
+
+          <row>
+            <entry>confirm_exit</entry>
+
+            <entry>option to show the confirm dialog when exit
+            traylauncher</entry>
+
+            <entry>1 (show) or 0 ( not show).</entry>
+          </row>
+
+          <row>
+            <entry>language</entry>
+
+            <entry>set the language file to use</entry>
+
+            <entry>a valid language file name.</entry>
+          </row>
+
+          <row>
+            <entry>midclick</entry>
+
+            <entry>use the mid mouse button to show menu or not.</entry>
+
+            <entry>1 (use) or 0 (not use).</entry>
+          </row>
+
+          <row>
+            <entry>runicon</entry>
+
+            <entry>use a custom icon for run dialog.</entry>
+
+            <entry>(valid path to an icon.)</entry>
+          </row>
+
+          <row>
+            <entry>trayicon</entry>
+
+            <entry>use a custom icon for the system tray.</entry>
+
+            <entry>(valid path to an icon.)</entry>
+          </row>
+
+          <row>
+            <entry>priority</entry>
+
+            <entry>set priority of traylauncher.</entry>
+
+            <entry>high, above_normal, normal, below_normal, idle</entry>
+          </row>
+
+          <row>
+            <entry>skin</entry>
+
+            <entry>set the skin</entry>
+
+            <entry>(skin name, or folder name of a skin)</entry>
+          </row>
+
+          <row>
+            <entry>showhidden</entry>
+
+            <entry>show hidden files for wild card mode.</entry>
+
+            <entry>1 (show) or 0 (not show)</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>The history section is maintained by traylauncher automatically,
+    it's the history command you typed in the run dialog.</para>
+
+    <para>The hotkey section is used to change hot keys. Available values are
+    like these: <keycombo>
+        <keycap>Alt</keycap>
+
+        <keycap>A</keycap>
+      </keycombo>, <keycombo>
+        <keycap>Ctrl</keycap>
+
+        <keycap>Alt</keycap>
+
+        <keycap>LWin</keycap>
+      </keycombo>, <keycombo>
+        <keycap>Win</keycap>
+
+        <keycap>Q</keycap>
+      </keycombo>, <keycombo>
+        <keycap>Shift</keycap>
+
+        <keycap>LWin</keycap>
+      </keycombo>, etc. <note>
+        <para>These are system wide hot keys, if another program has already
+        used it, traylauncher would not be able to use that setting.</para>
+      </note></para>
+
     <para>Here is a sample setting file:</para>
 
     <example>
@@ -507,6 +632,7 @@ confirm_exit = 0
 language = TL_cn.lng
 midclick = 0
 runicon = .\TLRun.ico
+priority = above_normal
 showhidden = 0
 skin = Office
 trayicon = .\TLTray.ico
