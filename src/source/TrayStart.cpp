@@ -117,6 +117,28 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		return FALSE;
 	}
 
+	{
+		// check to set priority
+		TSTRING strValue;
+		if (Settings().Get(sectionGeneral, keyPriority, strValue) && !strValue.empty() )
+		{
+			ns_file_str_ops::ToLowerCase(strValue);
+			std::map<TSTRING, int> mapPriorityClass;
+			mapPriorityClass[_T("idle")] = IDLE_PRIORITY_CLASS;
+			mapPriorityClass[_T("below_normal")] = BELOW_NORMAL_PRIORITY_CLASS;
+			mapPriorityClass[_T("normal")] = NORMAL_PRIORITY_CLASS;
+			mapPriorityClass[_T("above_normal")] = ABOVE_NORMAL_PRIORITY_CLASS;
+			mapPriorityClass[_T("high")] = HIGH_PRIORITY_CLASS;
+			//mapPriorityClass[_T("realtime")] = REALTIME_PRIORITY_CLASS;
+
+			if (mapPriorityClass.find(strValue) != mapPriorityClass.end())
+			{
+				SetPriorityClass(GetCurrentProcess(), mapPriorityClass[strValue]);
+			}
+		}
+	}
+
+
 	//HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TRAYSTART));
 
 	// 主消息循环:
