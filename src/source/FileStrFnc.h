@@ -123,6 +123,10 @@ namespace  ns_file_str_ops
 	//! 判断字符串是否以 给定的字符串结尾。
 	bool IsStrEndWith(const TSTRING & strSrc, const TSTRING & strMatchThis, bool bMatchCase = true);
 
+	//! 根据后缀名判断文件是否为可执行文件.
+	bool IsPathExe(const TSTRING & path);
+
+
 	bool GetLastFileTime(const TCHAR * szFN, FILETIME *pSTCreate, FILETIME *pSTAccess,  FILETIME *pSTWrite);
 
 	//! 分析出命令和参数

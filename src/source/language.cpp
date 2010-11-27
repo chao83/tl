@@ -164,7 +164,7 @@ const TCHAR * g_strEnglishLngArray[] = {
 	_T("STR_Exit_Ask_Save"),					_T("Save the change(s) before exit?"),
 	_T("STR_Ask_Delete_Menu"),					_T("Delete the menu and all its sub items?"),
 
-	_T("STR_Invalid_NameOrFilter"),				_T("Invalide input: '<' and '>' are not allowed!"),
+	_T("STR_Invalid_NameOrFilter"),				_T("Invalide input: '<', '>' and '=' are not allowed!"),
 	_T("STR_Err_Del_Only_Child"),				_T("Can't delete the only child!"),
 	_T("")
 

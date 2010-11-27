@@ -16,6 +16,7 @@
 #include "MenuItemData.h"
 #include "language.h"
 #include "SettingFile.h"
+#include <wx/cshelp.h>
 
 //(*InternalHeaders(TLMenuCfgDialog)
 #include <wx/artprov.h>
@@ -302,6 +303,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_stcTarget->SetLabel(_LNG(STC_Target));
 	m_stcNameFilter->SetLabel(_LNG(STC_DispName));
 	m_stcCustomizeIcon->SetLabel(_LNG(STC_IconPath));
+
+	m_txtNameOrFilter->SetHelpText(_LNG(STR_Invalid_NameOrFilter));
 
 	// use menu for hotkeys like Ctrl-S, not displayed.
 	const int acc [] =
@@ -941,6 +944,24 @@ void TLMenuCfgDialog::CheckFlg(wxCheckBox* ctrl, const bool val)
 	}
 }
 
+
+bool TLMenuCfgDialog::SetNameFromTarget()
+{
+	if (!m_txtNameOrFilter->IsModified())
+	{
+		TSTRING strCmd, strParam;
+		ns_file_str_ops::GetCmdAndParam(m_txtTarget->GetValue().c_str(), strCmd, strParam);
+
+		strCmd = strCmd.substr(strCmd.find_last_of('\\') + 1);
+		if (ns_file_str_ops::IsPathExe(strCmd))
+		{
+			strCmd.resize(strCmd.length()-4);
+		}
+		m_txtNameOrFilter->SetValue(strCmd);
+	}
+}
+
+
 void TLMenuCfgDialog::OntxtTargetText(wxCommandEvent& event)
 {
 	m_bTargetChanged = true;
@@ -959,14 +980,22 @@ void TLMenuCfgDialog::OntxtTargetText(wxCommandEvent& event)
 
 void TLMenuCfgDialog::OntxtNameOrFilterText(wxCommandEvent& event)
 {
+	wxString strForbid(_T("<>="));
 	wxString str(event.GetString());
 
-	if (str.find_first_of(_T("<>")) != wxString::npos)
+	const wxString::size_type pos = str.find_first_of(strForbid);
+	if (pos != wxString::npos)
 	{
-		wxMessageBox(_LNG(STR_Invalid_NameOrFilter), _T("TrayLauncher"));
-		str.Replace(_T("<"), _T(""));
-		str.Replace(_T(">"), _T(""));
+		for (unsigned int i = 0; i < strForbid.length(); ++i)
+		{
+			str.Replace(strForbid.Mid(i, 1), _T(""));
+		}
 		m_txtNameOrFilter->ChangeValue(str);
+		m_txtNameOrFilter->SetInsertionPoint(pos);
+		wxHelpProvider::Get()->ShowHelp(m_txtNameOrFilter);
+
+
+		//wxMessageBox(_LNG(STR_Invalid_NameOrFilter), _T("TrayLauncher"));
 		return;
 	}
 
@@ -1060,14 +1089,14 @@ bool TLMenuCfgDialog::ReadItemInfo()
 		{
 			assert(dynamic_cast<MenuItemData*>(pData));
 			MenuItemData *p = static_cast<MenuItemData*>(pData);
-			m_txtNameOrFilter->SetValue(p->Name());
-			m_txtTarget->SetValue(p->Target());
-			m_txtIcon->SetValue(p->IconPath());
+			m_txtTarget->ChangeValue(p->Target());
+			m_txtNameOrFilter->ChangeValue(p->Name());
+			m_txtIcon->ChangeValue(p->IconPath());
 		}
 		else
 		{
-			m_txtNameOrFilter->Clear();
 			m_txtTarget->Clear();
+			m_txtNameOrFilter->Clear();
 			m_txtIcon->Clear();
 		}
 
@@ -1311,7 +1340,8 @@ void TLMenuCfgDialog::OnbtnFindTargetClick(wxCommandEvent& event)
 
 	if ( !filename.empty() )
 	{
-		m_txtTarget->SetValue(filename);
+		m_txtTarget->SetValue(_T("\"") + filename + _T("\""));
+		SetNameFromTarget();
 	}
 }
 

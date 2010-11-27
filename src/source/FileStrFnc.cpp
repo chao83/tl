@@ -185,7 +185,8 @@ void GetCmdAndParam(const TSTRING& const_strCmdParam, TSTRING& strCmd, TSTRING& 
 
 
 //! 根据后缀名判断文件是否为可执行文件.
-bool IsPathExe(const TSTRING & path) {
+bool IsPathExe(const TSTRING & path)
+{
 
 	return  IsStrEndWith(path,_T(".exe"),false) ||
 			IsStrEndWith(path,_T(".cmd"),false) ||

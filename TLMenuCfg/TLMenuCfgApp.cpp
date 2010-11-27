@@ -10,6 +10,7 @@
 #include "wx_pch.h"
 #include "TLMenuCfgApp.h"
 #include <wx/snglinst.h>
+#include <wx/cshelp.h>
 
 //(*AppHeaders
 #include "TLMenuCfgMain.h"
@@ -32,6 +33,10 @@ bool TLMenuCfgApp::OnInit()
 	{
 		return false;
 	}
+
+	wxSimpleHelpProvider* provider = new wxSimpleHelpProvider;
+	wxHelpProvider::Set(provider);
+
     //(*AppInitialize
     bool wxsOK = true;
     wxInitAllImageHandlers();
@@ -43,6 +48,8 @@ bool TLMenuCfgApp::OnInit()
     wxsOK = false;
     }
     //*)
+
+    delete wxHelpProvider::Set(NULL);
     return wxsOK;
 
 }

@@ -136,6 +136,7 @@ class TLMenuCfgDialog: public wxDialog
 		enum E_MoveDirection {e_up, e_down};
 		bool Move(const wxTreeItemId from, const wxTreeItemId to, const E_MoveDirection);
 		bool AllowChangeSel();
+		bool SetNameFromTarget();
 
 		bool m_bInfoUnsaved;	//!< if there is an unsaved change in current item.
 		bool m_bTargetChanged;
