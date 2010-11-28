@@ -1,6 +1,7 @@
 
 #include "FileStrFnc.h"
 #include <shellapi.h>
+#include <Shlwapi.h>
 
 namespace ns_file_str_ops {
 
@@ -198,27 +199,59 @@ bool IsPathExe(const TSTRING & path)
 }
 
 
+bool FindExe(const TSTRING &strCmd, TSTRING & strFullPath)
+{
+	bool ret = false;
+	TCHAR path[MAX_PATH] ={0};
+	DWORD dwSize = MAX_PATH;
+	HRESULT hres = AssocQueryString(ASSOCF_OPEN_BYEXENAME,
+					 ASSOCSTR_EXECUTABLE,
+					 strCmd.c_str(),
+					 NULL,
+					 path,
+					 &dwSize);
+
+	if ((S_OK == hres) || ((ShellSuccess(FindExecutable(strCmd.c_str(),NULL,path))) && *path)) {
+		strFullPath = path;
+		ret = true;
+	}
+	return ret;
+}
 
 //! 运行命令行
 bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr, const bool bExpandEnv)
 {
+	bool ret = false;
 	// 先展开环境变量
 	const int N = 512;
 	std::vector<TCHAR> buf(N);
 	if (bExpandEnv && ExpandEnvironmentStrings(strToBeExecuted.c_str(), &buf[0], N) && TSTRING(strToBeExecuted) != &buf[0])
 	{
-		return Execute(&buf[0], pOpr, false);
+		ret = Execute(&buf[0], pOpr, false);
+	}
+	else
+	{
+		// 分析出 路径，参数，目录
+		TSTRING strCmd,strParam;
+		GetCmdAndParam(strToBeExecuted, strCmd, strParam);
+		TSTRING strDir;
+		TSTRING::size_type pos = strCmd.find_last_of('\\');
+		if (strCmd.npos != pos) {
+			strDir = strCmd.substr(0,pos);
+		}
+		ret = ShellSuccess(ShellExecute(NULL,pOpr,strCmd.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
+		if (!ret)
+		{
+			TSTRING strPath;
+			if (FindExe(strCmd, strPath))
+			{
+				ret = ShellSuccess(ShellExecute(NULL,pOpr,strPath.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
+			}
+
+		}
 	}
 
-	// 分析出 路径，参数，目录
-	TSTRING strCmd,strParam;
-	GetCmdAndParam(strToBeExecuted, strCmd, strParam);
-	TSTRING strDir;
-	TSTRING::size_type pos = strCmd.find_last_of('\\');
-	if (strCmd.npos != pos) {
-		strDir = strCmd.substr(0,pos);
-	}
-	return ns_file_str_ops::ShellSuccess(ShellExecute(NULL,pOpr,strCmd.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
+	return ret;
 }
 
 //! 运行命令行

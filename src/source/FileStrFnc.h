@@ -138,6 +138,8 @@ namespace  ns_file_str_ops
 		return reinterpret_cast<int>(hInst) > 32;
 	}
 
+	bool FindExe(const TSTRING &strCmd, TSTRING & strFullPath);
+
 	//! ‘À––√¸¡Ó––
 	bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr = NULL, const bool bExpandEnv = true);
 

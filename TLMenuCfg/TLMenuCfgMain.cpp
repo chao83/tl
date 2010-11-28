@@ -17,6 +17,7 @@
 #include "language.h"
 #include "SettingFile.h"
 #include <wx/cshelp.h>
+#include <Shlwapi.h>
 
 //(*InternalHeaders(TLMenuCfgDialog)
 #include <wx/artprov.h>
@@ -489,6 +490,14 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 		}
 	}
 
+	if (!icon.IsOk())
+	{
+		TSTRING strPath;
+		if (ns_file_str_ops::FindExe(path.c_str(), strPath)){
+			icon.LoadFile(strPath, wxBITMAP_TYPE_ICO);
+		}
+	}
+
 	if (!icon.IsOk() && moreTry > 0)
 	{
 		//try get the executable
@@ -947,6 +956,7 @@ void TLMenuCfgDialog::CheckFlg(wxCheckBox* ctrl, const bool val)
 
 bool TLMenuCfgDialog::SetNameFromTarget()
 {
+	bool ret = false;
 	if (!m_txtNameOrFilter->IsModified())
 	{
 		TSTRING strCmd, strParam;
@@ -958,7 +968,9 @@ bool TLMenuCfgDialog::SetNameFromTarget()
 			strCmd.resize(strCmd.length()-4);
 		}
 		m_txtNameOrFilter->SetValue(strCmd);
+		ret = true;
 	}
+	return ret;
 }
 
 

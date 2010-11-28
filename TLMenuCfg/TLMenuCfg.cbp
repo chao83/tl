@@ -90,6 +90,7 @@
 			<Add library="libcomctl32.a" />
 			<Add library="libwsock32.a" />
 			<Add library="libodbc32.a" />
+			<Add library="Shlwapi" />
 		</Linker>
 		<Unit filename="TLMenuCfgApp.cpp" />
 		<Unit filename="TLMenuCfgApp.h" />

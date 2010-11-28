@@ -325,26 +325,15 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 				}
 			}
 			if (!bKeyFound) {
-				TCHAR *path = szInput;
-				memset(path,0,sizeof(TCHAR)*iCmdSize);
-				DWORD dwSize = iCmdSize;
-				HRESULT hres = AssocQueryString(ASSOCF_OPEN_BYEXENAME,
-								 ASSOCSTR_EXECUTABLE,
-								 strCmd.c_str(),
-								 NULL,
-								 path,
-								 &dwSize);
-
-				if ( (S_OK == hres) || (ShellSuccess(FindExecutable(strCmd.c_str(),NULL,path)) && *path) ) {
+				TSTRING path;
+				if (ns_file_str_ops::FindExe(strCmd, path))
+				{
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
-					if (!s_hIcon.Get() && dwSize)
+					if (!s_hIcon.Get())
 						s_hIcon = g_pTray->GetBigIcon(path);
-					if (S_OK == hres)
-						strHint = path;
-					else
-						strHint = strCmd;
-					QuoteString(strHint);
 
+					strHint = path;
+					QuoteString(strHint);
 					if( ! strParam.empty())
 						strHint += _T(" ") + strParam;
 				}
