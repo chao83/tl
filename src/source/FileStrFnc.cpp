@@ -218,6 +218,35 @@ bool FindExe(const TSTRING &strCmd, TSTRING & strFullPath)
 	return ret;
 }
 
+bool ToFullPath(TSTRING & strFile)
+{
+	bool bRet = false;
+	if (strFile.substr(0, 2) == _T(".\\") || strFile.substr(0, 3) == _T("..\\"))
+	{
+		TCHAR path[MAX_PATH] ={0};
+
+		// 相对路径,获取目录的绝对路径
+		int length = GetFullPathName(strFile.c_str(), MAX_PATH,path,NULL);
+		if (length > MAX_PATH) {
+			std::vector<TCHAR> vEnough(length);
+			if (GetFullPathName(strFile.c_str(), length, &vEnough[0], NULL) > 0)
+			{
+				strFile = &vEnough[0];
+				bRet = true;
+			}
+		}
+		else if (length > 0) {
+			strFile = path;
+			bRet = true;
+		}
+		else
+		{
+			// some error happened
+		}
+	}
+	return bRet;
+}
+
 //! 运行命令行
 bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr, const bool bExpandEnv)
 {
@@ -234,9 +263,10 @@ bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr, const bool bEx
 		// 分析出 路径，参数，目录
 		TSTRING strCmd,strParam;
 		GetCmdAndParam(strToBeExecuted, strCmd, strParam);
+		ToFullPath(strCmd);
 		TSTRING strDir;
 		TSTRING::size_type pos = strCmd.find_last_of('\\');
-		if (strCmd.npos != pos) {
+		if (TSTRING::npos != pos) {
 			strDir = strCmd.substr(0,pos);
 		}
 		ret = ShellSuccess(ShellExecute(NULL,pOpr,strCmd.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
@@ -245,6 +275,11 @@ bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr, const bool bEx
 			TSTRING strPath;
 			if (FindExe(strCmd, strPath))
 			{
+				strDir.clear();
+				pos = strPath.find_last_of('\\');
+				if (TSTRING::npos != pos) {
+					strDir = strPath.substr(0,pos);
+				}
 				ret = ShellSuccess(ShellExecute(NULL,pOpr,strPath.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
 			}
 
