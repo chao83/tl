@@ -1,4 +1,16 @@
-﻿
+﻿[2010-11-30] v2.1.0
+[TrayLauncher]
+Added	: Expand environment variables in paths.
+Added	: Set process priority in setting file.
+Added	: Some docs
+Change	: For short commands, try more search for execuables.
+Fixed	: A bug about executing relative paths.
+[TLMC]
+Added	: Expand environment variables in paths.
+Change	: quote target file name on drag & drop and find button, find button may update name.
+Change	: show tip message(instead of a dialog box) for name error.
+Fixed	: did not read command file name from setting file.
+
 [2010-11-14] v2.0.0
 Added	: TLMenuCfg, a GUI command editor.
 Change	: About dialog links to website.

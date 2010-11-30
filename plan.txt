@@ -2,9 +2,11 @@
 (features)
 	Run 对话框 的下拉列表也显示图标; (icons for run dialog dropdown list)
 	不画图标， (optional : no icons for menu items)
+	language implimentation, try to use integer id.
 
 ==Working on==
 	可视编辑，(a visual editor)	
+	check ExecuteEx() 相对路径
 
 
 ==Finished==

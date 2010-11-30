@@ -302,6 +302,8 @@ bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr, HWND hwnd, b
 
 	TSTRING strCmd,strParam;
 	GetCmdAndParam(strToBeExecuted, strCmd, strParam);
+	ToFullPath(strCmd);
+
 	TSTRING strDir;
 	const TSTRING::size_type posDirEnd = strCmd.find_last_of('\\');
 	if (strCmd.npos != posDirEnd) {

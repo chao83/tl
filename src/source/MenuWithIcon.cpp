@@ -472,39 +472,6 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 			result = false;
 		}
 	}
-/*
-	if (pCmd && *pCmd) {
-		Arr<TCHAR> pEnough;
-		TCHAR path[MAX_PATH] ={0};
-		TSTRING strWorkPath;
-
-		// 获取目录的路径
-		GetDirectory(nSysID,strWorkPath);
-		if ('.' == *pCmd) {	//相对路径
-			TCHAR * FinalName;
-			int length = GetFullPathName(pCmd,MAX_PATH,path,&FinalName);
-			if (length > MAX_PATH) {
-				pEnough = new TCHAR[length];
-				if (GetFullPathName(pCmd,MAX_PATH,path,&FinalName) > 0)
-					pCmd = pEnough.Get();
-			}
-			else if (length > 0) {
-				pCmd = path;
-			}
-			if (pCmd && *pCmd && '.' != *pCmd) {
-				strWorkPath = pCmd;
-				strWorkPath = strWorkPath.substr(0,FinalName - pCmd);
-			}
-		}
-
-		if( ForceCast<int, HINSTANCE>(ShellExecute(NULL, NULL, pCmd, Param(nSysID), strWorkPath.c_str(), SW_SHOW)) <= SHELL_MAX_ERROR_VALUE) {
-			//执行命令失败
-			EnableMenuItem(Menu(),nSysID,MF_BYCOMMAND | MF_GRAYED);
-			MessageBox(NULL, Cmd(nSysID), _LNG(STR_Failed), MB_ICONERROR);
-			result = false;
-		}
-	}
-//*/
 	return result;
 }
 /*
