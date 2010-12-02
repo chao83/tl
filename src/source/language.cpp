@@ -13,34 +13,51 @@
 ///////////////////////////////////////////////////////////////////
 class Language
 {
+	typedef int IdType;
 	typedef std::wstring StringType;
 	typedef StringType::value_type CharType;
-	typedef std::map<StringType, StringType> SSMap;
+	typedef std::map<IdType, StringType> IdStrMap;
+	typedef std::map<StringType, IdType> StrIdMap;
 public:
-	Language(void) {}
+	Language(void):m_curId(e_idStart) {}
 	template <unsigned int N> Language(const CharType * (&szArr)[N]) { LoadArray(szArr); }
 
-	unsigned int Size() const { return m_ssmap.size(); }
+	unsigned int Size() const { return m_lng.size(); }
 	// SetFilter(const StringType & vStr);
 
-	void Clear() { m_ssmap.clear(); }
+	void Clear() { m_lng.clear(); }
 
-	bool SetLngFile(const StringType & strFileName, const StringType & strSeparator = _T("==>"), const StringType & strLineComment = _T(";"));
-
-	const StringType &GetStr(const StringType & strIndex) {
-		SSMap::const_iterator pos = m_ssmap.find(strIndex);
-		if (pos != m_ssmap.end()) {
-			return pos->second; 	// found
+	const IdType GetLngId(const StringType & str, const bool bCreateIfNotFound = false)
+	{
+		IdType id = IdType();
+		if (m_id.find(str) != m_id.end())
+		{
+			id = m_id[str];
 		}
-		return strIndex;	// not found
+		else if (bCreateIfNotFound)
+		{
+			id = NewId();
+			m_id[str] = id;
+		}
+		return id;
 	}
 
-	const CharType * GetCStr(const CharType * const szIndex) {
-		SSMap::const_iterator pos = m_ssmap.find(szIndex);
-		if (pos != m_ssmap.end()) {
+	bool SetLngFile(const StringType & strFileName, const StringType & strSeparator = _T("==>"), const StringType & strLineComment = _T(";"));
+/*
+	const StringType &GetStr(const IdType & id) {
+		IdStrMap::const_iterator pos = m_lng.find(id);
+		if (pos != m_lng.end()) {
+			return pos->second; 	// found
+		}
+		return g_strEmpty;	// not found
+	}
+//*/
+	const CharType * GetCStr(const IdType id) {
+		IdStrMap::const_iterator pos = m_lng.find(id);
+		if (pos != m_lng.end()) {
 			return pos->second.c_str(); 	// found
 		}
-		return szIndex;	// not found
+		return GetEmptyString().c_str();	// not found
 	}
 
 	unsigned int LoadArray(const CharType **strArray, const unsigned int N);
@@ -49,8 +66,16 @@ public:
 	unsigned int LoadArray(const CharType * (&szArr)[N]) { return LoadArray(szArr, N); }
 
 private:
-
-	SSMap m_ssmap;
+	inline static const StringType & GetEmptyString()
+	{
+		static const StringType str;
+		return str;
+	}
+	IdType NewId() { return ++m_curId; }
+	IdStrMap m_lng;
+	StrIdMap m_id;
+	enum {e_idStart = 10000};
+	IdType m_curId;
 
 	// non-copyable
 	Language(const Language &);
@@ -62,7 +87,7 @@ unsigned int Language::LoadArray(const CharType **strArray, const unsigned int N
 	Clear();
 	const unsigned int n = N/2;
 	for (unsigned int i = 0; i < n; ++i) {
-		m_ssmap[strArray[i*2]] = strArray[i*2+1];
+		m_lng[GetLngId(strArray[i*2], true)] = strArray[i*2+1];
 	}
 	return Size();
 }
@@ -97,7 +122,7 @@ bool Language::SetLngFile(const StringType & strFileName, const StringType & str
 			StringType strDst(strLine.substr(pos + strSeparator.length()));
 			ns_file_str_ops::StripCharsAtEnds(strDst, strSpaceChars);
 
-			m_ssmap[strSrc] = strDst;
+			m_lng[GetLngId(strSrc)] = strDst;
 		}
 	}
 	return true;
@@ -181,7 +206,7 @@ Language & MainLng()
 
 const TCHAR * GetLang(const TCHAR * strSrc)
 {
-	return MainLng().GetCStr(strSrc);
+	return MainLng().GetCStr(MainLng().GetLngId(strSrc));
 }
 
 bool SetLanguageFile(const TCHAR * szFileName)
