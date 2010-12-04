@@ -60,10 +60,10 @@ public:
 		return GetEmptyString().c_str();	// not found
 	}
 
-	unsigned int LoadArray(const CharType **strArray, const unsigned int N);
+	unsigned int LoadArray(const unsigned int N, const CharType **strArray, const bool bAddIdIfNotExist = false);
 
 	template <unsigned int N>
-	unsigned int LoadArray(const CharType * (&szArr)[N]) { return LoadArray(szArr, N); }
+	unsigned int LoadArray(const CharType * (&szArr)[N], const bool bAddIdIfNotExist = false) { return LoadArray(N, szArr, bAddIdIfNotExist); }
 
 private:
 	inline static const StringType & GetEmptyString()
@@ -83,11 +83,11 @@ private:
 };
 
 
-unsigned int Language::LoadArray(const CharType **strArray, const unsigned int N) {
+unsigned int Language::LoadArray(const unsigned int N, const CharType **strArray, const bool bAddIdIfNotExist) {
 	Clear();
 	const unsigned int n = N/2;
 	for (unsigned int i = 0; i < n; ++i) {
-		m_lng[GetLngId(strArray[i*2], true)] = strArray[i*2+1];
+		m_lng[GetLngId(strArray[i*2], bAddIdIfNotExist)] = strArray[i*2+1];
 	}
 	return Size();
 }
@@ -125,6 +125,7 @@ bool Language::SetLngFile(const StringType & strFileName, const StringType & str
 			m_lng[GetLngId(strSrc)] = strDst;
 		}
 	}
+	m_lng.erase(0); // delete the invalid one.
 	return true;
 }
 
@@ -212,7 +213,7 @@ const TCHAR * GetLang(const TCHAR * strSrc)
 bool SetLanguageFile(const TCHAR * szFileName)
 {
 	// first, reset to default.
-	MainLng().LoadArray(g_strEnglishLngArray);
+	MainLng().LoadArray(g_strEnglishLngArray, true);
 
 	if (!szFileName || !*szFileName) {
 		return true;
