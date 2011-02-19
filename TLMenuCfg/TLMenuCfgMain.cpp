@@ -115,7 +115,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	:m_bInfoUnsaved(false),
 	 m_bMenuChanged(false),
 	 m_menuData(_T("root")),
-	 m_iconlist(20, 20, 128),
+	 m_iconlist(18, 22, 128),
 	 m_indexUnknown(-1),
 	 m_indexFolder(-1),
 	 m_indexFolderOpen(-1),

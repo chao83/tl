@@ -93,18 +93,10 @@
 		<Unit filename="..\src\source\language.h" />
 		<Unit filename="..\src\source\rc\TrayLauncher.exe.Manifest" />
 		<Unit filename="..\src\source\stdafx.cpp" />
-		<Unit filename="..\src\source\stdafx.h" />
-		<Unit filename="..\src\source\stdafxDebug\stdafx.h">
+		<Unit filename="..\src\source\stdafx.h">
 			<Option compile="1" />
 			<Option weight="0" />
-			<Option target="Debug" />
 		</Unit>
-		<Unit filename="..\src\source\stdafxRelease\stdafx.h">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="..\src\source\stdafx_real.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

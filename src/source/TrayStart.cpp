@@ -94,7 +94,7 @@ public:
 //! WinMain 程序入口
 int APIENTRY WinMain(HINSTANCE hInstance,
 					 HINSTANCE /*hPrevInstance*/,
-					 LPSTR	/*lpCmdLine*/,
+					 LPSTR	lpCmdLine,
 					 int	   nCmdShow)
 {
 #ifdef USE_GDIPLUS
@@ -107,7 +107,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	SetCurrentDirectory(path);
 
 	InitLanguage();
-	MustBeFirstInstance(_T("Tray Launcher"));
+// @fixme (lichao#1#): 完善命令行处理
+
+	if (std::string(lpCmdLine).find("--single-instance=false") == std::string::npos)
+		MustBeFirstInstance(_T("Tray Launcher"));
 	MSG msg;
 
 	MyRegisterClass(hInstance);

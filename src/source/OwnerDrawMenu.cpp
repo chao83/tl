@@ -167,7 +167,8 @@ m_iExtraLeftSideWidth(iLeftSide)
 	m_vClrs[ClrIndex_BkDisabled] = RGB(128,128,128);
 	m_vClrs[ClrIndex_FrDisabled] = RGB(255,255,255);
 	m_vClrs[ClrIndex_SelBorder] = RGB(0,0,255);
-	m_vClrs[ClrIndex_Sel] = RGB(235,235,255);
+	m_vClrs[ClrIndex_SelBk] = RGB(235,235,255);
+	m_vClrs[ClrIndex_SelFr] = RGB(0, 0, 0);
 	m_vClrs[ClrIndex_Side] = RGB(55,109,184);
 	m_vClrs[ClrIndex_Separator] = RGB(166,166,166);
 
@@ -548,6 +549,7 @@ void COwnerDrawMenu::DrawSkin(HDC hdc, const RECT & rect,
 bool COwnerDrawMenu::AccordingToState(DRAWITEMSTRUCT * pDI)
 {
 	COLORREF bk = m_vClrs[ClrIndex_Bk];
+	COLORREF Fr = m_vClrs[ClrIndex_Fr];
 
 	SetBkMode(pDI->hDC, TRANSPARENT);
 
@@ -623,7 +625,7 @@ bool COwnerDrawMenu::AccordingToState(DRAWITEMSTRUCT * pDI)
 			--rect.bottom;
 			++rect.left;
 			++rect.top;
-			bk = m_vClrs[ClrIndex_Sel];
+			bk = m_vClrs[ClrIndex_SelBk];
 		/*/
 			//三维效果 //todo 如何判断鼠标是否按下
 			FillRectWithColor(pDI->hDC,rect,RGB(64,64,64));
@@ -637,6 +639,8 @@ bool COwnerDrawMenu::AccordingToState(DRAWITEMSTRUCT * pDI)
 		}
 	}
 	//普通的未选中菜单项
+
+	SetTextColor(pDI->hDC, Fr);
 
 	if(m_hBkPic && m_hSkinDC) {
 		DrawSkin(pDI->hDC, rect, m_hBkPic, m_BkWidth, m_BkHeight,

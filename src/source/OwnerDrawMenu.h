@@ -179,7 +179,7 @@ private:
 	UINT_PTR m_selID;
 	enum e_ClrIndex{ClrIndex_Bk,ClrIndex_BkGrayed,ClrIndex_BkDisabled,
 					ClrIndex_Fr,ClrIndex_FrGrayed,ClrIndex_FrDisabled,
-					ClrIndex_Sel,ClrIndex_SelBorder,
+					ClrIndex_SelBk, ClrIndex_SelFr,ClrIndex_SelBorder,
 					ClrIndex_Side,ClrIndex_Separator,
 					ClrIndex_Num};
 	std::vector<COLORREF> m_vClrs;
