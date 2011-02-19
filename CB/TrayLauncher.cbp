@@ -89,6 +89,7 @@
 		</Unit>
 		<Unit filename="..\src\source\WavePic.cpp" />
 		<Unit filename="..\src\source\WavePic.h" />
+		<Unit filename="..\src\source\appstrings.h" />
 		<Unit filename="..\src\source\language.cpp" />
 		<Unit filename="..\src\source\language.h" />
 		<Unit filename="..\src\source\rc\TrayLauncher.exe.Manifest" />

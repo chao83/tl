@@ -20,7 +20,7 @@ class Language
 	typedef std::map<StringType, IdType> StrIdMap;
 public:
 	Language(void):m_curId(e_idStart) {}
-	template <unsigned int N> Language(const CharType * (&szArr)[N]) { LoadArray(szArr); }
+	template <unsigned int N> Language(const CharType * (&szArr)[N]):m_curId(e_idStart) { LoadArray(szArr); }
 
 	unsigned int Size() const { return m_lng.size(); }
 	// SetFilter(const StringType & vStr);
@@ -132,88 +132,48 @@ bool Language::SetLngFile(const StringType & strFileName, const StringType & str
 //// end of Language class
 
 
-// default language : English
-const TCHAR * g_strEnglishLngArray[] = {
-	//英文界面 English Interface
-	_T("MENU_Exit"),							_T("E&xit"),
-	_T("MENU_Edit_Cmd"),						_T("&Edit Command"),
-	_T("MENU_Refresh"),							_T("&Refresh"),
-	_T("MENU_Start_With_OS"),					_T("Start With &Windows"),
-	_T("MENU_About"),							_T("&About"),
-	_T("MENU_Select_Skin"),						_T("Select &Skin"),
-	_T("MENU_Internal"),						_T("Internal"),
-	_T("MENU_Language"),						_T("&Language"),
-	_T("MENU_Option"),							_T("&Option"),
-	_T("MENU_Use_MClick"),						_T("Use &Mid Click"),
-	_T("MENU_Run"),								_T("&Run"),
-
-	_T("STR_Run"),								_T("Run"),
-	_T("STR_Failed"),							_T("Failed:"),
-	_T("STR_Exit_Ask"),							_T("Exit Tray Launcher ?"),
-	_T("STR_Confirm"),							_T("Confirm:"),
-	_T("STR_Failed_To_Exec"),					_T("Failed To Execute:"),
-	_T("STR_Single_Instance_Only"),				_T("Only One Instance Can Run."),
-	_T("STR_lng_file_not_UNICODE"),				_T("The language file is not saved in UNICODE(LE)! Please save it in UNICODE."),
-	_T("STR_cmd_file_not_UNICODE"),				_T("The command file is not saved in UNICODE(LE)! Please save it in UNICODE."),
-	_T("STR_Failed_open_create_cmd_file"),		_T("Can not open or create the command file!"),
-	_T("STR_Empty"),							_T("Empty"),
-	_T("STR_Settings"),							_T("Settings"),
-	_T("STR_Refreshing"),						_T("Refreshing..."),
-
-	// Menu Editor GUI
-	_T("STR_DlgTitle"),							_T("TrayLauncher Command Editor"),
-
-	_T("BTN_OK"),								_T("OK"),
-	_T("BTN_Cancel"),							_T("Cancel"),
-	_T("BTN_Apply"),							_T("Apply"),
-	_T("BTN_Close"),							_T("Close"),
-	_T("BTN_Save"),								_T("Save"),
-	_T("BTN_Reload"),							_T("Reload"),
-
-	_T("BTN_IsMenu"),							_T("Is Submenu"),
-	_T("BTN_IsSep"),							_T("As Separator"),
-	_T("BTN_IsTitle"),							_T("As Title"),
-	_T("BTN_IsWildCard"),						_T("Wildcard mode"),
-
-	_T("STC_Menu"),								_T("Commands:"),
-	_T("STC_Target"),							_T("Target Path:"),
-	_T("STC_DispName"),							_T("Display Name:"),
-	_T("STC_Filter"),							_T("Filter:"),
-	_T("STC_IconPath"),							_T("Use a custom icon:"),
-
-	_T("STR_MyComputer"),						_T("*Computer*"),
-	_T("STR_DisplayName"),						_T("[Display Name]"),
-	_T("STR_PathToTarget"),						_T("[Path To Target]"),
-	_T("STR_Choose_Target"),					_T("Choose The Target"),
-	_T("STR_Choose_Icon"),						_T("Choose The Icon"),
-	_T("STR_Ask_Save_Item_Info"),				_T("Save the change for this command?"),
-	_T("STR_Exit_Ask_Save"),					_T("Save the change(s) before exit?"),
-	_T("STR_Ask_Delete_Menu"),					_T("Delete the menu and all its sub items?"),
-
-	_T("STR_Invalid_NameOrFilter"),				_T("Invalide input: '<', '>' and '=' are not allowed!"),
-	_T("STR_Err_Del_Only_Child"),				_T("Can't delete the only child!"),
-	_T("")
-
-};
-
-
 // globla functions
 Language & MainLng()
 {
-	static Language s_mainlng(g_strEnglishLngArray);
+	static Language s_mainlng;
 	return s_mainlng;
 }
 
+inline int MakeLngID(const TSTRING & str)
+{
+	return MainLng().GetLngId(str, true);
+}
+const TCHAR * GetLang(const int lngid)
+{
+	return MainLng().GetCStr(lngid);
+}
 
 const TCHAR * GetLang(const TCHAR * strSrc)
 {
-	return MainLng().GetCStr(MainLng().GetLngId(strSrc));
+	return GetLang(MainLng().GetLngId(strSrc));
 }
+
+
+#define DECLARE_DEF_LANG_ID(id,str) const int LANG_ID_ ## id = MakeLngID(L ## #id);
+#include "appstrings.h"
+#undef DECLARE_DEF_LANG_ID
+
+
+// default language : English
+#define DECLARE_DEF_LANG_ID(id,str) (L ## #id), (str),
+const TCHAR * g_strEnglishLngArray[] = {
+	//英文界面 English Interface
+	#include "appstrings.h"
+	_T("")
+
+};
+#undef DECLARE_DEF_LANG_ID
+
 
 bool SetLanguageFile(const TCHAR * szFileName)
 {
 	// first, reset to default.
-	MainLng().LoadArray(g_strEnglishLngArray, true);
+	MainLng().LoadArray(g_strEnglishLngArray);
 
 	if (!szFileName || !*szFileName) {
 		return true;
