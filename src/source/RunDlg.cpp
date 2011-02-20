@@ -12,6 +12,7 @@
 #include "language.h"
 #include "MenuWithIcon.h"
 #include "SettingFile.h"
+#include <ShellAPI.h>
 #include "RunDlg.h"
 
 extern Ptr<CMenuWithIcon> g_pTray;

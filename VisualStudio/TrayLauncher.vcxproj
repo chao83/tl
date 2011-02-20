@@ -125,6 +125,7 @@
     <ClCompile Include="..\src\source\WavePic.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\source\appstrings.h" />
     <ClInclude Include="..\src\source\FileStrFnc.h" />
     <ClInclude Include="..\src\source\GDIWavePic.h" />
     <ClInclude Include="..\src\source\Hotkey.h" />
@@ -137,7 +138,6 @@
     <ClInclude Include="..\src\source\RunDlg.h" />
     <ClInclude Include="..\src\source\SettingFile.h" />
     <ClInclude Include="..\src\source\stdafx.h" />
-    <ClInclude Include="..\src\source\stdafx_real.h" />
     <ClInclude Include="..\src\source\TrayStart.h" />
     <ClInclude Include="..\src\source\WavePic.h" />
   </ItemGroup>

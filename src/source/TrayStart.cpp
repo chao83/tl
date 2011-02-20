@@ -6,7 +6,7 @@
 	#include <objbase.h>
 	#include <gdiplus.h>
 #endif
-
+#include <shellapi.h>
 #include "MsgMap.h"
 #include "TrayStart.h"
 #include "language.h"
@@ -40,6 +40,83 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK ProcMessage(HWND, UINT, WPARAM, LPARAM);
 
 CSettingFile & Settings();
+
+//*
+//! ExtraSettings: 命令行参数的设置项目
+
+//! @return std::map< TSTRING, TSTRING >& :命令行设置
+//! @author lichao
+//! @date 2009-10-13
+//! @note 一般用于调试目的, 最终用户通常不适用.
+std::map<TSTRING, TSTRING> & ExtraSettings()
+{
+	static std::map<TSTRING, TSTRING> setting;
+	return setting;
+}
+
+
+
+//! ProcessArgSettings: 提取命令行参数设置
+
+//! @param argc : 参数个数
+//! @param argv : 参数字符串数组
+//! @return void :
+//! @author lichao
+//! @date 2009-10-13
+//! @note [无]
+void ProcessArgSettings(int argc, TCHAR ** argv)
+{
+	TSTRING str;
+	for (int i = 1; i < argc; ++i) {
+		str = argv[i];
+		int n = str.find('=');
+		if (TSTRING::npos != static_cast<unsigned int>(n) && n > 2) {
+			if (str.substr(0,2) == _T("--"))
+			{
+				ExtraSettings()[str.substr(2,n-2)] = str.substr(n+1);
+			}
+		}
+	}
+#ifdef _DEBUG
+	TSTRING strall;
+	for (std::map<TSTRING, TSTRING>::const_iterator it = ExtraSettings().begin(); it != ExtraSettings().end(); ++it)
+	{
+		strall += it->first;
+		strall += _T(": ");
+		strall += it->second;
+		strall += '\n';
+	}
+#endif
+}
+
+
+
+//! ProcessArgs: 处理命令行参数
+
+//! @return bool :
+//! @author lichao
+//! @date 2009-10-13
+//! @note [无]
+bool ProcessArgs()
+{
+	LPWSTR *szArglist = 0;
+	int nArgs = 0;
+
+	szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+	if( NULL == szArglist )
+	{
+		//wprintf(L"CommandLineToArgvW failed\n");
+		return false;
+	}
+
+	ProcessArgSettings(nArgs, szArglist);
+
+	LocalFree(szArglist);
+
+	return true;
+
+}
+//*/
 
 void InitLanguage()
 {
@@ -94,7 +171,7 @@ public:
 //! WinMain 程序入口
 int APIENTRY WinMain(HINSTANCE hInstance,
 					 HINSTANCE /*hPrevInstance*/,
-					 LPSTR	lpCmdLine,
+					 LPSTR	/*lpCmdLine*/,
 					 int	   nCmdShow)
 {
 #ifdef USE_GDIPLUS
@@ -108,8 +185,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 	InitLanguage();
 // @fixme (lichao#1#): 完善命令行处理
-
-	if (std::string(lpCmdLine).find("--single-instance=false") == std::string::npos)
+	ProcessArgs();
+	if (ExtraSettings()[_T("single-instance")] != _T("false"))
 		MustBeFirstInstance(_T("Tray Launcher"));
 	MSG msg;
 

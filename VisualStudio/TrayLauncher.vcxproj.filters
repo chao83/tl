@@ -92,13 +92,13 @@
     <ClInclude Include="..\src\source\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\source\stdafx_real.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\source\TrayStart.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\src\source\WavePic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\source\appstrings.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
