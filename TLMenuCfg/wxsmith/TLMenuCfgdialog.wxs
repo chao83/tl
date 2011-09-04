@@ -27,7 +27,8 @@
 									<object class="sizeritem">
 										<object class="wxSearchCtrl" name="ID_SEARCHCTRL1" variable="m_search" member="yes">
 											<size>85,22</size>
-											<hidden>1</hidden>
+											<style>wxTE_PROCESS_ENTER</style>
+											<handler function="OnSearchTextChange" entry="EVT_TEXT" />
 										</object>
 										<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>

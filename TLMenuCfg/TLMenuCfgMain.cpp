@@ -152,8 +152,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
 	m_stcMenu = new wxStaticText(this, ID_STATICTEXT2, _("\"Menu\""), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
 	BoxSizer2->Add(m_stcMenu, 1, wxLEFT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	m_search = new wxSearchCtrl(this, ID_SEARCHCTRL1, wxEmptyString, wxDefaultPosition, wxSize(85,22), 0, wxDefaultValidator, _T("ID_SEARCHCTRL1"));
-	m_search->Hide();
+	m_search = new wxSearchCtrl(this, ID_SEARCHCTRL1, wxEmptyString, wxDefaultPosition, wxSize(85,22), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_SEARCHCTRL1"));
 	BoxSizer2->Add(m_search, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer4->Add(BoxSizer2, 0, wxTOP|wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
@@ -255,6 +254,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer1->SetSizeHints(this);
 	Center();
 
+	Connect(ID_SEARCHCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OnSearchTextChange);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_BEGIN_DRAG,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuBeginDrag);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_END_DRAG,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuEndDrag);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGED,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelectionChanged);
@@ -1485,4 +1485,51 @@ bool TLMenuCfgDialog::AllowChangeSel()
 	}
 
 	return bAllow;
+}
+
+int SearchTree(const wxTreeCtrl &tree, const wxTreeItemId item, const wxString &str, std::vector<wxTreeItemId> &found)
+{
+	if (!item.IsOk())
+	{
+		return 0;
+	}
+
+	wxTreeItemId vcookie = item;
+	wxTreeItemIdValue cookie = &vcookie;
+
+	for (wxTreeItemId id = tree.GetFirstChild(item, cookie); id.IsOk(); id = tree.GetNextChild(item, cookie))
+	{
+		if (!tree.HasChildren(id))
+		{
+			MenuItemData *p = static_cast<MenuItemData*>(tree.GetItemData(id));
+			assert(p);
+			if (p->Name().Lower().Find(str) != wxNOT_FOUND)
+			{
+				found.push_back(id);
+			}
+		}
+		else
+		{
+			SearchTree(tree, id, str, found);
+		}
+	}
+	return found.size();
+}
+
+void TLMenuCfgDialog::OnSearchTextChange(wxCommandEvent& event)
+{
+	wxString text (m_search->GetValue());
+	if(text.empty())
+	{
+		return;
+	}
+	text.MakeLower();
+
+	// search the tree control for the input string.
+	std::vector<wxTreeItemId> found;
+	SearchTree(*m_TreeMenu, m_TreeMenu->GetRootItem(), text, found);
+	if(!found.empty())
+	{
+		m_TreeMenu->SelectItem(found.front());
+	}
 }
