@@ -1491,16 +1491,14 @@ int SearchTree(const wxTreeCtrl &tree, const wxTreeItemId item, const wxString &
 
 	for (wxTreeItemId id = tree.GetFirstChild(item, cookie); id.IsOk(); id = tree.GetNextChild(item, cookie))
 	{
-		if (!tree.HasChildren(id))
+		MenuItemData *p = static_cast<MenuItemData*>(tree.GetItemData(id));
+		assert(p);
+		if (p->Name().Lower().Find(str) != wxNOT_FOUND)
 		{
-			MenuItemData *p = static_cast<MenuItemData*>(tree.GetItemData(id));
-			assert(p);
-			if (p->Name().Lower().Find(str) != wxNOT_FOUND)
-			{
-				found.push_back(id);
-			}
+			found.push_back(id);
 		}
-		else
+
+		if (tree.HasChildren(id))
 		{
 			SearchTree(tree, id, str, found);
 		}
