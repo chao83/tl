@@ -15,7 +15,6 @@
 #include <wx/treectrl.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
-#include <wx/menu.h>
 #include <wx/textctrl.h>
 #include <wx/checkbox.h>
 #include <wx/bmpbuttn.h>
@@ -91,7 +90,6 @@ class TLMenuCfgDialog: public wxDialog
         wxBitmapButton* m_btnFindTarget;
         wxBitmapButton* m_btnDown;
         wxBitmapButton* m_btnNewDir;
-        wxMenu m_dlgMenu;
         wxButton* m_btnClose;
         wxStaticText* m_stcCustomizeIcon;
         wxBitmapButton* m_btnDel;

@@ -19,8 +19,8 @@
 					<Add directory="$(#wx)\lib\gcc_lib\mswu" />
 				</ResourceCompiler>
 				<Linker>
-					<Add library="libwxmsw28u_core.a" />
-					<Add library="libwxbase28u.a" />
+					<Add library="libwxmsw29u_core.a" />
+					<Add library="libwxbase29u.a" />
 					<Add library="libwxpng.a" />
 					<Add library="libwxjpeg.a" />
 					<Add library="libwxtiff.a" />
@@ -43,8 +43,8 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="libwxmsw28u_core.a" />
-					<Add library="libwxbase28u.a" />
+					<Add library="libwxmsw29u_core.a" />
+					<Add library="libwxbase29u.a" />
 					<Add library="libwxpng.a" />
 					<Add library="libwxjpeg.a" />
 					<Add library="libwxtiff.a" />

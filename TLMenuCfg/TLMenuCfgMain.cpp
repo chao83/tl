@@ -327,21 +327,12 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 		for (int i = 0; i < NItems; ++i)
 		{
 			const int index = 3*i;
-			m_dlgMenu.Append(acc[index + 2]);
 			entries[0].Set(acc[index], acc[index + 1], acc[index + 2]);
 		}
 
 		wxAcceleratorTable accel(NItems, entries);
 		this->SetAcceleratorTable(accel);
 	}
-
-//	m_dlgMenu.Append(ID_SAVE_OR_APPLY);
-//
-//	wxAcceleratorEntry entries[NItems];
-//	entries[0].Set(wxACCEL_CTRL,  (int) 'S', ID_SAVE_OR_APPLY);
-//	wxAcceleratorTable accel(NItems, entries);
-//	this->SetAcceleratorTable(accel);
-
 }
 
 TLMenuCfgDialog::~TLMenuCfgDialog()
@@ -450,7 +441,7 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 			}
 			else if (wxFileExists(path))
 			{
-				if (fn.GetExt())
+				if (!fn.GetExt().empty())
 				{
 					p = wxTheMimeTypesManager->GetFileTypeFromExtension(fn.GetExt());
 				}
@@ -466,10 +457,10 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 				{
 					wxString cmdline(p->GetOpenCommand(path));
 
-					if (cmdline)
+					if (!cmdline.empty())
 					{
 						TSTRING cmd, param;
-						ns_file_str_ops::GetCmdAndParam(cmdline.c_str(), cmd, param);
+						ns_file_str_ops::GetCmdAndParam(static_cast<const TCHAR*>(cmdline.c_str()), cmd, param);
 						icon.LoadFile(cmd, wxBITMAP_TYPE_ICO);
 					}
 				}
@@ -493,7 +484,7 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 	if (!icon.IsOk())
 	{
 		TSTRING strPath;
-		if (ns_file_str_ops::FindExe(path.c_str(), strPath)){
+		if (ns_file_str_ops::FindExe(static_cast<const TCHAR*>(path.c_str()), strPath)){
 			icon.LoadFile(strPath, wxBITMAP_TYPE_ICO);
 		}
 	}
@@ -502,7 +493,7 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 	{
 		//try get the executable
 		TSTRING cmd, param;
-		ns_file_str_ops::GetCmdAndParam(path.c_str(), cmd, param);
+		ns_file_str_ops::GetCmdAndParam(static_cast<const TCHAR*>(path.c_str()), cmd, param);
 
 		if (path != cmd)
 		{
@@ -960,7 +951,7 @@ bool TLMenuCfgDialog::SetNameFromTarget()
 	if (!m_txtNameOrFilter->IsModified())
 	{
 		TSTRING strCmd, strParam;
-		ns_file_str_ops::GetCmdAndParam(m_txtTarget->GetValue().c_str(), strCmd, strParam);
+		ns_file_str_ops::GetCmdAndParam(static_cast<const TCHAR*>(m_txtTarget->GetValue().c_str()), strCmd, strParam);
 
 		strCmd = strCmd.substr(strCmd.find_last_of('\\') + 1);
 		if (ns_file_str_ops::IsPathExe(strCmd))
@@ -1377,8 +1368,8 @@ void TLMenuCfgDialog::TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId 
 
 	MenuItemData *p = static_cast<MenuItemData*>(tree.GetItemData(item));
 	assert(p);
-	menu.Name(p->Name().c_str());
-	menu.Path(p->IconPath().c_str());
+	menu.Name(static_cast<const TCHAR*>(p->Name().c_str()));
+	menu.Path(static_cast<const TCHAR*>(p->IconPath().c_str()));
 
 	wxTreeItemId vcookie = item;
 	wxTreeItemIdValue cookie = &vcookie;
@@ -1389,7 +1380,7 @@ void TLMenuCfgDialog::TreeToMenuData(const wxTreeCtrl &tree, const wxTreeItemId 
 		{
 			MenuItemData *p = static_cast<MenuItemData*>(tree.GetItemData(id));
 			assert(p);
-			menu.AddItem(menu.Count(), p->Name().c_str(), p->Target().c_str(), p->IconPath().c_str());
+			menu.AddItem(menu.Count(), p->Name().wc_str(), p->Target().wc_str(), p->IconPath().wc_str());
 		}
 		else
 		{
