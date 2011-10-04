@@ -56,6 +56,7 @@ class TLMenuCfgDialog: public wxDialog
         void OnTreeMenuBeginDrag(wxTreeEvent& event);
         void OnTreeMenuEndDrag(wxTreeEvent& event);
         void OnSearchTextChange(wxCommandEvent& event);
+        void Onm_searchTextEnter(wxCommandEvent& event);
         //*)
         void OnHotKey(wxCommandEvent& event);
 

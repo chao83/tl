@@ -29,9 +29,11 @@
 											<size>85,22</size>
 											<style>wxTE_PROCESS_ENTER</style>
 											<handler function="OnSearchTextChange" entry="EVT_TEXT" />
+											<handler function="Onm_searchTextEnter" entry="EVT_TEXT_ENTER" />
 										</object>
 										<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
+										<option>1</option>
 									</object>
 								</object>
 								<flag>wxTOP|wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>

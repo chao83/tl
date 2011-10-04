@@ -153,7 +153,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_stcMenu = new wxStaticText(this, ID_STATICTEXT2, _("\"Menu\""), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
 	BoxSizer2->Add(m_stcMenu, 1, wxLEFT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	m_search = new wxSearchCtrl(this, ID_SEARCHCTRL1, wxEmptyString, wxDefaultPosition, wxSize(85,22), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_SEARCHCTRL1"));
-	BoxSizer2->Add(m_search, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer2->Add(m_search, 1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer4->Add(BoxSizer2, 0, wxTOP|wxLEFT|wxRIGHT|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
 	m_TreeMenu = new wxTreeCtrl(this, ID_TREECTRL_MENU, wxDefaultPosition, wxSize(198,372), wxTR_HIDE_ROOT|wxTR_DEFAULT_STYLE, wxDefaultValidator, _T("ID_TREECTRL_MENU"));
@@ -255,6 +255,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Center();
 
 	Connect(ID_SEARCHCTRL1,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OnSearchTextChange);
+	Connect(ID_SEARCHCTRL1,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&TLMenuCfgDialog::Onm_searchTextEnter);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_BEGIN_DRAG,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuBeginDrag);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_END_DRAG,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuEndDrag);
 	Connect(ID_TREECTRL_MENU,wxEVT_COMMAND_TREE_SEL_CHANGED,(wxObjectEventFunction)&TLMenuCfgDialog::OnTreeMenuSelectionChanged);
@@ -1521,6 +1522,37 @@ void TLMenuCfgDialog::OnSearchTextChange(wxCommandEvent& event)
 	SearchTree(*m_TreeMenu, m_TreeMenu->GetRootItem(), text, found);
 	if(!found.empty())
 	{
-		m_TreeMenu->SelectItem(found.front());
+		// try match current selection; select first match if not match.
+		wxTreeItemId sel = m_TreeMenu->GetSelection();
+		unsigned int match = 0;
+		while(match < found.size() && sel != found[match])
+		{
+			++match;
+		}
+		m_TreeMenu->SelectItem(match == found.size() ? found[0] : found[match]);
+	}
+}
+
+void TLMenuCfgDialog::Onm_searchTextEnter(wxCommandEvent& event)
+{
+	wxString text (m_search->GetValue());
+	if(text.empty())
+	{
+		return;
+	}
+	text.MakeLower();
+
+	std::vector<wxTreeItemId> found;
+	SearchTree(*m_TreeMenu, m_TreeMenu->GetRootItem(), text, found);
+	if(!found.empty())
+	{
+		// try match current selection and select next match; select first match if not match.
+		wxTreeItemId sel = m_TreeMenu->GetSelection();
+		unsigned int match = 0;
+		while(match + 1 < found.size() && sel != found[match])
+		{
+			++match;
+		}
+		m_TreeMenu->SelectItem(match == found.size()-1 ? found[0] : found[match+1]);
 	}
 }
