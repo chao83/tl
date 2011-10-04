@@ -1,4 +1,10 @@
-﻿[2010-11-30] v2.1.0
+﻿[2011-10-04] v2.2.0
+[TrayLauncher]
+Change	: New internal language implementation, use integer as id. (NO change in language file)
+[TLMC]
+Added	: Search support to quickly locate a menu item.
+
+[2010-11-30] v2.1.0
 [TrayLauncher]
 Added	: Expand environment variables in paths.
 Added	: Set process priority in setting file.
