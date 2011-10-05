@@ -906,6 +906,13 @@ int CMenuWithIcon::DoMultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPat
 	}
 
 	const TCHAR * pSearch = inStrPathForSearch.c_str();//strPath 包含最后一个*，用于搜索条件
+	std::vector<TCHAR> path_expanded;
+	if(inStrPathForSearch.find('%') != tString::npos)
+	{
+		path_expanded.resize(inStrPathForSearch.size() + MAX_PATH);
+		ExpandEnvironmentStrings(pSearch, &path_expanded[0], path_expanded.size() - 1);
+		pSearch = &path_expanded[0];
+	}
 	int result = 0;
 
 	unsigned int nSubMenus = 0;

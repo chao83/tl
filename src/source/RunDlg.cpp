@@ -549,6 +549,7 @@ void MyUniqueVector(std::vector<T> & v) {
 //! 执行对话框 的消息处理函数。
 BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	const unsigned int kTimerIDCloseWindow = 1;
 	const int iCmdSize(MAX_PATH);
 	static TCHAR szCommand[iCmdSize] = {0};
 	static TCHAR szHint[iCmdSize] = {0};
@@ -592,13 +593,28 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_SHOWWINDOW:
 			if (wParam) {
 				// Show
+				KillTimer(hDlg, kTimerIDCloseWindow);
 				SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
 				AllowSetForegroundWindow(GetCurrentProcessId());
 				SetForegroundWindow(hDlg);
 				SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
 			}
+			else
+			{
+				SetTimer(hDlg, kTimerIDCloseWindow, 1000, 0);
+			}
 			return TRUE;
 	//		break;
+		case WM_TIMER:
+			if(kTimerIDCloseWindow == wParam)
+			{
+				KillTimer(hDlg, kTimerIDCloseWindow);
+				//销毁窗口
+				DestroyWindow(hDlg);
+				GHdlgRun() = NULL;
+				return 0;
+			}
+			return TRUE;
 		case WM_MOVING:
 			xPos = reinterpret_cast<RECT *>(lParam)->left;		// horizontal position
 			yPos = reinterpret_cast<RECT *>(lParam)->top;		// vertical position
