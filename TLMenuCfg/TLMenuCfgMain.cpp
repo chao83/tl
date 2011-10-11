@@ -115,7 +115,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	:m_bInfoUnsaved(false),
 	 m_bMenuChanged(false),
 	 m_menuData(_T("root")),
-	 m_iconlist(18, 22, 128),
+	 m_iconlist(16, 16, true, 128),
 	 m_indexUnknown(-1),
 	 m_indexFolder(-1),
 	 m_indexFolderOpen(-1),
@@ -420,12 +420,12 @@ const wxString ExpandEnvString(const wxString & path)
 	return str;
 }
 
-wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
+wxIcon GetFileIcon(const wxString & path, const int moreTry = 1, const int width = -1, const int height = -1)
 {
 	// disable loadicon error msg;
 	wxLogNull logNo;
 
-	wxIcon icon(path, wxBITMAP_TYPE_ICO);
+	wxIcon icon(path, wxBITMAP_TYPE_ICO, width, height);
 
 	if (!icon.IsOk())
 	{
@@ -438,7 +438,7 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 
 			if (wxDirExists(path))
 			{
-				icon.LoadFile(_T("explorer.exe"), wxBITMAP_TYPE_ICO);
+				icon.LoadFile(_T("explorer.exe"), wxBITMAP_TYPE_ICO, width, height);
 			}
 			else if (wxFileExists(path))
 			{
@@ -462,7 +462,7 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 					{
 						TSTRING cmd, param;
 						ns_file_str_ops::GetCmdAndParam(static_cast<const TCHAR*>(cmdline.c_str()), cmd, param);
-						icon.LoadFile(cmd, wxBITMAP_TYPE_ICO);
+						icon.LoadFile(cmd, wxBITMAP_TYPE_ICO, width, height);
 					}
 				}
 
@@ -478,7 +478,7 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 		wxString expath(ExpandEnvString(path));
 		if (!expath.empty() && expath != path)
 		{
-			icon = GetFileIcon(expath, moreTry);
+			icon = GetFileIcon(expath, moreTry, width, height);
 		}
 	}
 
@@ -486,7 +486,7 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 	{
 		TSTRING strPath;
 		if (ns_file_str_ops::FindExe(static_cast<const TCHAR*>(path.c_str()), strPath)){
-			icon.LoadFile(strPath, wxBITMAP_TYPE_ICO);
+			icon.LoadFile(strPath, wxBITMAP_TYPE_ICO, width, height);
 		}
 	}
 
@@ -498,7 +498,7 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1)
 
 		if (path != cmd)
 		{
-			icon = GetFileIcon(cmd, moreTry - 1);
+			icon = GetFileIcon(cmd, moreTry - 1, width, height);
 		}
 	}
 
@@ -707,6 +707,19 @@ wxTreeItemId TLMenuCfgDialog::CopyItem(wxTreeCtrl &tree, wxTreeItemId from, wxTr
 
 void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 {
+	int icon_h = 16;
+	int icon_w = 16;
+	m_iconlist.GetSize(0, icon_w, icon_h);
+
+	if(icon_w > icon_h)
+	{
+		icon_w = icon_h;
+	}
+	else
+	{
+		icon_h = icon_w;
+	}
+
 	SetIcon(wxICON(IDI_APP_TLMC));
 	m_TreeMenu->SetImageList(&m_iconlist);
 
@@ -723,17 +736,17 @@ void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 		strSkin = _T(".\\skin\\") + strSkin + _T("\\icons\\");
 		wxIcon icon;
 
-		if (icon.LoadFile(strSkin + _T("close.ico"), wxBITMAP_TYPE_ICO))
+		if (icon.LoadFile(strSkin + _T("close.ico"), wxBITMAP_TYPE_ICO, icon_w, icon_h))
 		{
 			m_indexFolder = m_iconlist.Add(icon);
 		}
 
-		if (icon.LoadFile(strSkin + _T("open.ico"), wxBITMAP_TYPE_ICO))
+		if (icon.LoadFile(strSkin + _T("open.ico"), wxBITMAP_TYPE_ICO, icon_w, icon_h))
 		{
 			m_indexFolderOpen = m_iconlist.Add(icon);
 		}
 
-		if (icon.LoadFile(strSkin + _T("unknown.ico"), wxBITMAP_TYPE_ICO))
+		if (icon.LoadFile(strSkin + _T("unknown.ico"), wxBITMAP_TYPE_ICO, icon_w, icon_h))
 		{
 			m_indexUnknown = m_iconlist.Add(icon);
 		}
@@ -846,10 +859,20 @@ void TLMenuCfgDialog::UpdateItemDisplay(wxTreeCtrl &tree, wxTreeItemId item, con
 			m_TreeMenu->SetItemImage(item, m_indexWildCard);
 			return;
 		}
-
+		int icon_w = 16;
+		int icon_h = 16;
+		tree.GetImageList()->GetSize(0, icon_w, icon_h);
+		if(icon_w > icon_h)
+		{
+			icon_w = icon_h;
+		}
+		else
+		{
+			icon_h = icon_w;
+		}
 		// Target may have parameters,
 		// more try only for target, NOT for iconpath.
-		wxIcon icon(GetFileIcon(itemData->IconPath().empty() ? itemData->Target() : itemData->IconPath(), itemData->IconPath().empty()));
+		wxIcon icon(GetFileIcon(itemData->IconPath().empty() ? itemData->Target() : itemData->IconPath(), itemData->IconPath().empty(), icon_w, icon_h));
 
 		const int oldIndex = tree.GetItemImage(item);
 
