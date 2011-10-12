@@ -1,4 +1,9 @@
-﻿[2011-10-04] v2.2.0
+﻿[2011-10-05] v2.2.1
+[TrayLauncher]
+Added	: wild card mode supports environment variables.
+Fixed	: menu not always update for run dialog.
+
+[2011-10-04] v2.2.0
 [TrayLauncher]
 Change	: New internal language implementation, use integer as id. (NO change in language file)
 [TLMC]

@@ -595,14 +595,12 @@ void ShowRunDlg()
 	int nCmdShow = SW_SHOWNORMAL;
 
 	if (!GHdlgRun()) {
+		UpdateMenu();
 		GHdlgRun() = CreateDialog(ThisHinstGet(),MAKEINTRESOURCE(IDD_RUN), NULL, RunDlgProc);
 	} else if (IsWindowVisible(GHdlgRun())) {
 		nCmdShow = SW_HIDE;
 	} else {
 		nCmdShow = SW_SHOW;
-	}
-
-	if (nCmdShow != SW_HIDE) {
 		UpdateMenu();
 	}
 
