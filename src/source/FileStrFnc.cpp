@@ -250,43 +250,7 @@ bool ToFullPath(TSTRING & strFile)
 //! 运行命令行
 bool Execute(const TSTRING & strToBeExecuted, const TCHAR * pOpr, const bool bExpandEnv)
 {
-	bool ret = false;
-	// 先展开环境变量
-	const int N = 512;
-	std::vector<TCHAR> buf(N);
-	if (bExpandEnv && ExpandEnvironmentStrings(strToBeExecuted.c_str(), &buf[0], N) && TSTRING(strToBeExecuted) != &buf[0])
-	{
-		ret = Execute(&buf[0], pOpr, false);
-	}
-	else
-	{
-		// 分析出 路径，参数，目录
-		TSTRING strCmd,strParam;
-		GetCmdAndParam(strToBeExecuted, strCmd, strParam);
-		ToFullPath(strCmd);
-		TSTRING strDir;
-		TSTRING::size_type pos = strCmd.find_last_of('\\');
-		if (TSTRING::npos != pos) {
-			strDir = strCmd.substr(0,pos);
-		}
-		ret = ShellSuccess(ShellExecute(NULL,pOpr,strCmd.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
-		if (!ret)
-		{
-			TSTRING strPath;
-			if (FindExe(strCmd, strPath))
-			{
-				strDir.clear();
-				pos = strPath.find_last_of('\\');
-				if (TSTRING::npos != pos) {
-					strDir = strPath.substr(0,pos);
-				}
-				ret = ShellSuccess(ShellExecute(NULL,pOpr,strPath.c_str(), strParam.c_str(), strDir.c_str(), SW_SHOW));
-			}
-
-		}
-	}
-
-	return ret;
+	return ExecuteEx(strToBeExecuted, pOpr, NULL, bExpandEnv);
 }
 
 //! 运行命令行
@@ -332,6 +296,26 @@ bool ExecuteEx(const TSTRING & strToBeExecuted, const TCHAR * pOpr, HWND hwnd, b
 	sei.lpDirectory = strDir.c_str();
 	sei.nShow = SW_SHOWNORMAL;
 	ShellExecuteEx(&sei);
+
+	if (!ShellSuccess(sei.hInstApp))
+	{
+		const DWORD err = GetLastError();
+		if(ERROR_FILE_NOT_FOUND == err)
+		{
+			TSTRING strPath;
+			if (FindExe(strCmd, strPath))
+			{
+				strDir.clear();
+				TSTRING::size_type pos = strPath.find_last_of('\\');
+				if (TSTRING::npos != pos) {
+					strDir = strPath.substr(0,pos);
+				}
+				sei.lpFile = strPath.c_str();
+				sei.lpDirectory = strDir.c_str();
+				ShellExecuteEx(&sei);
+			}
+		}
+	}
 	return ShellSuccess(sei.hInstApp);
 }
 
