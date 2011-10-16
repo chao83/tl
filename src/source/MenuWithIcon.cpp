@@ -694,6 +694,42 @@ void CMenuWithIcon::Destroy(void)
 	m_dynamicStartID = m_ID;
 }
 
+namespace
+{
+;
+bool ParseIconIndex(const tString &strPath, tString &path, int &index)
+{
+	const unsigned pos = strPath.find_last_of(',');
+	if (pos == tString::npos)
+	{
+		return false;
+	}
+	index = -1;
+	for (unsigned int i = pos + 1; i < strPath.size(); ++i)
+	{
+		if(index == -1)
+		{
+			index = 0;
+		}
+		if (isdigit(strPath[i]))
+		{
+			index += strPath[i] - '0';
+		}
+		else
+		{
+			return false;
+		}
+	}
+	if (index < 0)
+	{
+		return false;
+	}
+	path = strPath.substr(0, pos);
+	return true;
+}
+
+}
+
 
 //! 根据路径获取 16×16 或 32×32 图标
 ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, int iconIndex, bool bIcon32)
@@ -701,6 +737,16 @@ ICONTYPE CMenuWithIcon::GetIcon(const tString & strPath, EICONGETTYPE needIcon, 
 	const TCHAR *pPath = strPath.c_str();//
 	if(!*pPath || NOICON == needIcon)
 		return NULL;
+	// try to read icon index from strPath.
+	if (isdigit(*strPath.rbegin()))
+	{
+		tString path;
+		int index = -1;
+		if (ParseIconIndex(strPath, path, index))
+		{
+			return GetIcon(path, needIcon, index, bIcon32);
+		}
+	}
 	ICONTYPE hIcon = NULL;
 /*
 	// 新方式，两次GetFileInfo ,这样的图标存起来可能和直接画出来不同，
