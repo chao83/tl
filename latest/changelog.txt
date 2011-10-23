@@ -1,4 +1,4 @@
-﻿[2011-10-23] v2.3
+﻿[2011-10-23] v2.3.0
 [TrayLauncher]
 Added	: support "file_path,n" icon index, where file_path is exe or dll, and n is 0 based.
 	Note that there is NO preview in menu editor, as I don't know how to do it with wxWidgets.
