@@ -1,4 +1,11 @@
-﻿[2011-10-05] v2.2.1
+﻿[2011-10-23] v2.3
+[TrayLauncher]
+Added	: support "file_path,n" icon index, where file_path is exe or dll, and n is 0 based.
+	Note that there is NO preview in menu editor, as I don't know how to do it with wxWidgets.
+Fixed	: shortcuts are not executed on some (maybe not full install) xp systems. 
+Fixed	: renamed the sample command file, to avoid over writing old configurations while updating.
+
+[2011-10-05] v2.2.1
 [TrayLauncher]
 Added	: wild card mode supports environment variables.
 Fixed	: menu not always update for run dialog.
