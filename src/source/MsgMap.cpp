@@ -1060,7 +1060,10 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 		g_fileName = strFileName;
 	} else {
 		Settings().Set(sectionGeneral, keyCommand, g_fileName, true);
+		const BOOL no_over_write = TRUE;
+		CopyFile(_T(".\\tlcmd.example"), g_fileName.c_str(), no_over_write);
 	}
+
 
 	//BuildMenuFromFile(g_fileName.c_str());
 	UpdateMenu();
