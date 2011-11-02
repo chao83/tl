@@ -464,7 +464,13 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 			strCmdLine += pParam;
 		}
 
-		if (!ns_file_str_ops::Execute(strCmdLine))
+		const TCHAR *pOpr = NULL;
+		if ((GetKeyState(VK_CONTROL)&0x8000) && IsPathExe(strCmdLine))
+		{
+			pOpr = _T("runas");
+		}
+
+		if (!ns_file_str_ops::Execute(strCmdLine, pOpr))
 		{
 			//÷¥––√¸¡Ó ß∞‹
 			EnableMenuItem(Menu(),nSysID,MF_BYCOMMAND | MF_GRAYED);
