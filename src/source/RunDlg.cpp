@@ -694,13 +694,23 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						bool bSuccessShell = false;
 						TCHAR pathFound[MAX_PATH] = {0};
 						if(GetDlgItemText(hDlg,IDC_EDT_PATH,pathFound,MAX_PATH)>0 && *pathFound) {
-							bSuccessShell = ns_file_str_ops::Execute(pathFound);
+							const TCHAR *pOpr = NULL;
+							if (GetKeyState(VK_CONTROL)&0x8000)
+							{
+								TSTRING cmd, param;
+								ns_file_str_ops::GetCmdAndParam(pathFound, cmd, param);
+								if (ns_file_str_ops::IsPathExe(cmd))
+								{
+									pOpr = _T("runas");
+								}
+							}
+							bSuccessShell = ns_file_str_ops::Execute(pathFound, pOpr);
 						}
 						//bSuccessShell = bSuccessShell || Execute(szCommand);
 						if (!bSuccessShell) {
 							//执行命令失败
-							MessageBox(hDlg,szCommand, _LNG(STR_Failed_To_Exec),MB_ICONERROR);
 							ShowWindow(hDlg, SW_SHOW); //运行失败， 重新显示窗口
+							MessageBox(hDlg,szCommand, _LNG(STR_Failed_To_Exec),MB_ICONERROR);
 							SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
 							SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
 							return TRUE;
