@@ -17,6 +17,7 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/checkbox.h>
+#include <wx/bmpcbox.h>
 #include <wx/bmpbuttn.h>
 #include <wx/button.h>
 #include <wx/dialog.h>
@@ -57,6 +58,7 @@ class TLMenuCfgDialog: public wxDialog
         void OnTreeMenuEndDrag(wxTreeEvent& event);
         void OnSearchTextChange(wxCommandEvent& event);
         void Onm_searchTextEnter(wxCommandEvent& event);
+        void Onm_cbIconSelected(wxCommandEvent& event);
         //*)
         void OnHotKey(wxCommandEvent& event);
 
@@ -81,6 +83,7 @@ class TLMenuCfgDialog: public wxDialog
         static const long ID_STATICTEXT4;
         static const long ID_TEXTCTRL3;
         static const long ID_BITMAPBUTTON7;
+        static const long ID_BITMAPCOMBOBOX1;
         static const long ID_BUTTON3;
         static const long ID_BUTTON4;
         static const long ID_BUTTON2;
@@ -90,6 +93,7 @@ class TLMenuCfgDialog: public wxDialog
         //(*Declarations(TLMenuCfgDialog)
         wxBitmapButton* m_btnFindTarget;
         wxBitmapButton* m_btnDown;
+        wxBitmapComboBox* m_cbIcon;
         wxBitmapButton* m_btnNewDir;
         wxButton* m_btnClose;
         wxStaticText* m_stcCustomizeIcon;
@@ -155,6 +159,8 @@ class TLMenuCfgDialog: public wxDialog
 		wxTreeItemId m_dragSrc;
 
 		TSTRING m_fileName;
+		void SetIconPathModifiedFlag();
+		void TryExtractIcons();
 };
 
 #endif // TLMENUCFGMAIN_H

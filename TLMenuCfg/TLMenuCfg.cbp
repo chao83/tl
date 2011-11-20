@@ -25,6 +25,7 @@
 					<Add library="libwxjpeg.a" />
 					<Add library="libwxtiff.a" />
 					<Add library="libwxzlib.a" />
+					<Add library="libwxmsw29u_adv.a" />
 					<Add directory="$(#wx)\lib\gcc_lib" />
 				</Linker>
 			</Target>
@@ -49,6 +50,7 @@
 					<Add library="libwxjpeg.a" />
 					<Add library="libwxtiff.a" />
 					<Add library="libwxzlib.a" />
+					<Add library="libwxmsw29u_adv.a" />
 					<Add directory="$(#wx)\lib\gcc_lib" />
 				</Linker>
 			</Target>

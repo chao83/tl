@@ -18,6 +18,7 @@
 #include "SettingFile.h"
 #include <wx/cshelp.h>
 #include <Shlwapi.h>
+#include <deque>
 
 //(*InternalHeaders(TLMenuCfgDialog)
 #include <wx/artprov.h>
@@ -97,6 +98,7 @@ const long TLMenuCfgDialog::ID_TEXTCTRL2 = wxNewId();
 const long TLMenuCfgDialog::ID_STATICTEXT4 = wxNewId();
 const long TLMenuCfgDialog::ID_TEXTCTRL3 = wxNewId();
 const long TLMenuCfgDialog::ID_BITMAPBUTTON7 = wxNewId();
+const long TLMenuCfgDialog::ID_BITMAPCOMBOBOX1 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON3 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON4 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON2 = wxNewId();
@@ -232,6 +234,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	BoxSizer19->Add(m_txtIcon, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	m_btnFindIcon = new wxBitmapButton(this, ID_BITMAPBUTTON7, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FIND")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON7"));
 	BoxSizer19->Add(m_btnFindIcon, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_cbIcon = new wxBitmapComboBox(this, ID_BITMAPCOMBOBOX1, wxEmptyString, wxDefaultPosition, wxSize(86,23), 0, 0, wxCB_READONLY, wxDefaultValidator, _T("ID_BITMAPCOMBOBOX1"));
+	BoxSizer19->Add(m_cbIcon, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer15->Add(BoxSizer19, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer7->Add(BoxSizer15, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer16 = new wxBoxSizer(wxHORIZONTAL);
@@ -270,6 +274,7 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtNameOrFilterText);
 	Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtIconText);
 	Connect(ID_BITMAPBUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnBitmapButton2Click);
+	Connect(ID_BITMAPCOMBOBOX1,wxEVT_COMMAND_COMBOBOX_SELECTED,(wxObjectEventFunction)&TLMenuCfgDialog::Onm_cbIconSelected);
 	Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnSaveClick);
 	Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnReloadClick);
 	Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnQuit);
@@ -420,12 +425,108 @@ const wxString ExpandEnvString(const wxString & path)
 	return str;
 }
 
+
+bool GetIconSize(HICON hIcon, int &w, int &h)
+{
+	bool r = false;
+	ICONINFO iconInfo = {0};
+	BITMAP bitmap = {0};
+	if (GetIconInfo(hIcon, &iconInfo))
+	{
+		if(GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bitmap))
+		{
+			w = bitmap.bmWidth;
+			h = bitmap.bmHeight;
+		}
+		DeleteObject(iconInfo.hbmColor);
+		DeleteObject(iconInfo.hbmMask);
+		r = true;
+	}
+	return r;
+}
+
+wxIcon WxExtractIcon(const wxString &path, int index)
+{
+	HICON hIcon = ExtractIcon(wxGetInstance(), path.c_str(), index);
+	int w = 0;
+	int h = 0;
+	wxIcon icon;
+
+	if (hIcon && GetIconSize(hIcon, w, h))
+	{
+		icon.SetHICON(hIcon);
+		icon.SetSize(w, h);
+	}
+	return icon;
+}
+
+bool ExtractAllIcons(const wxString &path, std::deque<wxIcon> &icons)
+{
+	int const num_icon = reinterpret_cast<int>(ExtractIcon(wxGetInstance(), path.c_str(), -1));
+
+	for (int i = 0; i < num_icon; ++i)
+	{
+		wxIcon icon(WxExtractIcon(path, i));
+		if (!icon.Ok())
+		{
+			break;
+		}
+		icons.push_back(icon);
+	}
+	return !icons.empty();
+}
+
+unsigned int FindIconIndexSepCharPos(const wxString &path)
+{
+	unsigned pos = path.find_last_of(',');
+	if(pos == wxString::npos)
+	{
+		return pos;
+	}
+	for (unsigned int i = pos + 1; i < path.size(); ++i)
+	{
+		if((path[i]) < '0' || path[i] > '9')
+		{
+			return wxString::npos;
+		}
+	}
+	return pos;
+}
+
+
+wxIcon ResizeIcon(const wxIcon &icon, int w, int h)
+{
+	wxIcon ret;
+	if (icon.Ok())
+	{
+		wxImage img = wxBitmap(icon).ConvertToImage();
+		ret.CopyFromBitmap(wxBitmap(img.Scale(w, h)));
+	}
+	return ret;
+}
+
+
 wxIcon GetFileIcon(const wxString & path, const int moreTry = 1, const int width = -1, const int height = -1)
 {
 	// disable loadicon error msg;
 	wxLogNull logNo;
 
 	wxIcon icon(path, wxBITMAP_TYPE_ICO, width, height);
+
+	if (!icon.Ok())
+	{
+		// try to extract index
+		unsigned sep = FindIconIndexSepCharPos(path);
+		long index = 0;
+		if(sep != wxString::npos && path.substr(sep + 1).ToLong(&index) && index > 0)
+		{
+			icon = WxExtractIcon(path.substr(0, sep).Strip(), index);
+			if (width > 0 && height > 0)
+			{
+				icon = ResizeIcon(icon, width, height);
+			}
+		}
+	}
 
 	if (!icon.IsOk())
 	{
@@ -1041,7 +1142,7 @@ void TLMenuCfgDialog::OntxtNameOrFilterText(wxCommandEvent& event)
 
 }
 
-void TLMenuCfgDialog::OntxtIconText(wxCommandEvent& event)
+void TLMenuCfgDialog::SetIconPathModifiedFlag()
 {
 	m_bIconChanged = true;
 	InfoChgFlg(true);
@@ -1055,6 +1156,50 @@ void TLMenuCfgDialog::OntxtIconText(wxCommandEvent& event)
 	}
 
 	UpdateFlgs();
+}
+
+
+
+void TLMenuCfgDialog::TryExtractIcons()
+{
+	m_cbIcon->Freeze();
+	m_cbIcon->Clear();
+
+	wxString path_and_index(m_txtIcon->GetValue());
+	unsigned sep = FindIconIndexSepCharPos(path_and_index);
+	wxString file_path = path_and_index.substr(0, sep).Strip();
+
+	std::deque<wxIcon> icons;
+	ExtractAllIcons(file_path, icons);
+	if (icons.size() > 1)
+	{
+		for (int i = 0; i < icons.size(); ++i)
+		{
+			m_cbIcon->Append(wxString::Format(_T("%d"), i), ResizeIcon(icons[i], 16, 16));
+		}
+		if (sep == wxString::npos)
+		{
+			m_cbIcon->SetSelection(0);
+		}
+	}
+	if (sep > 0)
+	{
+		long index = 0;
+		if (path_and_index.substr(sep + 1).ToLong(&index) && index > 0 && index < icons.size())
+		{
+			m_cbIcon->SetSelection(index);
+			m_txtIcon->ChangeValue(file_path + wxString::Format(_T(",%d"), index));
+		}
+	}
+	m_cbIcon->Enable(icons.size() > 1);
+	m_cbIcon->Thaw();
+
+}
+
+void TLMenuCfgDialog::OntxtIconText(wxCommandEvent& event)
+{
+	TryExtractIcons();
+	SetIconPathModifiedFlag();
 }
 
 void TLMenuCfgDialog::UpdateFlgs()
@@ -1119,6 +1264,7 @@ bool TLMenuCfgDialog::ReadItemInfo()
 			m_txtTarget->ChangeValue(p->Target());
 			m_txtNameOrFilter->ChangeValue(p->Name());
 			m_txtIcon->ChangeValue(p->IconPath());
+			TryExtractIcons();
 		}
 		else
 		{
@@ -1239,6 +1385,8 @@ bool TLMenuCfgDialog::Move(const wxTreeItemId from, const wxTreeItemId to, const
 
 	return ret;
 }
+
+
 void TLMenuCfgDialog::OnbtnUpClick(wxCommandEvent& event)
 {
 	Move(m_TreeMenu->GetSelection(), m_TreeMenu->GetPrevSibling(m_TreeMenu->GetSelection()), e_up);
@@ -1264,7 +1412,9 @@ void TLMenuCfgDialog::OnbtnDelClick(wxCommandEvent& event)
 
 				/*
 				// it seems remove a image will affect the index of other images,
-				// so, all following images will be wrongly displayed.
+				// and all following images will be wrongly displayed.
+				// so I just leave them unused.
+				//
 				// NOTE: Calling Remove(-1) will remove all images from list;
 				if (m_TreeMenu->GetImageList() && m_TreeMenu->GetItemImage(item) != -1)
 				{
@@ -1371,6 +1521,7 @@ void TLMenuCfgDialog::OnbtnFindTargetClick(wxCommandEvent& event)
 		SetNameFromTarget();
 	}
 }
+
 
 void TLMenuCfgDialog::OnBitmapButton2Click(wxCommandEvent& event)
 {
@@ -1575,5 +1726,28 @@ void TLMenuCfgDialog::Onm_searchTextEnter(wxCommandEvent& event)
 			++match;
 		}
 		m_TreeMenu->SelectItem(match == found.size()-1 ? found[0] : found[match+1]);
+	}
+}
+
+
+void TLMenuCfgDialog::Onm_cbIconSelected(wxCommandEvent& event)
+{
+	int n = m_cbIcon->GetSelection();
+	if (n >= 0)
+	{
+		// change icon path text
+		const wxString path_and_index(m_txtIcon->GetValue());
+		unsigned sep = FindIconIndexSepCharPos(path_and_index);
+		wxString file_path = path_and_index.substr(0, sep).Strip();
+
+		if (n > 0)
+		{
+			file_path += wxString::Format(_T(",%d"), n);
+		}
+		if (file_path != path_and_index)
+		{
+			m_txtIcon->ChangeValue(file_path);	// NO event for the change, and
+			SetIconPathModifiedFlag();			// we manually set it changed here.
+		}
 	}
 }
