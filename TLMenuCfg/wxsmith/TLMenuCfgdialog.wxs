@@ -182,17 +182,17 @@
 													<size>456,24</size>
 													<handler function="OntxtTargetText" entry="EVT_TEXT" />
 												</object>
-												<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
 												<option>1</option>
 											</object>
 											<object class="sizeritem">
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON6" variable="m_btnFindTarget" member="yes">
-													<bitmap stock_id="wxART_FIND" />
+													<bitmap stock_id="wxART_FILE_OPEN" />
 													<default>1</default>
 													<handler function="OnbtnFindTargetClick" entry="EVT_BUTTON" />
 												</object>
-												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<flag>wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
 											</object>
 										</object>
@@ -238,7 +238,7 @@
 													<maxlength>128</maxlength>
 													<handler function="OntxtNameOrFilterText" entry="EVT_TEXT" />
 												</object>
-												<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
 												<option>1</option>
 											</object>
@@ -276,26 +276,26 @@
 													<maxlength>256</maxlength>
 													<handler function="OntxtIconText" entry="EVT_TEXT" />
 												</object>
-												<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
-												<option>1</option>
+												<option>3</option>
 											</object>
 											<object class="sizeritem">
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON7" variable="m_btnFindIcon" member="yes">
-													<bitmap stock_id="wxART_FIND" />
+													<bitmap stock_id="wxART_FILE_OPEN" />
 													<handler function="OnBitmapButton2Click" entry="EVT_BUTTON" />
 												</object>
-												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<flag>wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
 											</object>
 											<object class="sizeritem">
 												<object class="wxBitmapComboBox" name="ID_BITMAPCOMBOBOX1" variable="m_cbIcon" member="yes">
 													<image_list></image_list>
-													<size>86,23</size>
+													<size>85,23</size>
 													<style>wxCB_READONLY</style>
 													<handler function="Onm_cbIconSelected" entry="EVT_COMBOBOX" />
 												</object>
-												<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
 											</object>
 										</object>
