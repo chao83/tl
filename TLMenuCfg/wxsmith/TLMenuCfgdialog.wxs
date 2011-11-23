@@ -281,21 +281,21 @@
 												<option>3</option>
 											</object>
 											<object class="sizeritem">
+												<object class="wxBitmapComboBox" name="ID_BITMAPCOMBOBOX1" variable="m_cbIcon" member="yes">
+													<image_list>&lt;none&gt;</image_list>
+													<size>47,23</size>
+													<style>wxCB_READONLY</style>
+													<handler function="Onm_cbIconSelected" entry="EVT_COMBOBOX" />
+												</object>
+												<flag>wxTOP|wxBOTTOM|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+											</object>
+											<object class="sizeritem">
 												<object class="wxBitmapButton" name="ID_BITMAPBUTTON7" variable="m_btnFindIcon" member="yes">
 													<bitmap stock_id="wxART_FILE_OPEN" />
 													<handler function="OnBitmapButton2Click" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-												<border>5</border>
-											</object>
-											<object class="sizeritem">
-												<object class="wxBitmapComboBox" name="ID_BITMAPCOMBOBOX1" variable="m_cbIcon" member="yes">
-													<image_list></image_list>
-													<size>85,23</size>
-													<style>wxCB_READONLY</style>
-													<handler function="Onm_cbIconSelected" entry="EVT_COMBOBOX" />
-												</object>
-												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
 											</object>
 										</object>
