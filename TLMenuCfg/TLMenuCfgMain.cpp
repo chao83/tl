@@ -97,8 +97,8 @@ const long TLMenuCfgDialog::ID_CHECKBOX2 = wxNewId();
 const long TLMenuCfgDialog::ID_TEXTCTRL2 = wxNewId();
 const long TLMenuCfgDialog::ID_STATICTEXT4 = wxNewId();
 const long TLMenuCfgDialog::ID_TEXTCTRL3 = wxNewId();
-const long TLMenuCfgDialog::ID_BITMAPBUTTON7 = wxNewId();
 const long TLMenuCfgDialog::ID_BITMAPCOMBOBOX1 = wxNewId();
+const long TLMenuCfgDialog::ID_BITMAPBUTTON7 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON3 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON4 = wxNewId();
 const long TLMenuCfgDialog::ID_BUTTON2 = wxNewId();
@@ -232,10 +232,10 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	m_txtIcon = new wxTextCtrl(this, ID_TEXTCTRL3, _("Text"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL3"));
 	m_txtIcon->SetMaxLength(256);
 	BoxSizer19->Add(m_txtIcon, 3, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	m_cbIcon = new wxBitmapComboBox(this, ID_BITMAPCOMBOBOX1, wxEmptyString, wxDefaultPosition, wxSize(47,23), 0, 0, wxCB_READONLY, wxDefaultValidator, _T("ID_BITMAPCOMBOBOX1"));
+	BoxSizer19->Add(m_cbIcon, 0, wxTOP|wxBOTTOM|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	m_btnFindIcon = new wxBitmapButton(this, ID_BITMAPBUTTON7, wxArtProvider::GetBitmap(wxART_MAKE_ART_ID_FROM_STR(_T("wxART_FILE_OPEN")),wxART_BUTTON), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW, wxDefaultValidator, _T("ID_BITMAPBUTTON7"));
 	BoxSizer19->Add(m_btnFindIcon, 0, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	m_cbIcon = new wxBitmapComboBox(this, ID_BITMAPCOMBOBOX1, wxEmptyString, wxDefaultPosition, wxSize(85,23), 0, 0, wxCB_READONLY, wxDefaultValidator, _T("ID_BITMAPCOMBOBOX1"));
-	BoxSizer19->Add(m_cbIcon, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer15->Add(BoxSizer19, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer7->Add(BoxSizer15, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer16 = new wxBoxSizer(wxHORIZONTAL);
@@ -273,8 +273,8 @@ TLMenuCfgDialog::TLMenuCfgDialog(wxWindow* parent,wxWindowID id)
 	Connect(ID_BITMAPBUTTON6,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnFindTargetClick);
 	Connect(ID_TEXTCTRL2,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtNameOrFilterText);
 	Connect(ID_TEXTCTRL3,wxEVT_COMMAND_TEXT_UPDATED,(wxObjectEventFunction)&TLMenuCfgDialog::OntxtIconText);
-	Connect(ID_BITMAPBUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnBitmapButton2Click);
 	Connect(ID_BITMAPCOMBOBOX1,wxEVT_COMMAND_COMBOBOX_SELECTED,(wxObjectEventFunction)&TLMenuCfgDialog::Onm_cbIconSelected);
+	Connect(ID_BITMAPBUTTON7,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnBitmapButton2Click);
 	Connect(ID_BUTTON3,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnSaveClick);
 	Connect(ID_BUTTON4,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnbtnReloadClick);
 	Connect(ID_BUTTON2,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TLMenuCfgDialog::OnQuit);
@@ -1175,25 +1175,37 @@ void TLMenuCfgDialog::TryExtractIcons()
 	ExtractAllIcons(file_path, icons);
 	if (icons.size() > 1)
 	{
+		m_cbIcon->Enable();
 		for (unsigned int i = 0; i < icons.size(); ++i)
 		{
-			m_cbIcon->Append(wxString::Format(_T("%d"), i), ResizeIcon(icons[i], 16, 16));
+			// @todo (lichao#1#): Text is not refreshed properly : \
+			If cancel the drop down list, \
+			later selection will change the bitmap,\
+			but the text remain the same.\
+			maybe a wxbitmapcombobox bug? \
+			try to implement a ownerdrawcombox to fix this later.)
+			m_cbIcon->Append(_T(""), //wxString::Format(_T("%d"), i),
+								ResizeIcon(icons[i], 16, 16));
 		}
+
 		if (sep == wxString::npos)
 		{
 			m_cbIcon->SetSelection(0);
 		}
-	}
-	if (sep > 0)
-	{
-		long index = 0;
-		if (path_and_index.substr(sep + 1).ToLong(&index) && index > 0 && static_cast<unsigned long>(index) < icons.size())
+		else
 		{
-			m_cbIcon->SetSelection(index);
-			m_txtIcon->ChangeValue(file_path + wxString::Format(_T(",%d"), index));
+			long index = 0;
+			if (path_and_index.substr(sep + 1).ToLong(&index) && index > 0 && static_cast<unsigned long>(index) < icons.size())
+			{
+				m_cbIcon->SetSelection(index);
+				m_txtIcon->ChangeValue(file_path + wxString::Format(_T(",%d"), index));
+			}
 		}
 	}
-	m_cbIcon->Enable(icons.size() > 1);
+	else
+	{
+		m_cbIcon->Disable();
+	}
 	m_cbIcon->Thaw();
 
 }

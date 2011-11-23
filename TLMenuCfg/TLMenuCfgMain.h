@@ -82,8 +82,8 @@ class TLMenuCfgDialog: public wxDialog
         static const long ID_TEXTCTRL2;
         static const long ID_STATICTEXT4;
         static const long ID_TEXTCTRL3;
-        static const long ID_BITMAPBUTTON7;
         static const long ID_BITMAPCOMBOBOX1;
+        static const long ID_BITMAPBUTTON7;
         static const long ID_BUTTON3;
         static const long ID_BUTTON4;
         static const long ID_BUTTON2;
