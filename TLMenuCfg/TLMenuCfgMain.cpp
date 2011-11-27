@@ -1165,29 +1165,37 @@ void TLMenuCfgDialog::SetIconPathModifiedFlag()
 void TLMenuCfgDialog::TryExtractIcons()
 {
 	m_cbIcon->Freeze();
-	m_cbIcon->Clear();
 
 	wxString path_and_index(m_txtIcon->GetValue());
 	unsigned sep = FindIconIndexSepCharPos(path_and_index);
 	wxString file_path = path_and_index.substr(0, sep).Strip();
 
-	std::deque<wxIcon> icons;
-	ExtractAllIcons(file_path, icons);
-	if (icons.size() > 1)
+	if (m_iconExtractPathOld != file_path)
+	{
+		m_iconExtractPathOld = file_path;
+
+		m_cbIcon->Clear();
+		std::deque<wxIcon> icons;
+		ExtractAllIcons(file_path, icons);
+		if (icons.size() > 1)
+		{
+			for (unsigned int i = 0; i < icons.size(); ++i)
+			{
+				// @todo (lichao#1#): Text is not refreshed properly : \
+				If cancel the drop down list, \
+				later selection will change the bitmap,\
+				but the text remain the same.\
+				maybe a wxbitmapcombobox bug? \
+				try to implement a ownerdrawcombox to fix this later.)
+				m_cbIcon->Append(_T(""), //wxString::Format(_T("%d"), i),
+									ResizeIcon(icons[i], 16, 16));
+			}
+		}
+	}
+
+	if (m_cbIcon->GetCount() > 1)
 	{
 		m_cbIcon->Enable();
-		for (unsigned int i = 0; i < icons.size(); ++i)
-		{
-			// @todo (lichao#1#): Text is not refreshed properly : \
-			If cancel the drop down list, \
-			later selection will change the bitmap,\
-			but the text remain the same.\
-			maybe a wxbitmapcombobox bug? \
-			try to implement a ownerdrawcombox to fix this later.)
-			m_cbIcon->Append(_T(""), //wxString::Format(_T("%d"), i),
-								ResizeIcon(icons[i], 16, 16));
-		}
-
 		if (sep == wxString::npos)
 		{
 			m_cbIcon->SetSelection(0);
@@ -1195,10 +1203,14 @@ void TLMenuCfgDialog::TryExtractIcons()
 		else
 		{
 			long index = 0;
-			if (path_and_index.substr(sep + 1).ToLong(&index) && index > 0 && static_cast<unsigned long>(index) < icons.size())
+			if (path_and_index.substr(sep + 1).ToLong(&index) && index > 0 && static_cast<unsigned long>(index) < m_cbIcon->GetCount())
 			{
 				m_cbIcon->SetSelection(index);
 				m_txtIcon->ChangeValue(file_path + wxString::Format(_T(",%d"), index));
+			}
+			else
+			{
+				m_cbIcon->SetSelection(-1); // select none.
 			}
 		}
 	}
