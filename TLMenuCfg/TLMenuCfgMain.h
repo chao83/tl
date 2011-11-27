@@ -161,6 +161,7 @@ class TLMenuCfgDialog: public wxDialog
 		TSTRING m_fileName;
 		void SetIconPathModifiedFlag();
 		void TryExtractIcons();
+		wxString m_iconExtractPathOld;
 };
 
 #endif // TLMENUCFGMAIN_H
