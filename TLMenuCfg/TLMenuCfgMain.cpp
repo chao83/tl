@@ -1166,7 +1166,15 @@ void TLMenuCfgDialog::TryExtractIcons()
 {
 	m_cbIcon->Freeze();
 
-	wxString path_and_index(m_txtIcon->GetValue());
+	wxString path_and_index(m_txtIcon->GetValue().Strip());
+	if (!path_and_index.empty())
+	{
+		TString str(path_and_index);
+		if(ns_file_str_ops::StripCharsAtEnds(str, _T("\" ")))
+		{
+			path_and_index = str;
+		}
+	}
 	unsigned sep = FindIconIndexSepCharPos(path_and_index);
 	wxString file_path = path_and_index.substr(0, sep).Strip();
 
