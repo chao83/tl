@@ -719,6 +719,7 @@ bool ParseIconIndex(const tString &strPath, tString &path, int &index)
 		}
 		if (isdigit(strPath[i]))
 		{
+			index *= 10;
 			index += strPath[i] - '0';
 		}
 		else
