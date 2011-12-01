@@ -447,9 +447,18 @@ bool GetIconSize(HICON hIcon, int &w, int &h)
 	return r;
 }
 
-wxIcon WxExtractIcon(const wxString &path, int index)
+wxIcon WxExtractIcon(const wxString &path, const int index, const bool smallIcon = false)
 {
-	HICON hIcon = ExtractIcon(wxGetInstance(), path.c_str(), index);
+	HICON hIcon = 0;
+	if (smallIcon)
+	{
+		ExtractIconEx(path.c_str(), index, 0, &hIcon, 1);
+	}
+	else
+	{
+		ExtractIconEx(path.c_str(), index, &hIcon, 0, 1);
+	}
+
 	int w = 0;
 	int h = 0;
 	wxIcon icon;
@@ -462,13 +471,13 @@ wxIcon WxExtractIcon(const wxString &path, int index)
 	return icon;
 }
 
-bool ExtractAllIcons(const wxString &path, std::deque<wxIcon> &icons)
+bool ExtractAllIcons(const wxString &path, std::deque<wxIcon> &icons, bool smallIcon = false)
 {
 	int const num_icon = reinterpret_cast<int>(ExtractIcon(wxGetInstance(), path.c_str(), -1));
 
 	for (int i = 0; i < num_icon; ++i)
 	{
-		wxIcon icon(WxExtractIcon(path, i));
+		wxIcon icon(WxExtractIcon(path, i, smallIcon));
 		if (!icon.Ok())
 		{
 			break;
@@ -522,8 +531,8 @@ wxIcon GetFileIcon(const wxString & path, const int moreTry = 1, const int width
 		long index = 0;
 		if(sep != wxString::npos && path.substr(sep + 1).ToLong(&index) && index > 0)
 		{
-			icon = WxExtractIcon(path.substr(0, sep).Strip(), index);
-			if (width > 0 && height > 0)
+			icon = WxExtractIcon(path.substr(0, sep).Strip(), index, width == 16 && height == 16);
+			if (width > 0 && height > 0 && (width != 16 || height != 16))
 			{
 				icon = ResizeIcon(icon, width, height);
 			}
@@ -1184,7 +1193,7 @@ void TLMenuCfgDialog::TryExtractIcons()
 
 		m_cbIcon->Clear();
 		std::deque<wxIcon> icons;
-		ExtractAllIcons(file_path, icons);
+		ExtractAllIcons(file_path, icons, true);
 		if (icons.size() > 1)
 		{
 			for (unsigned int i = 0; i < icons.size(); ++i)
@@ -1196,7 +1205,7 @@ void TLMenuCfgDialog::TryExtractIcons()
 				maybe a wxbitmapcombobox bug? \
 				try to implement a ownerdrawcombox to fix this later.)
 				m_cbIcon->Append(_T(""), //wxString::Format(_T("%d"), i),
-									ResizeIcon(icons[i], 16, 16));
+									icons[i]);
 			}
 		}
 	}
