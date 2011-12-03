@@ -1175,7 +1175,7 @@ void TLMenuCfgDialog::TryExtractIcons()
 {
 	m_cbIcon->Freeze();
 
-	wxString path_and_index(m_txtIcon->GetValue().Strip());
+	wxString path_and_index(m_txtIcon->GetValue());
 	if (!path_and_index.empty())
 	{
 		TString str(path_and_index);
@@ -1241,6 +1241,16 @@ void TLMenuCfgDialog::TryExtractIcons()
 
 void TLMenuCfgDialog::OntxtIconText(wxCommandEvent& event)
 {
+	wxString path_and_index(m_txtIcon->GetValue());
+	if (!path_and_index.empty())
+	{
+		TString str(path_and_index);
+		if(ns_file_str_ops::StripCharsAtEnds(str, _T("\" ")))
+		{
+			m_txtIcon->ChangeValue(str);
+			m_txtIcon->SetInsertionPointEnd();
+		}
+	}
 	TryExtractIcons();
 	SetIconPathModifiedFlag();
 }
