@@ -984,9 +984,9 @@ int CMenuWithIcon::DoMultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPat
 		NamePathContainer namePaths;
 
 		if (m_bShowHidden) {
-			nSubMenus = BuildNameMap(inStrPathForSearch, namePaths, KeepDir());
+			nSubMenus = BuildNameMap(pSearch, namePaths, KeepDir());
 		} else {
-			nSubMenus = BuildNameMap(inStrPathForSearch, namePaths, KeepNohiddenDir());
+			nSubMenus = BuildNameMap(pSearch, namePaths, KeepNohiddenDir());
 		}
 
 		//文件名作为菜单名时，其中的 '&' 扩展成  '&&'
