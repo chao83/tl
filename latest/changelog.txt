@@ -1,4 +1,11 @@
-﻿[2011-10-23] v2.3.0
+﻿[2011-12-03] v2.4.0
+[TrayLauncher]
+Added	: force run as administator if Ctrl is pressed, works for menu and run dialog.
+Fixed	: bug reading the icon index.
+[TLMC]
+Added	: select icon from files with multiple icons, like exe,dll.
+
+[2011-10-23] v2.3.0
 [TrayLauncher]
 Added	: support "file_path,n" icon index, where file_path is exe or dll, and n is 0 based.
 	Note that there is NO preview in menu editor, as I don't know how to do it with wxWidgets.
