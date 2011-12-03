@@ -467,7 +467,12 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 		const TCHAR *pOpr = NULL;
 		if ((GetKeyState(VK_CONTROL)&0x8000) && IsPathExe(strCmdLine))
 		{
-			pOpr = _T("runas");
+			OSVERSIONINFO osvi = {0};
+			osvi.dwOSVersionInfoSize = sizeof(osvi);
+			if (GetVersionEx(&osvi) && osvi.dwMajorVersion == 6)
+			{
+				pOpr = _T("runas");
+			}
 		}
 
 		if (!ns_file_str_ops::Execute(strCmdLine, pOpr))

@@ -697,11 +697,16 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							const TCHAR *pOpr = NULL;
 							if (GetKeyState(VK_CONTROL)&0x8000)
 							{
-								TSTRING cmd, param;
-								ns_file_str_ops::GetCmdAndParam(pathFound, cmd, param);
-								if (ns_file_str_ops::IsPathExe(cmd))
+								OSVERSIONINFO osvi = {0};
+								osvi.dwOSVersionInfoSize = sizeof(osvi);
+								if (GetVersionEx(&osvi) && osvi.dwMajorVersion == 6)
 								{
-									pOpr = _T("runas");
+									TSTRING cmd, param;
+									ns_file_str_ops::GetCmdAndParam(pathFound, cmd, param);
+									if (ns_file_str_ops::IsPathExe(cmd))
+									{
+										pOpr = _T("runas");
+									}
 								}
 							}
 							bSuccessShell = ns_file_str_ops::Execute(pathFound, pOpr);
