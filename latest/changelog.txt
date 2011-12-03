@@ -1,4 +1,8 @@
-﻿[2011-12-03] v2.4.0
+﻿[2011-12-03] v2.4.1
+[TrayLauncher]
+Fixed	: sub folders not searched in wild card mode if path has environment variable.
+
+[2011-12-03] v2.4.0
 [TrayLauncher]
 Added	: force run as administator if Ctrl is pressed, works for menu and run dialog.
 Fixed	: bug reading the icon index.
