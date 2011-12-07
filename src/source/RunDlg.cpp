@@ -689,6 +689,15 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							SetProcessWorkingSetSize(GetCurrentProcess(),static_cast<DWORD>(-1), static_cast<DWORD>(-1));
 							return TRUE;
 						}
+						else if(strEdit == _T(":exit"))
+						{
+							// exit program
+							DestroyWindow(hDlg);
+							GHdlgRun() = NULL;
+							extern HWND g_hWnd;
+							DestroyWindow(g_hWnd);
+							return true;
+						}
 
 						//÷¥––√¸¡Ó––
 						bool bSuccessShell = false;
