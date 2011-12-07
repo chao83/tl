@@ -1327,7 +1327,10 @@ int AutoStart(AUTORUN action)
 //////////
 ////////////////////////////////////////////////////////////////////////////////
 
-
+double GetRand(double to_range = 1.0)
+{
+	return (rand() * to_range) / RAND_MAX;
+}
 
 // “关于”框的消息处理程序。
 BOOL  CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1357,11 +1360,9 @@ BOOL  CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		if (// bUserLogo &&
 		    bRain && (++iTimerEnter > iTimerDrawEvery)) {
 			iTimerEnter = 0;
-			DWORD dwTime = GetTickCount() & 0xffffff;
-			srand((dwTime << 5) - dwTime);// srand(dwTime*31);
-			pWavepic->Drop( rcPic.left + rand() % (rcPic.right - rcPic.left + 1),
-			                rcPic.top + rand() % (rcPic.bottom - rcPic.top + 1),
-			                rand() % (DropDepth << 3), rand() % 3 + 1);
+			pWavepic->Drop( rcPic.left + GetRand(rcPic.right - rcPic.left + 1),
+			                rcPic.top + GetRand(rcPic.bottom - rcPic.top + 1),
+			                GetRand(DropDepth << 3), GetRand(3) + 1);
 		}
 
 		hdc = GetDC(hDlg);
@@ -1384,6 +1385,10 @@ BOOL  CALLBACK AboutProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 		bCloseWindow = false;
 		SetTimer(hDlg, uTimerID, iTimerInterval, NULL);
+		{
+			DWORD dwTime = GetTickCount() & 0xffffff;
+			srand(dwTime*31);
+		}
 
 		//if (pWavepic) {
 		//	bResult = TRUE;
