@@ -19,14 +19,16 @@ CSettingFile & Settings()
 }
 
 HWND g_hWnd;
-class CBLocker
-{
-	bool & m_value;
-	CBLocker & operator = (const CBLocker &);
-public:
-	explicit CBLocker(bool & bV, bool value = true):m_value(bV) { m_value = value; }
-	~CBLocker() { m_value ^= true; }
-};
+
+#define ON_EXIT_SCOPE_EXEC(id, exprs) struct {\
+	struct OnExitScope {\
+		~OnExitScope() { do{exprs}while(0); }\
+	} m_obj_;\
+} auto_guard_on_exit_ ## id ## _
+
+#define CALL2(M, P1, P2) M(P1, P2)
+
+#define ON_EXIT_SCOPE(exprs) CALL2(ON_EXIT_SCOPE_EXEC, __LINE__, exprs)
 
 const int UM_MIDCLICK = WM_USER + 4;
 const int UM_REFRESH = WM_USER + 5;
@@ -609,9 +611,12 @@ void ShowRunDlg()
 
 void ShowAbout()
 {
-	CBLocker locker(IgnoreUser());
-	assert(IgnoreUser());
-	DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, AboutProc);
+	if (!IgnoreUser())
+	{
+		IgnoreUser() = true;
+		ON_EXIT_SCOPE(IgnoreUser() = false;);
+		DialogBox(ThisHinstGet(), MAKEINTRESOURCE(IDD_ABOUTBOX), NULL, AboutProc);
+	}
 }
 
 static std::map<int, TSTRING> s_id2LngFN;
