@@ -727,6 +727,9 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							MessageBox(hDlg,szCommand, _LNG(STR_Failed_To_Exec),MB_ICONERROR);
 							SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
 							SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
+
+							// try to romeve from history.
+							StrHis().erase(std::remove(StrHis().begin(), StrHis().end(), szCommand), StrHis().end());
 							return TRUE;
 						}
 						else {
