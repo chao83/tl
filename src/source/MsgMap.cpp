@@ -1327,9 +1327,9 @@ int AutoStart(AUTORUN action)
 //////////
 ////////////////////////////////////////////////////////////////////////////////
 
-double GetRand(double to_range = 1.0)
+int GetRand(const int to_range)
 {
-	return (rand() * to_range) / RAND_MAX;
+	return static_cast<int>(rand() * to_range / static_cast<double>(RAND_MAX));
 }
 
 // “关于”框的消息处理程序。
