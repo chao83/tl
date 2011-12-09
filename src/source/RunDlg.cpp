@@ -276,7 +276,8 @@ void UpdateHint(HWND hDlg, icon_ptr & s_hIcon, ICONTYPE hIconDefault = NULL)
 			// ÍêÕûÂ·¾¶
 			if (strCmd.find('\\') != strCmd.npos) {
 				DWORD dwType(0);
-				if (GetBinaryType(strCmd.c_str(), &dwType))
+				// if no param, maybe it's just a file path, like "c:\abc.txt"
+				if (GetBinaryType(strCmd.c_str(), &dwType) || strParam.empty())
 				{
 					s_hIcon = g_pTray->GetBigIcon(strCmd);
 					strHint = strCmd;
