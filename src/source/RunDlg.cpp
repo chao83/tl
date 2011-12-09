@@ -500,6 +500,14 @@ int SearchToBuildList(const tString & strSrc, std::vector<tString> & vStr, bool 
 		tString strSearch(strDir);
 
 		ExpandRelativePaths(strSearch);
+
+		if(strSearch.find('%') != tString::npos)
+		{
+			std::vector<TCHAR> path_expanded(strSearch.size() + MAX_PATH);
+			ExpandEnvironmentStrings(strSearch.c_str(), &path_expanded[0], path_expanded.size() - 1);
+			strSearch = &path_expanded[0];
+		}
+
 		if ( 2 < strSearch.length() && strSearch.substr(1,2) == _T(":\\")) {
 			strSearch += strSrc.substr(pos + 1) + _T("*");
 			iFound = FindFiles(strSearch, vFound);
