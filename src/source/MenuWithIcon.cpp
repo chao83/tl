@@ -465,7 +465,7 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 		}
 
 		const TCHAR *pOpr = NULL;
-		if ((GetKeyState(VK_CONTROL)&0x8000) && IsPathExe(strCmdLine))
+		if ((GetKeyState(VK_CONTROL)&0x8000) && IsPathExe(pCmd))
 		{
 			OSVERSIONINFO osvi = {0};
 			osvi.dwOSVersionInfoSize = sizeof(osvi);
