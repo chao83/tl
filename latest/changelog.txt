@@ -1,4 +1,15 @@
-﻿[2011-12-03] v2.4.1
+﻿[2011-12-15] v2.4.2
+[TrayLauncher]
+Fixed	: Holding Ctrl to run as admin should work for mouse click too.
+Fixed	: error message not displayed if cancel run as admin in run dialog.
+Fixed	: files not listed if directory has variables in run dialog.
+Fixed	: error while run non-executable file in run dialog.
+Added	: vs2008 project file.
+Added	: remove history if run command failed.
+Added	: type ":exit" to exit traylauncher.
+
+
+[2011-12-03] v2.4.1
 [TrayLauncher]
 Fixed	: sub folders not searched in wild card mode if path has environment variable.
 
