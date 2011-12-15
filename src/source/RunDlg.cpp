@@ -610,6 +610,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			else
 			{
+				// destroy window after hidden for a while, release some resource.
 				SetTimer(hDlg, kTimerIDCloseWindow, 1000, 0);
 			}
 			return TRUE;
@@ -733,9 +734,16 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						if (!bSuccessShell) {
 							//执行命令失败
 							ShowWindow(hDlg, SW_SHOW); //运行失败， 重新显示窗口
-							MessageBox(hDlg,szCommand, _LNG(STR_Failed_To_Exec),MB_ICONERROR);
-							SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
-							SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
+							if (IsWindow(hDlg) && IsWindowVisible(hDlg))
+							{
+								MessageBox(hDlg,szCommand, _LNG(STR_Failed_To_Exec),MB_ICONERROR);
+								SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(0,-1));
+								SetFocus(GetDlgItem(hDlg, IDC_CBORUN));
+							}
+							else
+							{
+								MessageBox(0, szCommand, _LNG(STR_Failed_To_Exec), MB_ICONERROR);
+							}
 
 							// try to romeve from history.
 							StrHis().erase(std::remove(StrHis().begin(), StrHis().end(), szCommand), StrHis().end());
