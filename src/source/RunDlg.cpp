@@ -25,6 +25,8 @@ std::vector<TSTRING> & StrHis()
 	return vStrHis;
 };
 
+const UINT UM_RUNDLG_EXEC = WM_USER + 6;
+
 //! import some functions.
 using ns_file_str_ops::IsStrEndWith;
 using ns_file_str_ops::GetCmdAndParam;
@@ -566,6 +568,8 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	//对话框的坐标
 	static int xPos = 300;
 	static int yPos = 400;
+	static int s_cbn = -1;
+	static bool s_ignore_um_exec = false;
 
 	//static ICONTYPE s_hIcon = NULL;
 	static icon_ptr s_hIcon;
@@ -632,6 +636,16 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		case UM_UPDATEHINT:
 			s_hIcon.Reset();
 			UpdateHint(hDlg,s_hIcon,s_hIconDefault);
+			return TRUE;
+		case UM_RUNDLG_EXEC:
+			if(!s_ignore_um_exec)
+			{
+				//执行
+#ifdef _DEBUG
+				printf("UM_RUNDLG_EXEC\n");
+#endif
+				PostMessage(hDlg, WM_COMMAND, IDC_BTNRUN, 0);
+			}
 			return TRUE;
 		case WM_DESTROY:
 			DragAcceptFiles( hDlg, FALSE);
@@ -768,7 +782,13 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 				case IDC_CBORUN:
 					//编辑框的通知消息。
-					switch (HIWORD(wParam))	{
+					s_ignore_um_exec = true; // any CBN_xx could cancel UM_RUNDLG_EXEC.
+					int last_cbn; last_cbn = s_cbn;
+					s_cbn = HIWORD(wParam);
+#ifdef _DEBUG
+					printf("CBN_ %d\n", s_cbn);
+#endif
+					switch (s_cbn)	{
 						case CBN_EDITUPDATE:	//编辑框的内容更改了,搜索 //? 似乎只是用户的输入
 							MyGetDlgItemText(hDlg, IDC_CBORUN,szCommand,iCmdSize);
 							strUserInput = szCommand;
@@ -852,20 +872,29 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 									}
 
 									//找到２个以上时，显示下拉框
-									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN ,(iFound > 1)?1:0, 0);
-									// enable redraw
-									SendMessage(GetDlgItem(hDlg, IDC_CBORUN), WM_SETREDRAW, TRUE, 0);
+									// 关闭，并重新弹出，不然连续输入后一次回车会产生CBN_SELCHANGE通知。
+									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN , 0, 0);
+									if (iFound > 1)
+									{
+										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN , 1, 0);
+									}
 
 									if (iFound) {
 										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETCURSEL ,0,0);
+										#ifdef _DEBUG
+										printf("set sel 0\n");
+										#endif
 										//保持用户输入（主要是大小写）
 										//TSTRING strEditNew(strEdit + vStrNameFound[0].substr(strEdit.size()));
 										//SetDlgItemText(hDlg, IDC_CBORUN, strEditNew.c_str());
 									} else {
+										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETCURSEL ,-1,0);
 										SetDlgItemText(hDlg, IDC_CBORUN, strEdit.c_str());
 									}
 									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETEDITSEL,0,MAKELONG(iEditSize,-1));
 									iFoundLast = iFound;
+									// enable redraw
+									SendMessage(GetDlgItem(hDlg, IDC_CBORUN), WM_SETREDRAW, TRUE, 0);
 								}
 							}
 							strEditLast = strUserInput;//szCommand;
@@ -887,9 +916,22 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 							//break;
 						case CBN_EDITCHANGE:
-							PostMessage(hDlg,UM_UPDATEHINT,0,0);
+							PostMessage(hDlg, UM_UPDATEHINT,0,0);
 							return 0;//break;
+						case CBN_CLOSEUP:
+							// 尝试运行，不用两次回车。
+							// 查看消息顺序发现，
+							// 如果此通知跟随 CBN_SELENDOK 通知后到达，并且后续没有他CBN通知，就很可能是按下回车，此时直接运行。
+							// 如何后续还有CBN_xx通知，则s_ignore_um_exec为true，见上switch语句前的赋值。
+							assert (s_ignore_um_exec);
+							if (last_cbn == CBN_SELENDOK)
+							{
+								PostMessage(hDlg, UM_RUNDLG_EXEC, 0,0);
+								s_ignore_um_exec = false;
+							}
+							break;
 						default:
+
 							break;
 					}
 					break;
