@@ -697,7 +697,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							memset(szCommand,0,sizeof(szCommand));
 							GHdlgRun() = NULL;
 							SetProcessWorkingSetSize(GetCurrentProcess(),static_cast<DWORD>(-1), static_cast<DWORD>(-1));
-							return TRUE;
+							return 0;
 						}
 						else if(strEdit == _T(":exit"))
 						{
@@ -706,7 +706,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							GHdlgRun() = NULL;
 							extern HWND g_hWnd;
 							DestroyWindow(g_hWnd);
-							return true;
+							return 0;
 						}
 
 						//执行命令行
@@ -747,14 +747,14 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 							// try to romeve from history.
 							StrHis().erase(std::remove(StrHis().begin(), StrHis().end(), szCommand), StrHis().end());
-							return TRUE;
+							return 0;
 						}
 						else {
 							//执行成功，加入历史列表
 							if (AddToHis(StrHis(), szCommand, HISTORYSIZE))
 								UpdateHistoryRecordsInFile();
 							if (GetKeyState(VK_SHIFT)&0x8000)
-								return TRUE;
+								return 0;
 						}
 					}
 					//继续向下执行，销毁窗口
@@ -764,7 +764,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					DestroyWindow(hDlg);
 					GHdlgRun() = NULL;
 					SetProcessWorkingSetSize(GetCurrentProcess(),static_cast<DWORD>(-1), static_cast<DWORD>(-1));
-					return TRUE;
+					return 0;
 
 				case IDC_CBORUN:
 					//编辑框的通知消息。
@@ -870,7 +870,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							}
 							strEditLast = strUserInput;//szCommand;
 
-							return TRUE;//break;
+							return 0;//break;
 
 						case CBN_SELCHANGE:
 
@@ -888,7 +888,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 							//break;
 						case CBN_EDITCHANGE:
 							PostMessage(hDlg,UM_UPDATEHINT,0,0);
-							return TRUE;//break;
+							return 0;//break;
 						default:
 							break;
 					}
