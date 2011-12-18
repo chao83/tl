@@ -61,11 +61,13 @@
 			<Add option="-mthreads" />
 			<Add option='[[if (PLATFORM == PLATFORM_MSW &amp;&amp; (GetCompilerFactory().GetCompilerVersionString(_T(&quot;gcc&quot;)) &gt;= _T(&quot;4.0.0&quot;))) print(_T(&quot;-Wno-attributes&quot;));]]' />
 			<Add option="-Winvalid-pch" />
-			<Add option="-include wx_pch.h" />
 			<Add option="-D__GNUWIN32__" />
 			<Add option="-D__WXMSW__" />
 			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DWX_PRECOMP" />
+			<Add option="-D_UNICODE" />
+			<Add option="-DUNICODE" />
+			<Add option="-DPUGIXML_WCHAR_MODE" />
 			<Add directory=".\include" />
 			<Add directory="..\src\source" />
 			<Add directory="..\src\include" />
@@ -116,6 +118,9 @@
 		<Unit filename="..\src\source\SettingFile.h" />
 		<Unit filename="..\src\source\language.cpp" />
 		<Unit filename="..\src\source\language.h" />
+		<Unit filename="..\src\source\pugixml\pugiconfig.hpp" />
+		<Unit filename="..\src\source\pugixml\pugixml.cpp" />
+		<Unit filename="..\src\source\pugixml\pugixml.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
