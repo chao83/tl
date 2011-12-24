@@ -50,6 +50,7 @@ public:
 	//! 返回菜单项对应的命令行(不含参数)
 	const TCHAR * Cmd(const IDTYPE nID) const {return GetStr(m_ItemCmd,nID);};
 	unsigned int Find(const TSTRING& strName, TSTRING& strPath) const;
+	unsigned int FindAll(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup = false) const;
 	unsigned int FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup = false) const;
 	bool TryProcessCommand(unsigned int id);
 	// const TSTRING GetCurrentCommandLine(unsigned int nSysID);
@@ -105,6 +106,49 @@ private :
 	int DoMultiModeBuildMenu(MENUTYPE hMenu, const tString & inStrPathForSearch, const tString & strName, const std::vector<TSTRING> & vStrFilter, EBUILDMODE mode,bool bNoFileIcon);
 	int MultiModeBuildMenu(MENUTYPE, const tString & strPath, const tString & strName, EBUILDMODE mode,bool bNoFileIcon = false);
 
+	//! 找出匹配，加入到指定字符串向量末尾，bNoDup = true 已存在的跳过。
+	template <class Cond>
+	unsigned int FindIf(Cond cond, std::vector<TSTRING> &vStrName, bool bAllowDup) const
+	{
+		unsigned int iFound = 0;
+
+		for(std::map<TSTRING,IDTYPE>::const_iterator iter = m_NameIdMap.begin(); iter != m_NameIdMap.end(); ++iter) { //m_NameIdMap是按照字母表顺序的
+			if(cond(iter->first)) {
+				bool bIgnoreThis = false;
+				if (!bAllowDup) {
+					for (std::vector<TSTRING>::size_type i = 0; i < vStrName.size(); ++i) {
+						if (vStrName[i].length() == iter->first.length() && _tcsicmp(vStrName[i].c_str(), iter->first.c_str()) == 0) {
+							//不考虑大小写，相同
+							bIgnoreThis = true;
+							break;
+						}
+					}
+				}
+				if (!bIgnoreThis) {
+					const TCHAR * pCmd = Cmd(iter->second); //用于排除标题。
+					if (pCmd && *pCmd) {
+						++iFound;
+						tString strName = ItemName(iter->second);
+						//移除每次出现的第一个 &
+						TSTRING::size_type len = strName.length();
+						TSTRING::size_type move = 0;
+						for (TSTRING::size_type j = 0; j < len; ++j) {
+							if(strName[j] == '&') {
+								++move;
+								++j;
+							}
+							if(move)
+								strName[j-move] = strName[j];
+						}
+						//截断;
+						strName.resize(strName.size() - move);
+						vStrName.push_back(strName);
+					}
+				}
+			}
+		}
+		return iFound;
+	}
 
 	std::map<TSTRING, IDTYPE> m_NameIdMap;//用于查找名称和命令的对应关系,全部小写字母
 	HIcon m_hIconOpen;

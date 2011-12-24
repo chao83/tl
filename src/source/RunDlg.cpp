@@ -557,6 +557,25 @@ void MyUniqueVector(std::vector<T> & v) {
 	}
 }
 
+bool CommandMatch(const TSTRING &cmd, const TSTRING &input)
+{
+	// EqualNoCase(input, cmd.substr(0, input.length()));
+	TSTRING c(cmd);
+	TSTRING i(input);
+	ns_file_str_ops::ToLowerCase(c);
+	ns_file_str_ops::ToLowerCase(i);
+	return c.find(i) != TSTRING::npos;
+}
+
+struct PreferMatchStart
+{
+	PreferMatchStart(const TSTRING &str):m_str(str){}
+	bool operator()(const TSTRING &c1, const TSTRING &c2) const {
+		return EqualNoCase(c1.substr(0, m_str.size()), m_str) && !EqualNoCase(c2.substr(0,m_str.size()), m_str);
+	}
+	TSTRING m_str;
+};
+
 //! 执行对话框 的消息处理函数。
 BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -827,7 +846,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 										for (int i = 0; i < count; ++i) {
 											if(SendMessage(GetDlgItem(hDlg, IDC_CBORUN), static_cast<unsigned int>(CB_GETLBTEXT), i, (LPARAM) szCommand)) {
 												strList = szCommand;
-												if (strList.length() >= strEdit.length() && EqualNoCase(strEdit, strList.substr(0, strEdit.length()))) {
+												if (strList.length() >= strEdit.length() && CommandMatch(strList, strEdit)) {
 													vStrNameFound.push_back(strList);
 													++iFound;
 												}
@@ -840,7 +859,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 										iFound += SearchToBuildList(strEdit, vStrNameFound);
 
 										for (unsigned int i = 0; i < StrHis().size(); ++i) {
-											if (EqualNoCase(StrHis()[i].substr(0,iEditSize),strEdit) &&
+											if (CommandMatch(StrHis()[i], strEdit) &&
 												std::find(vStrNameFound.begin(),vStrNameFound.end(),StrHis()[i]) == vStrNameFound.end()	)
 											{
 												vStrNameFound.push_back(StrHis()[i]);
@@ -848,7 +867,7 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 											}
 										}
 
-										iFound += g_pTray->FindAllBeginWith(strEdit,vStrNameFound);
+										iFound += g_pTray->FindAll(strEdit,vStrNameFound);
 									}
 
 									// disable redraw
@@ -858,6 +877,9 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_RESETCONTENT ,0,0);
 
 									//重建列表控件,
+
+									// prefer matching start of command.
+									stable_sort(vStrNameFound.begin(), vStrNameFound.end(), PreferMatchStart(strEdit));
 
 									std::vector<TSTRING>::size_type iNum = vStrNameFound.size();
 									for (unsigned int i = 0; i < iNum; ++i) {
@@ -871,15 +893,32 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 											SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_ADDSTRING ,0,(LPARAM)StrHis()[i].c_str());
 									}
 
-									//找到２个以上时，显示下拉框
-									// 关闭，并重新弹出，不然连续输入后一次回车会产生CBN_SELCHANGE通知。
-									SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN , 0, 0);
-									if (iFound > 1)
+
+									int iStartMatch = 0; // input matches beginning of command.
+									for (unsigned int i = 0; i < vStrNameFound.size(); ++i)
+									{
+										if(EqualNoCase(vStrNameFound[i].substr(0,iEditSize),strEdit)) {
+											if(++iStartMatch > 1) {
+												break; // 2 is enough, we know we should show droplist now.
+											}
+										}
+										else {
+											break;
+										}
+									}
+
+									//if (iStartMatch || !iFound)
+									{
+										// 关闭，当多个匹配时再重新弹出，不然连续输入后按下回车会产生CBN_SELCHANGE通知。
+										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN , 0, 0);
+									}
+
+									if (iStartMatch > 1 || iFound > iStartMatch)
 									{
 										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SHOWDROPDOWN , 1, 0);
 									}
 
-									if (iFound) {
+									if (iStartMatch) {
 										SendMessage(GetDlgItem(hDlg, IDC_CBORUN),CB_SETCURSEL ,0,0);
 										#ifdef _DEBUG
 										printf("set sel 0\n");
