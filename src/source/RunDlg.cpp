@@ -46,8 +46,27 @@ HWND & GHdlgRun()
 	static HWND s_hDlgRun = NULL;
 	return s_hDlgRun;
 }
+namespace
+{
+	int g_run_pos_x = 0;
+	int g_run_pos_y = 0;
+}
 
+BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
+HWND CreateRunDialog(HINSTANCE hInst, const int x, const int y)
+{
+	g_run_pos_x = x;
+	g_run_pos_y = y;
+	return CreateDialog(hInst, MAKEINTRESOURCE(IDD_RUN), NULL, RunDlgProc);
+}
+
+bool GetLastRunPos(int &x, int &y)
+{
+	x = g_run_pos_x;
+	y = g_run_pos_y;
+	return true;
+}
 
 int QuoteString(TSTRING &str, const TSTRING::value_type ch = '\"', bool bProcessEmptyString = false)
 {
@@ -585,8 +604,8 @@ BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static TCHAR szHint[iCmdSize] = {0};
 	static AutoHwnd hwndTT;
 	//对话框的坐标
-	static int xPos = 300;
-	static int yPos = 400;
+	int &xPos = g_run_pos_x;
+	int &yPos = g_run_pos_y;
 	static int s_cbn = -1;
 	static bool s_ignore_um_exec = false;
 

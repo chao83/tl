@@ -10,6 +10,7 @@
 #include "Hotkey.h"
 #include "MsgMap.h"
 //#include <gdiplus.h>
+#include <cstdio>
 #include "SettingFile.h"
 
 CSettingFile & Settings()
@@ -595,10 +596,20 @@ void ShowRunDlg()
 	if (IgnoreUser()) return;
 
 	int nCmdShow = SW_SHOWNORMAL;
+	TSTRING str;
 
 	if (!GHdlgRun()) {
 		UpdateMenu();
-		GHdlgRun() = CreateDialog(ThisHinstGet(),MAKEINTRESOURCE(IDD_RUN), NULL, RunDlgProc);
+
+		int x = 300;
+		int y = 400;
+		if (Settings().Get(sectionGeneral, keyRunPosX, str)) {
+			x = _ttoi(str.c_str());
+		}
+		if (Settings().Get(sectionGeneral, keyRunPosY, str)) {
+			y = _ttoi(str.c_str());
+		}
+		GHdlgRun() = CreateRunDialog(ThisHinstGet(), x, y);
 	} else if (IsWindowVisible(GHdlgRun())) {
 		nCmdShow = SW_HIDE;
 	} else {
@@ -1187,6 +1198,15 @@ LRESULT  MsgDestroy(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 	g_pSysTray.Reset();
 	g_pTray.Reset();
+	int x = 0;
+	int y = 0;
+	GetLastRunPos(x, y);
+	TCHAR sz[64] = {0};
+	snwprintf(sz, sizeof(sz), _T("%d"), x);
+	Settings().Set(sectionGeneral, keyRunPosX, sz);
+	memset(sz, 0, sizeof(sz));
+	snwprintf(sz, sizeof(sz), _T("%d"), y);
+	Settings().Set(sectionGeneral, keyRunPosY, sz);
 	PostQuitMessage(0);
 	return 0;
 }
