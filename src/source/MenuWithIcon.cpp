@@ -478,7 +478,7 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 		if (!ns_file_str_ops::Execute(strCmdLine, pOpr))
 		{
 			//÷¥––√¸¡Ó ß∞‹
-			EnableMenuItem(Menu(),nSysID,MF_BYCOMMAND | MF_GRAYED);
+			//EnableMenuItem(Menu(),nSysID,MF_BYCOMMAND | MF_GRAYED); // maybe a UAC problem, don't disable for now.
 			MessageBox(NULL, Cmd(nSysID), _LNG(STR_Failed), MB_ICONERROR);
 			result = false;
 		}
