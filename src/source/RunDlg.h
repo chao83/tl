@@ -1,12 +1,15 @@
 #ifndef TRAYLAUNCHER_RUNDLG_L
 #define TRAYLAUNCHER_RUNDLG_L
 
+// @todo (lichao#1#): change run dialog to a class.
+
 icon_ptr & GRunIcon();
 HWND & GHdlgRun();
 
 const UINT UM_UPDATEHINT = WM_USER + 2;
 
-BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+HWND CreateRunDialog(HINSTANCE hInst, const int x = 0, const int y = 0);
+bool GetLastRunPos(int &x, int &y);
 
 using ns_file_str_ops::ShellSuccess;
 
