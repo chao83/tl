@@ -19,6 +19,8 @@ CSettingFile & Settings()
 	return s_setting;
 }
 
+std::map<TSTRING, TSTRING> & ExtraSettings();
+
 HWND g_hWnd;
 
 #define ON_EXIT_SCOPE_EXEC(id, exprs) struct {\
@@ -489,11 +491,16 @@ void Systray(const HWND hWnd, const DWORD dwMessage, ICONTYPE hIcon = NULL, cons
 	nid.uFlags = NIF_ICON|NIF_MESSAGE|NIF_TIP|NIF_INFO|NIIF_INFO;
 	nid.uCallbackMessage = UM_ICONNOTIFY;
 	nid.hIcon = hIcon ? hIcon : LoadIcon(ThisHinstGet(), MAKEINTRESOURCE(IDI_TRAYSTART));
-	const TCHAR strTip[] = _T("Tray Launcher");
-	memcpy(nid.szTip, strTip, sizeof(strTip) );
+	TSTRING strTip = _T("Tray Launcher");
+	TSTRING sid(ExtraSettings()[_T("sid")]);
+	if (!sid.empty())
+	{
+		strTip += _T(" [") + sid + _T("]");
+	}
+	memcpy(nid.szTip, strTip.c_str(), sizeof(strTip[0]) * (strTip.length() + 1));
 
 	if (strInfo.length()) {
-		memcpy(nid.szInfoTitle, strTip, sizeof(strTip) );
+		memcpy(nid.szInfoTitle, strTip.c_str(), sizeof(strTip[0]) * (strTip.length() + 1));
 		memcpy(nid.szInfo, strInfo.c_str(), sizeof(TCHAR) * strInfo.length());
 		nid.uTimeout = 5000;
 	}
