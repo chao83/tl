@@ -601,15 +601,22 @@ void ShowRunDlg()
 	if (!GHdlgRun()) {
 		UpdateMenu();
 
-		int x = 300;
-		int y = 400;
-		if (Settings().Get(sectionGeneral, keyRunPosX, str)) {
-			x = _ttoi(str.c_str());
+		static bool first = true;
+		if (first)
+		{
+			first = false;
+			int x = 300;
+			int y = 400;
+			if (Settings().Get(sectionGeneral, keyRunPosX, str)) {
+				x = _ttoi(str.c_str());
+			}
+			if (Settings().Get(sectionGeneral, keyRunPosY, str)) {
+				y = _ttoi(str.c_str());
+			}
+			SetRunPos(x, y);
 		}
-		if (Settings().Get(sectionGeneral, keyRunPosY, str)) {
-			y = _ttoi(str.c_str());
-		}
-		GHdlgRun() = CreateRunDialog(ThisHinstGet(), x, y);
+
+		GHdlgRun() = CreateRunDialog(ThisHinstGet());
 	} else if (IsWindowVisible(GHdlgRun())) {
 		nCmdShow = SW_HIDE;
 	} else {
@@ -1200,7 +1207,7 @@ LRESULT  MsgDestroy(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lPa
 	g_pTray.Reset();
 	int x = 0;
 	int y = 0;
-	GetLastRunPos(x, y);
+	GetRunPos(x, y);
 	TCHAR sz[64] = {0};
 	snwprintf(sz, sizeof(sz), _T("%d"), x);
 	Settings().Set(sectionGeneral, keyRunPosX, sz);

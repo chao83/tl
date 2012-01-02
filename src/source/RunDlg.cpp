@@ -54,14 +54,19 @@ namespace
 
 BOOL  CALLBACK RunDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
-HWND CreateRunDialog(HINSTANCE hInst, const int x, const int y)
+HWND CreateRunDialog(HINSTANCE hInst)
 {
-	g_run_pos_x = x;
-	g_run_pos_y = y;
 	return CreateDialog(hInst, MAKEINTRESOURCE(IDD_RUN), NULL, RunDlgProc);
 }
 
-bool GetLastRunPos(int &x, int &y)
+bool SetRunPos(const int x, const int y)
+{
+	g_run_pos_x = x;
+	g_run_pos_y = y;
+	return true;
+}
+
+bool GetRunPos(int &x, int &y)
 {
 	x = g_run_pos_x;
 	y = g_run_pos_y;
