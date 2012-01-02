@@ -142,7 +142,7 @@ void MustBeFirstInstance(const TCHAR * pTitle = NULL)
 
 	if (NULL == hMutex || ERROR_ALREADY_EXISTS == GetLastError())
 	{
-		HWND hPre = ::FindWindow(szWindowClass, NULL);
+		HWND hPre = ::FindWindow(szWindowClass, ExtraSettings()[_T("sid")].c_str());
 		if (hPre) {
 			SetForegroundWindow(hPre);
 			SendNotifyMessage(hPre,UM_NEWINSTANCE, 0,0);
@@ -186,8 +186,11 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	InitLanguage();
 // @fixme (lichao#1#): 完善命令行处理
 	ProcessArgs();
-	if (ExtraSettings()[_T("single-instance")] != _T("false"))
-		MustBeFirstInstance(_T("Tray Launcher"));
+	if (ExtraSettings()[_T("single-instance")] != _T("false")) {
+		TSTRING sid = ExtraSettings()[_T("sid")];
+		MustBeFirstInstance(sid.empty() ? _T("Tray Launcher") : sid.c_str());
+	}
+
 	MSG msg;
 
 	MyRegisterClass(hInstance);
@@ -285,7 +288,7 @@ BOOL InitInstance(HINSTANCE hInstance, int /*nCmdShow*/)
 
    InitMsgMap();
 
-   hWnd = CreateWindow(szWindowClass, NULL, WS_OVERLAPPED,
+   hWnd = CreateWindow(szWindowClass, ExtraSettings()[_T("sid")].c_str(), WS_OVERLAPPED,
 	  CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
    if (!hWnd) {
