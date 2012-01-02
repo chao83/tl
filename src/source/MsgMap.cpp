@@ -596,26 +596,9 @@ void ShowRunDlg()
 	if (IgnoreUser()) return;
 
 	int nCmdShow = SW_SHOWNORMAL;
-	TSTRING str;
 
 	if (!GHdlgRun()) {
 		UpdateMenu();
-
-		static bool first = true;
-		if (first)
-		{
-			first = false;
-			int x = 300;
-			int y = 400;
-			if (Settings().Get(sectionGeneral, keyRunPosX, str)) {
-				x = _ttoi(str.c_str());
-			}
-			if (Settings().Get(sectionGeneral, keyRunPosY, str)) {
-				y = _ttoi(str.c_str());
-			}
-			SetRunPos(x, y);
-		}
-
 		GHdlgRun() = CreateRunDialog(ThisHinstGet());
 	} else if (IsWindowVisible(GHdlgRun())) {
 		nCmdShow = SW_HIDE;
@@ -1137,6 +1120,19 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 	} else {
 		CheckMenuItem(g_pSysTray->Menu(),MCLICK,MF_BYCOMMAND | MF_UNCHECKED);
 	}
+
+	// init run dialog pos
+
+	TSTRING strPos;
+	int run_pos_x = 300;
+	int run_pos_y = 400;
+	if (Settings().Get(sectionGeneral, keyRunPosX, strPos)) {
+		run_pos_x = _ttoi(strPos.c_str());
+	}
+	if (Settings().Get(sectionGeneral, keyRunPosY, strPos)) {
+		run_pos_y = _ttoi(strPos.c_str());
+	}
+	SetRunPos(run_pos_x, run_pos_y);
 
 	SetProcessWorkingSetSize(GetCurrentProcess(),static_cast<DWORD>(-1), static_cast<DWORD>(-1));
 
