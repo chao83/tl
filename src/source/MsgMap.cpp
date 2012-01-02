@@ -13,13 +13,13 @@
 #include <cstdio>
 #include "SettingFile.h"
 
+std::map<TSTRING, TSTRING> & ExtraSettings();
+
 CSettingFile & Settings()
 {
-	static CSettingFile s_setting(_T("TL.ini"), true);
+	static CSettingFile s_setting(ExtraSettings()[_T("ini")].empty() ? _T("TL.ini") : ExtraSettings()[_T("ini")], true);
 	return s_setting;
 }
-
-std::map<TSTRING, TSTRING> & ExtraSettings();
 
 HWND g_hWnd;
 

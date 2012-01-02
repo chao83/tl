@@ -183,9 +183,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	path[n] = '\0';
 	SetCurrentDirectory(path);
 
+	ProcessArgs();
+
 	InitLanguage();
 // @fixme (lichao#1#): 完善命令行处理
-	ProcessArgs();
 	if (ExtraSettings()[_T("single-instance")] != _T("false")) {
 		TSTRING sid = ExtraSettings()[_T("sid")];
 		MustBeFirstInstance(sid.empty() ? _T("Tray Launcher") : sid.c_str());
