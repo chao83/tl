@@ -8,8 +8,9 @@ HWND & GHdlgRun();
 
 const UINT UM_UPDATEHINT = WM_USER + 2;
 
-HWND CreateRunDialog(HINSTANCE hInst, const int x = 0, const int y = 0);
-bool GetLastRunPos(int &x, int &y);
+HWND CreateRunDialog(HINSTANCE hInst);
+bool GetRunPos(int &x, int &y);
+bool SetRunPos(const int x, const int y);
 
 using ns_file_str_ops::ShellSuccess;
 
