@@ -1,4 +1,12 @@
-﻿[2011-12-15] v2.4.2
+﻿[2012-01-03] v2.5.0
+[TrayLauncher]
+Added	: run dialog match command name not only (but prefer) from beginning.
+Added	: run dialog try to execute when user click enter.(the list refreshes on each type, may be improved later.)
+Added	: remember run dialog position in setting file.
+Added	: new command line --sid=<session-id>, --ini=<setting-file>, for running multiple instances.
+Fixed	: do not disable the menu item any more if run failed, could be a UAC cancel.
+
+[2011-12-15] v2.4.2
 [TrayLauncher]
 Fixed	: Holding Ctrl to run as admin should work for mouse click too.
 Fixed	: error message not displayed if cancel run as admin in run dialog.
