@@ -1,4 +1,8 @@
-﻿[2012-01-03] v2.5.0
+﻿[2012-01-05] v2.5.1
+[TrayLauncher]
+Fixed	: run dialog position not saved on system shutdown or user logout.
+
+[2012-01-03] v2.5.0
 [TrayLauncher]
 Added	: run dialog match command name not only (but prefer) from beginning.
 Added	: run dialog try to execute when user click enter.(the list refreshes on each type, may be improved later.)
