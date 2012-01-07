@@ -21,6 +21,8 @@ CSettingFile & Settings()
 	return s_setting;
 }
 
+void SaveRunPos(); // save run dialog position to settings.
+
 HWND g_hWnd;
 
 #define ON_EXIT_SCOPE_EXEC(id, exprs) struct {\
@@ -814,6 +816,7 @@ LRESULT  MsgEndSession(HWND, UINT, WPARAM wParam, LPARAM)   // WM_ENDSESSION
 {
 	if (wParam) {
 		// 即将关闭会话
+		SaveRunPos();
 		Settings().Save();
 	}
 
@@ -1193,6 +1196,18 @@ LRESULT  MsgTaskbarCreated(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARA
 	return 0;
 }
 
+void SaveRunPos()
+{
+	int x = 0;
+	int y = 0;
+	GetRunPos(x, y);
+	TCHAR sz[64] = {0};
+	snwprintf(sz, sizeof(sz), _T("%d"), x);
+	Settings().Set(sectionGeneral, keyRunPosX, sz);
+	memset(sz, 0, sizeof(sz));
+	snwprintf(sz, sizeof(sz), _T("%d"), y);
+	Settings().Set(sectionGeneral, keyRunPosY, sz);
+}
 
 
 //! 退出程序
@@ -1208,15 +1223,8 @@ LRESULT  MsgDestroy(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 	g_pSysTray.Reset();
 	g_pTray.Reset();
-	int x = 0;
-	int y = 0;
-	GetRunPos(x, y);
-	TCHAR sz[64] = {0};
-	snwprintf(sz, sizeof(sz), _T("%d"), x);
-	Settings().Set(sectionGeneral, keyRunPosX, sz);
-	memset(sz, 0, sizeof(sz));
-	snwprintf(sz, sizeof(sz), _T("%d"), y);
-	Settings().Set(sectionGeneral, keyRunPosY, sz);
+	SaveRunPos();
+	Settings().Save();
 	PostQuitMessage(0);
 	return 0;
 }
