@@ -478,7 +478,7 @@ bool CMenuWithIcon::TryProcessCommand(unsigned int nSysID)
 		if (!ns_file_str_ops::Execute(strCmdLine, pOpr))
 		{
 			//执行命令失败
-			EnableMenuItem(Menu(),nSysID,MF_BYCOMMAND | MF_GRAYED);
+			//EnableMenuItem(Menu(),nSysID,MF_BYCOMMAND | MF_GRAYED); // maybe a UAC problem, don't disable for now.
 			MessageBox(NULL, Cmd(nSysID), _LNG(STR_Failed), MB_ICONERROR);
 			result = false;
 		}
@@ -1175,6 +1175,35 @@ unsigned int CMenuWithIcon::Find(const TSTRING & strName, TSTRING & strPath) con
 	return 0;
 }
 
+namespace {
+	struct MatchBegin
+	{
+		TSTRING m_str;
+		MatchBegin(const TSTRING &str):m_str(str){}
+		bool operator()(const TSTRING &dst) {
+			return dst.length() >= m_str.length() && dst.substr(0, m_str.length()) == m_str;
+		}
+	};
+	struct IsSubOf
+	{
+		TSTRING m_str;
+		IsSubOf(const TSTRING &str):m_str(str){}
+		bool operator()(const TSTRING &dst) {
+			return dst.length() >= m_str.length() && dst.find(m_str) != TSTRING::npos;
+		}
+	};
+}
+
+//! 找出部分匹配，加入到指定字符串向量末尾，bNoDup = true 已存在的跳过。
+unsigned int CMenuWithIcon::FindAll(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup) const
+{
+	if(strBeginWith.empty() || strBeginWith.length()>=MAX_PATH)
+		return 0;
+	TSTRING strSearch(strBeginWith);
+	ToLowerCase(strSearch);
+	IsSubOf sub(strSearch);
+	return FindIf(sub, vStrName, bAllowDup);
+}
 
 //! 找出部分匹配，加入到指定字符串向量末尾，bNoDup = true 已存在的跳过。
 unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::vector<TSTRING> &vStrName, bool bAllowDup) const
@@ -1183,46 +1212,8 @@ unsigned int CMenuWithIcon::FindAllBeginWith(const TSTRING& strBeginWith,std::ve
 		return 0;
 	TSTRING strSearch(strBeginWith);
 	ToLowerCase(strSearch);
-	const TSTRING::size_type size = strSearch.length();
-
-	unsigned int iFound = 0;
-
-	for(std::map<TSTRING,IDTYPE>::const_iterator iter = m_NameIdMap.begin(); iter != m_NameIdMap.end(); ++iter) { //m_NameIdMap是按照字母表顺序的
-		if(iter->first.length() >= size && iter->first.substr(0,size) == strSearch) {
-			bool bIgnoreThis = false;
-			if (!bAllowDup) {
-				for (std::vector<TSTRING>::size_type i = 0; i < vStrName.size(); ++i) {
-					if (vStrName[i].length() == iter->first.length() && IsStrEndWith(vStrName[i],iter->first,false)) {
-						//不考虑大小写，相同
-						bIgnoreThis = true;
-						break;
-					}
-				}
-			}
-			if (!bIgnoreThis) {
-				const TCHAR * pCmd = Cmd(iter->second); //用于排除标题。
-				if (pCmd && *pCmd) {
-					++iFound;
-					tString strName = ItemName(iter->second);
-					//移除每次出现的第一个 &
-					TSTRING::size_type len = strName.length();
-					TSTRING::size_type move = 0;
-					for (TSTRING::size_type j = 0; j < len; ++j) {
-						if(strName[j] == '&') {
-							++move;
-							++j;
-						}
-						if(move)
-							strName[j-move] = strName[j];
-					}
-					//截断;
-					strName.resize(strName.size() - move);
-					vStrName.push_back(strName);
-				}
-			}
-		}
-	}
-	return iFound;
+	MatchBegin match(strSearch);
+	return FindIf(match, vStrName, bAllowDup);
 }
 
 

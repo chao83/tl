@@ -27,6 +27,39 @@ bool IsOnlyInstance()
 
 IMPLEMENT_APP(TLMenuCfgApp);
 
+
+//! ExtraSettings: 命令行参数的设置项目
+std::map<wxString, wxString> & ExtraSettings()
+{
+	static std::map<wxString, wxString> setting;
+	return setting;
+}
+
+
+
+//! ProcessArgSettings: 提取命令行参数设置
+
+//! @param argc : 参数个数
+//! @param argv : 参数字符串数组
+//! @return void :
+//! @author lichao
+//! @date 2009-10-13
+//! @note [无]
+void ProcessArgSettings(int argc, TCHAR ** argv)
+{
+	wxString str;
+	for (int i = 1; i < argc; ++i) {
+		str = argv[i];
+		int n = str.find('=');
+		if (TSTRING::npos != static_cast<unsigned int>(n) && n > 2) {
+			if (str.substr(0,2) == _T("--"))
+			{
+				ExtraSettings()[str.substr(2,n-2)] = str.substr(n+1);
+			}
+		}
+	}
+}
+
 bool TLMenuCfgApp::OnInit()
 {
 	if (!IsOnlyInstance())
@@ -42,10 +75,11 @@ bool TLMenuCfgApp::OnInit()
     wxInitAllImageHandlers();
     if ( wxsOK )
     {
-    TLMenuCfgDialog Dlg(0);
-    SetTopWindow(&Dlg);
-    Dlg.ShowModal();
-    wxsOK = false;
+		ProcessArgSettings(argc, argv);
+		TLMenuCfgDialog Dlg(0);
+		SetTopWindow(&Dlg);
+		Dlg.ShowModal();
+		wxsOK = false;
     }
     //*)
 

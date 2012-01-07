@@ -30,9 +30,12 @@
 
 #define STC_ASSERT(expr) { typedef int Arr[(expr)?1:-1]; }
 
+
+std::map<wxString, wxString> & ExtraSettings();
+
 CSettingFile & Settings()
 {
-	static CSettingFile settings(_T("TL.ini"));
+	static CSettingFile settings(ExtraSettings()[_T("ini")].empty() ? _T("TL.ini") : static_cast<const TCHAR *>(ExtraSettings()[_T("ini")].c_str()));
 	return settings;
 }
 

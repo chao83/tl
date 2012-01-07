@@ -10,13 +10,18 @@
 #include "Hotkey.h"
 #include "MsgMap.h"
 //#include <gdiplus.h>
+#include <cstdio>
 #include "SettingFile.h"
+
+std::map<TSTRING, TSTRING> & ExtraSettings();
 
 CSettingFile & Settings()
 {
-	static CSettingFile s_setting(_T("TL.ini"), true);
+	static CSettingFile s_setting(ExtraSettings()[_T("ini")].empty() ? _T("TL.ini") : ExtraSettings()[_T("ini")], true);
 	return s_setting;
 }
+
+void SaveRunPos(); // save run dialog position to settings.
 
 HWND g_hWnd;
 
@@ -488,11 +493,16 @@ void Systray(const HWND hWnd, const DWORD dwMessage, ICONTYPE hIcon = NULL, cons
 	nid.uFlags = NIF_ICON|NIF_MESSAGE|NIF_TIP|NIF_INFO|NIIF_INFO;
 	nid.uCallbackMessage = UM_ICONNOTIFY;
 	nid.hIcon = hIcon ? hIcon : LoadIcon(ThisHinstGet(), MAKEINTRESOURCE(IDI_TRAYSTART));
-	const TCHAR strTip[] = _T("Tray Launcher");
-	memcpy(nid.szTip, strTip, sizeof(strTip) );
+	TSTRING strTip = _T("Tray Launcher");
+	TSTRING sid(ExtraSettings()[_T("sid")]);
+	if (!sid.empty())
+	{
+		strTip += _T(" [") + sid + _T("]");
+	}
+	memcpy(nid.szTip, strTip.c_str(), sizeof(strTip[0]) * (strTip.length() + 1));
 
 	if (strInfo.length()) {
-		memcpy(nid.szInfoTitle, strTip, sizeof(strTip) );
+		memcpy(nid.szInfoTitle, strTip.c_str(), sizeof(strTip[0]) * (strTip.length() + 1));
 		memcpy(nid.szInfo, strInfo.c_str(), sizeof(TCHAR) * strInfo.length());
 		nid.uTimeout = 5000;
 	}
@@ -598,7 +608,7 @@ void ShowRunDlg()
 
 	if (!GHdlgRun()) {
 		UpdateMenu();
-		GHdlgRun() = CreateDialog(ThisHinstGet(),MAKEINTRESOURCE(IDD_RUN), NULL, RunDlgProc);
+		GHdlgRun() = CreateRunDialog(ThisHinstGet());
 	} else if (IsWindowVisible(GHdlgRun())) {
 		nCmdShow = SW_HIDE;
 	} else {
@@ -668,7 +678,7 @@ int MyProcessCommand(HWND hWnd, int id)
 		//break;
 	case EDITCMDS:
 		Settings().Save();
-		if(	!ShellSuccess(ShellExecute(NULL, _T("open"), _T(".\\TLMenuCfg.exe"), g_fileName.c_str(), NULL,SW_SHOW)) &&
+		if(	!ShellSuccess(ShellExecute(NULL, _T("open"), _T(".\\TLMenuCfg.exe"), (_T("\"--ini=") + ExtraSettings()[_T("ini")] + _T("\"")).c_str(), NULL,SW_SHOW)) &&
 			!ShellSuccess(ShellExecute(NULL,NULL,g_fileName.c_str(),NULL,NULL,SW_SHOW))) {
 			//执行命令失败
 			if(ShellSuccess(ShellExecute(NULL, _T("open"), _T("notepad.exe"), g_fileName.c_str(),NULL,SW_SHOW)))
@@ -806,6 +816,7 @@ LRESULT  MsgEndSession(HWND, UINT, WPARAM wParam, LPARAM)   // WM_ENDSESSION
 {
 	if (wParam) {
 		// 即将关闭会话
+		SaveRunPos();
 		Settings().Save();
 	}
 
@@ -1120,6 +1131,19 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 		CheckMenuItem(g_pSysTray->Menu(),MCLICK,MF_BYCOMMAND | MF_UNCHECKED);
 	}
 
+	// init run dialog pos
+
+	TSTRING strPos;
+	int run_pos_x = 300;
+	int run_pos_y = 400;
+	if (Settings().Get(sectionGeneral, keyRunPosX, strPos)) {
+		run_pos_x = _ttoi(strPos.c_str());
+	}
+	if (Settings().Get(sectionGeneral, keyRunPosY, strPos)) {
+		run_pos_y = _ttoi(strPos.c_str());
+	}
+	SetRunPos(run_pos_x, run_pos_y);
+
 	SetProcessWorkingSetSize(GetCurrentProcess(),static_cast<DWORD>(-1), static_cast<DWORD>(-1));
 
 	return 0;
@@ -1172,6 +1196,18 @@ LRESULT  MsgTaskbarCreated(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARA
 	return 0;
 }
 
+void SaveRunPos()
+{
+	int x = 0;
+	int y = 0;
+	GetRunPos(x, y);
+	TCHAR sz[64] = {0};
+	snwprintf(sz, sizeof(sz), _T("%d"), x);
+	Settings().Set(sectionGeneral, keyRunPosX, sz);
+	memset(sz, 0, sizeof(sz));
+	snwprintf(sz, sizeof(sz), _T("%d"), y);
+	Settings().Set(sectionGeneral, keyRunPosY, sz);
+}
 
 
 //! 退出程序
@@ -1187,6 +1223,8 @@ LRESULT  MsgDestroy(HWND hWnd, UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 	g_pSysTray.Reset();
 	g_pTray.Reset();
+	SaveRunPos();
+	Settings().Save();
 	PostQuitMessage(0);
 	return 0;
 }

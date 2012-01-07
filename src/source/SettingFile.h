@@ -50,6 +50,8 @@ CSTR keySkin = _T("skin");
 CSTR keyShowOpenHere = _T("ShowOpenHere");
 CSTR keyPriority = _T("priority");
 CSTR keyDisableSysMenu = _T("nosysmenu");
+CSTR keyRunPosX = _T("runposx");
+CSTR keyRunPosY = _T("runposy");
 
 CSTR sectionHistory = _T("history");
 CSTR sectionColor = _T("color");
