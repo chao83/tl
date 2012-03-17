@@ -1,4 +1,9 @@
-﻿[2012-01-05] v2.5.1
+﻿[2012-02-12] v2.5.2
+[TrayLauncher]
+Added	: display language version in language menu.
+Added	: updated default command example.
+
+[2012-01-05] v2.5.1
 [TrayLauncher]
 Fixed	: run dialog position not saved on system shutdown or user logout.
 

@@ -98,13 +98,14 @@ const UINT ID_TASKBARICON = 10;
 const UINT UM_ICONNOTIFY = WM_USER + 1;
 
 
-const TSTRING GetLngName(const TSTRING & strFileName);
+const TSTRING GetLngInfo(const TSTRING & strFileName, const TSTRING &strKey);
 const TSTRING GetLngMenuStr(const TSTRING & strFileName)
 {
 	if (strFileName.empty())
 		return strFileName;
 
-	return GetLngName(strFileName) + _T(" @ ") + strFileName;
+	return GetLngInfo(strFileName, _T("Language")) + _T(" ") +
+			GetLngInfo(strFileName, _T("Version")) + _T(" @ ") + strFileName;
 }
 
 TSTRING g_fileName = TEXT(".\\TLCmd.txt");
