@@ -185,7 +185,7 @@ bool SetLanguageFile(const TCHAR * szFileName)
 	return MainLng().SetLngFile(strFile.c_str());
 }
 
-const TSTRING GetLngName(const TSTRING & strFileName)
+const TSTRING GetLngInfo(const TSTRING & strFileName, const TSTRING & strInfoKey)
 {
 	TSTRING strLngName; // return it
 
@@ -202,7 +202,7 @@ const TSTRING GetLngName(const TSTRING & strFileName)
 	}
 
 	const TSTRING strSpaceChars(L" \t\r\n");
-	const TSTRING strKey(L";Language");
+	const TSTRING strKey(L";" + strInfoKey);
 	const TSTRING strSeparator(L":");
 	TSTRING strLine;
 	while (ns_file_str_ops::GetLine(file, strLine)) {
