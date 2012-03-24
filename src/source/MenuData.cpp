@@ -1,5 +1,7 @@
 
 #include "MenuData.h"
+#include "xmlmenudata.h"
+
 using namespace ns_file_str_ops;
 
 CItem::CItem( Prm strName, Prm strPath, Prm strEx):m_str(3){
@@ -71,6 +73,10 @@ bool CMenuData::SaveAs(CRTS strFileName, TCHAR pad, int nPad, int step) const {
 		_fputtc(0xfeff, outfile.Get());
 		r = OutPut(outfile, pad, nPad, step);
 	}
+	XmlMenuData xmd;
+	//todo  add encoding= "utf-8";
+	MenuDataToXml(*this, xmd);
+	xmd.SaveFile(_T("d:\\temp\\tmp.xml"));
 	return r;
 }
 
