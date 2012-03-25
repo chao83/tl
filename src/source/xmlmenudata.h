@@ -20,7 +20,7 @@ private:
 
 class CMenuData;
 
-bool XmlToMenuData(const XmlMenuData &xd, CMenuData &md);
+bool XmlToMenuData(XmlMenuData &xd, CMenuData &md);
 bool MenuDataToXml(const CMenuData &md, XmlMenuData &xd);
 
 #endif // XMLMENUDATA_H

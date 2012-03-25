@@ -27,6 +27,23 @@ const std::wstring ToWstring(const std::string & str, const int cp)
 }
 using namespace pugi;
 
+// xml node and attribute names:
+
+typedef const char * const XmlName;
+XmlName xn_root = "root";
+
+// names for xml menu
+XmlName xn_menu_root = "menu";
+XmlName xn_item = "item";
+XmlName xn_sub = "is_menu";
+XmlName xn_name = "name";
+XmlName xn_path = "path";
+XmlName xn_icon = "icon";
+
+typedef const TCHAR * const XmlValue;
+XmlValue xv_true = _T("true");
+
+
 XmlMenuData::XmlMenuData()
 {
 	//ctor
@@ -99,15 +116,27 @@ inline const std::string TStringToUTF8(const TString &str)
 	return ToString(str, CP_UTF8);
 }
 
+inline void set_xml_attr(xml_node node, const pugi::char_t *name, const TString & value)
+{
+	if (!value.empty()) {
+		got_attribute(node, name) = TStringToUTF8(value).c_str();
+	}
+}
+
+inline const TString get_item_attr(xml_node node, const pugi::char_t *name)
+{
+	return UTF8ToTString(node.attribute(name).value());
+}
+
+
 inline bool IsSubMenu(xml_node item)
 {
-	// if it has "item" in it.
-	return item.child("item") && item.attribute("sub").value() == std::string("true");
+	return get_item_attr(item, xn_sub) == xv_true && item.child(xn_item);
 }
 
 inline bool IsMenuItem(xml_node item)
 {
-	return item.attribute("sub").value() != std::string("true");
+	return get_item_attr(item, xn_sub) != xv_true;
 }
 
 bool XmlToMD(xml_node node, CMenuData & menu)
@@ -116,20 +145,23 @@ bool XmlToMD(xml_node node, CMenuData & menu)
 		return false;
 	}
 
-	for (xml_node item = node.child("item"); item; item = item.next_sibling("item")) {
+	for (xml_node item = node.child(xn_item); item; item = item.next_sibling(xn_item)) {
 		if (IsSubMenu(item)) {
 			///
 			menu.AddMenu(menu.Count(), _T(""), _T(""));
 			CMenuData *pSub = menu.Menu(menu.Count()-1);
 			if (pSub) {
-				// set attrib
+				pSub->Name(get_item_attr(item, xn_name));
+				pSub->Icon(get_item_attr(item, xn_icon));
 				XmlToMD(item, *pSub);
 			}
 		} else if (IsMenuItem(item)) {
 			menu.AddItem(menu.Count(), _T(""), _T(""));
 			CItem *pItem = menu.Item(menu.Count()-1);
 			if (pItem) {
-				// set attrib
+				pItem->Name(get_item_attr(item, xn_name));
+				pItem->Path(get_item_attr(item, xn_path));
+				pItem->Ex(get_item_attr(item, xn_icon));
 			}
 		} else {
 			// other thing?
@@ -138,19 +170,6 @@ bool XmlToMD(xml_node node, CMenuData & menu)
 	return true;
 }
 
-#define SET_XML_ITEM(node, name, value) \
-do {\
-	if (!value.empty()) {\
-		set_child_text(node, name, TStringToUTF8(value).c_str());\
-	}\
-} while(0)
-
-#define SET_XML_ATTR(node, name, value) \
-do {\
-	if (!value.empty()) {\
-		got_attribute(node, name) = TStringToUTF8(value).c_str();\
-	}\
-} while(0)
 
 bool MDToXml(const CMenuData &menu, xml_node node)
 {
@@ -160,24 +179,24 @@ bool MDToXml(const CMenuData &menu, xml_node node)
 
 	for (unsigned i = 0; i < menu.Count(); ++i) {
 		if (menu.IsMenu(i)) {
-			xml_node sub = node.append_child("item");
+			xml_node sub = node.append_child(xn_item);
 			if (sub) {
 				const CMenuData *p = menu.Menu(i);
-				// copy sub menu attribs
-				got_attribute(sub, "sub") = "true";
-				SET_XML_ATTR(sub, "name", p->Name());
-				SET_XML_ATTR(sub, "icon", p->Icon());
+				// set node attribs for sub menu
+				set_xml_attr(sub, xn_sub, xv_true);
+
+				set_xml_attr(sub, xn_name, p->Name());
+				set_xml_attr(sub, xn_icon, p->Icon());
 				MDToXml(*menu.Menu(i), sub);
 			}
 		} else {
-			xml_node item = node.append_child("item");
+			xml_node item = node.append_child(xn_item);
 			if (item) {
 				const CItem *p = menu.Item(i);
-				// copy item attribs
-				SET_XML_ATTR(item, "name", p->Name());
+				set_xml_attr(item, xn_name, p->Name());
 
-				SET_XML_ATTR(item, "path", p->Path());
-				SET_XML_ATTR(item, "icon", p->Ex());
+				set_xml_attr(item, xn_path, p->Path());
+				set_xml_attr(item, xn_icon, p->Ex());
 			}
 		}
 	}
@@ -188,13 +207,13 @@ bool MDToXml(const CMenuData &menu, xml_node node)
 bool XmlToMenuData(XmlMenuData &xd, CMenuData &md)
 {
 	xml_document & doc = xd.XmlDoc();
-	xml_node menu_root = doc.child("root").child("menu");
+	xml_node menu_root = doc.child(xn_root).child(xn_menu_root);
 	return XmlToMD(menu_root, md);
 }
 
 bool MenuDataToXml(const CMenuData &md, XmlMenuData &xd)
 {
 	xml_document & doc = xd.XmlDoc();
-	xml_node menu_root = got_child(got_child(doc, "root"), "menu");
+	xml_node menu_root = got_child(got_child(doc, xn_root), xn_menu_root);
 	return MDToXml(md, menu_root);
 }
