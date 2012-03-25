@@ -67,25 +67,35 @@ bool CMenuData::Remove(Ui pos) {
 }
 
 bool CMenuData::SaveAs(CRTS strFileName, TCHAR pad, int nPad, int step) const {
-	wukong::file_ptr outfile(strFileName.c_str(), _T("wb"));
 	bool r(false);
-	if (outfile.Get()) {
-		_fputtc(0xfeff, outfile.Get());
-		r = OutPut(outfile, pad, nPad, step);
+	if (IsStrEndWith(strFileName, _T(".xml"), false)) {
+		XmlMenuData xmd;
+		//todo  add encoding= "utf-8";
+		MenuDataToXml(*this, xmd);
+		r = xmd.SaveFile(strFileName);
+	} else {
+		wukong::file_ptr outfile(strFileName.c_str(), _T("wb"));
+		if (outfile.Get()) {
+			_fputtc(0xfeff, outfile.Get());
+			r = OutPut(outfile, pad, nPad, step);
+		}
 	}
-	XmlMenuData xmd;
-	//todo  add encoding= "utf-8";
-	MenuDataToXml(*this, xmd);
-	xmd.SaveFile(_T("d:\\temp\\tmp.xml"));
 	return r;
 }
 
 int CMenuData::Load(CRTS strFileName) {
-	wukong::file_ptr file(strFileName.c_str(), _T("rb"));
 	int r(0);
-	if (file.Get() && _fgettc(file.Get()) == 0xfeff){
-		Clear();
-		r = LoadFile(file.Get());
+
+	if (IsStrEndWith(strFileName, _T(".xml"), false)) {
+		XmlMenuData xmd;
+		xmd.LoadFile(strFileName);
+		r = XmlToMenuData(xmd, *this);
+	} else {
+		wukong::file_ptr file(strFileName.c_str(), _T("rb"));
+		if (file.Get() && _fgettc(file.Get()) == 0xfeff){
+			Clear();
+			r = LoadFile(file.Get());
+		}
 	}
 	return r;
 }
