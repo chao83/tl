@@ -38,6 +38,8 @@ void CMenuData::Clear() {
 	m_sub.clear();
 }
 
+
+
 bool CMenuData::AddItem (Ui pos, Prm strName, Prm strPath, Prm strEx) {
 	if ( pos >= 0 && pos <= m_sub.size() ) {
 		CItem * p = new CItem(strName, strPath, strEx);
@@ -122,7 +124,27 @@ bool CMenuData::OutPut(FILE * pFile, TCHAR pad, int nPad, int step) const {
 	return true;
 }
 
+namespace {
 
+void SepPathAndIcon(TSTRING &strPath, TSTRING &strIcon)
+{
+	TSTRING strSep(_T("|||"));
+	const TSTRING & strPathAndIcon = strPath;
+	TSTRING::size_type sepPos = strPathAndIcon.find(strSep);
+
+	if (TSTRING::npos != sepPos)
+	{
+		strIcon = ns_file_str_ops::StripSpaces( strPathAndIcon.substr(sepPos + strSep.length()) );
+		strPath = ns_file_str_ops::StripSpaces( strPathAndIcon.substr(0, sepPos) );
+
+		if (!strIcon.empty() && '\"' == strIcon[0]) {
+			TSTRING::size_type pos = strIcon.find('\"', 1);
+			strIcon = strIcon.substr(1, pos == TSTRING::npos ? pos : pos - 1);
+		}
+	}
+}
+
+}
 int CMenuData::LoadFile(FILE *pFile) {
 
 	assert(pFile);
@@ -162,7 +184,11 @@ int CMenuData::LoadFile(FILE *pFile) {
 				return nItems;
 				//break;
 			default:
-				nItems += AddItem(Count(), strName, strPath);
+				{
+					TSTRING strIcon;
+					SepPathAndIcon(strPath, strIcon);
+					nItems += AddItem(Count(), strName, strPath, strIcon);
+				}
 				break;
 		}
 	}
