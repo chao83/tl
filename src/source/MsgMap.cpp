@@ -886,7 +886,7 @@ const TSTRING TryUpdateMenuFileToXml(const TSTRING & strFileName)
 	TSTRING new_name(strFileName);
 	// update to xml format.
 	if (!ns_file_str_ops::IsStrEndWith(strFileName, _T(".xml"), false)) {
-		if (IDYES == MessageBox(NULL, _LNG(ASK_UPDATE_COMMAND_FILE_TO_XML), _LNG(STR_DlgTitle), MB_YESNO)) {
+		if (IDYES == MessageBox(NULL, _LNG(STR_ASK_UPDATE_MENU_FILE_TO_XML), _T("Tray Launcher"), MB_YESNO)) {
 			CMenuData tmp(_T("root"));
 			tmp.Load(strFileName);
 			const TSTRING prefix = strFileName.substr(0, strFileName.find_last_of('.'));
