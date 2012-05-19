@@ -857,17 +857,6 @@ void TLMenuCfgDialog::OnInit(wxInitDialogEvent& event)
 		}
 	}
 
-	// update to xml format.
-	if (!ns_file_str_ops::IsStrEndWith(m_fileName, _T(".xml"), false)) {
-		if (wxYES == wxMessageBox(_LNG(ASK_UPDATE_COMMAND_FILE_TO_XML), _LNG(STR_DlgTitle), wxYES_NO)) {
-			CMenuData tmp(_T("root"));
-			tmp.Load(m_fileName);
-			TSTRING new_name = m_fileName.substr(0, m_fileName.find_last_of('.')) + _T(".xml");
-			tmp.SaveAs(new_name);
-			Settings().Set(sectionGeneral, keyCommand, new_name, true);
-			m_fileName = new_name;
-		}
-	}
 
 	m_menuData.Load(m_fileName);
 
