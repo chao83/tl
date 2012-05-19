@@ -258,7 +258,7 @@ int BuildMenuFromFile(const TCHAR * strFile)
 
 	if(!file) {
 		nItems = -1; // 打开文件错误
-	} else if (_fgettc(file) != 0xfeff) {
+	} else if (!ns_file_str_ops::IsStrEndWith(strFile, _T(".xml"), false) && _fgettc(file) != 0xfeff) {
 		MessageBox(NULL, _LNG(STR_cmd_file_not_UNICODE),NULL,MB_OK);
 	} else {
 		file.Reset();
