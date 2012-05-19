@@ -881,6 +881,30 @@ bool AddHotkey(HWND hWnd, int id, UINT fsModifiers, UINT vk)
 }
 
 
+const TSTRING TryUpdateMenuFileToXml(const TSTRING & strFileName)
+{
+	TSTRING new_name(strFileName);
+	// update to xml format.
+	if (!ns_file_str_ops::IsStrEndWith(strFileName, _T(".xml"), false)) {
+		if (IDYES == MessageBox(NULL, _LNG(ASK_UPDATE_COMMAND_FILE_TO_XML), _LNG(STR_DlgTitle), MB_YESNO)) {
+			CMenuData tmp(_T("root"));
+			tmp.Load(strFileName);
+			const TSTRING prefix = strFileName.substr(0, strFileName.find_last_of('.'));
+			new_name = prefix + _T(".xml");
+			// get new xml file name.
+			int n = 1;
+			while (file_ptr(new_name.c_str(), _T("rb"))) {
+				TCHAR num[64] = {0};
+				_stprintf(num, _T("%d"), n++);
+				new_name = prefix + _T("_") + num + _T(".xml");
+			}
+			tmp.SaveAs(new_name);
+		}
+	}
+	return new_name;
+}
+
+
 // 以下是不同消息相应的处理函数 : Msg....(HWND, UINT, WPARAM, LPARAM) ;
 // WM_CREATE
 LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* lParam */)
@@ -1076,12 +1100,12 @@ LRESULT  MsgCreate(HWND hWnd, UINT /*message*/, WPARAM /* wParam */, LPARAM /* l
 	if(Settings().Get(sectionGeneral, keyCommand, strFileName)) {
 		g_fileName = strFileName;
 	} else {
-		Settings().Set(sectionGeneral, keyCommand, g_fileName, true);
 		const BOOL no_over_write = TRUE;
 		CopyFile(_T(".\\tlcmd.example"), g_fileName.c_str(), no_over_write);
 	}
 
-
+	g_fileName = TryUpdateMenuFileToXml(g_fileName);
+	Settings().Set(sectionGeneral, keyCommand, g_fileName, true);
 	//BuildMenuFromFile(g_fileName.c_str());
 	UpdateMenu();
 
